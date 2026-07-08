@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+
+        <!--
+            PROJECT — READ RULE
+            Portal user can see a project if they are a FOLLOWER of it.
+        -->
+        <record id="rule_project_project_portal_read" model="ir.rule">
+            <field name="name">Portal: Read projects they follow</field>
+            <field name="model_id" ref="project.model_project_project"/>
+            <field name="domain_force">
+                [('message_partner_ids', 'in', [user.partner_id.id])]
+            </field>
+            <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <!--
+            TASK — READ RULE
+            A portal user can read ANY task (root or subtask) if they
+            follow the task's project.
+        -->
+        <record id="rule_project_task_portal_read" model="ir.rule">
+            <field name="name">Portal: Read tasks of followed projects</field>
+            <field name="model_id" ref="project.model_project_task"/>
+            <field name="domain_force">
+                [('project_id.message_partner_ids', 'in', [user.partner_id.id])]
+            </field>
+            <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <!--         
+            TASK — WRITE RULE
+            Portal user may edit a task (e.g. change its stage) ONLY if:
+            - they follow the task's project, AND
+            - the task is a SUBTASK
+        -->
+        <record id="rule_project_task_portal_write" model="ir.rule">
+            <field name="name">Portal: Write subtasks of followed projects</field>
+            <field name="model_id" ref="project.model_project_task"/>
+            <field name="domain_force">
+                [('project_id.message_partner_ids', 'in', [user.partner_id.id]), ('parent_id', '!=', False)]
+            </field>
+            <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <!--
+            TASK — CREATE RULE
+            Portal user may create a task ONLY if:
+            - they follow the parent project, AND
+            - the new record has parent_id set
+        -->
+        <record id="rule_project_task_portal_create" model="ir.rule">
+            <field name="name">Portal: Create subtasks in followed projects</field>
+            <field name="model_id" ref="project.model_project_task"/>
+            <field name="domain_force">
+                [('project_id.message_partner_ids', 'in', [user.partner_id.id]), ('parent_id', '!=', False)]
+            </field>
+            <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <!--
+            SPRINT — READ RULE
+            Portal user can see a sprint if they follow its project.
+        -->
+        <record id="rule_project_scrum_sprint_portal_read" model="ir.rule">
+            <field name="name">Portal: Read sprints of followed projects</field>
+            <field name="model_id" ref="scrum_management.model_project_scrum_sprint"/>
+            <field name="domain_force">
+                [('project_id.message_partner_ids', 'in', [user.partner_id.id])]
+            </field>
+            <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+
+        <!--
+            TIMESHEET — READ RULE
+            Portal user can read timesheets on tasks belonging to projects they follow.
+        -->
+        <record id="rule_analytic_line_portal_read" model="ir.rule">
+            <field name="name">Portal: Read timesheets of followed projects</field>
+            <field name="model_id" ref="hr_timesheet.model_account_analytic_line"/>
+            <field name="domain_force">
+                [('project_id.message_partner_ids', 'in', [user.partner_id.id])]
+            </field>
+            <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <!--
+            TIMESHEET — WRITE / CREATE RULE
+            Portal user can only write/create timesheets where the employee
+            matches their own linked employee record.
+        -->
+        <record id="rule_analytic_line_portal_write" model="ir.rule">
+            <field name="name">Portal: Write own timesheets only</field>
+            <field name="model_id" ref="hr_timesheet.model_account_analytic_line"/>
+            <field name="domain_force">
+                [('employee_id.user_id', '=', user.id)]
+            </field>
+            <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <!--
+            HR EMPLOYEE — READ RULE
+            Portal user can only read their own employee record.
+        -->
+        <record id="rule_hr_employee_portal_read" model="ir.rule">
+            <field name="name">Portal: Read own employee record only</field>
+            <field name="model_id" ref="hr.model_hr_employee"/>
+            <field name="domain_force">
+                [('user_id', '=', user.id)]
+            </field>
+            <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+    </data>
+</odoo>

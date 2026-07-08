@@ -1,0 +1,8 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_project_project_portal,project.project.portal,project.model_project_project,base.group_portal,1,0,0,0
+access_project_task_portal,project.task.portal,project.model_project_task,base.group_portal,1,1,1,0
+access_project_project_stage_portal,project.project.stage.portal,project.model_project_project_stage,base.group_portal,1,0,0,0
+access_project_scrum_sprint_portal,project.scrum.sprint.portal,scrum_management.model_project_scrum_sprint,base.group_portal,1,0,0,0
+access_project_task_type_portal,project.task.type.portal,project.model_project_task_type,base.group_portal,1,0,0,0
+access_account_analytic_line_portal,account.analytic.line.portal,hr_timesheet.model_account_analytic_line,base.group_portal,1,1,1,0
+access_hr_employee_portal,hr.employee.portal,hr.model_hr_employee,base.group_portal,1,0,0,0

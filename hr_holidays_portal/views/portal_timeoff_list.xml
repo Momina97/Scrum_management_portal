@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="portal_my_timeoff" name="My Time Off Requests">
+        <t t-call="portal.portal_layout">
+
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title">Time Off</t>
+            </t>
+
+            <!-- Balance Summary -->
+            <div class="container mt-4">
+                <h4>Leave Balance</h4>
+                <t t-if="balance">
+                    <div class="row">
+                        <t t-foreach="balance" t-as="b">
+                            <div class="col-md-3 col-sm-6 mb-3">
+                                <div class="card text-center shadow-sm">
+                                    <div class="card-body">
+                                        <h6 class="card-title text-muted">
+                                            <t t-esc="b['name']"/>
+                                        </h6>
+                                        <h2 class="text-primary">
+                                            <t t-esc="b['remaining']"/>
+                                        </h2>
+                                        <small class="text-muted">
+                                            days remaining of
+                                            <t t-esc="b['allocated']"/>
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+                    </div>
+                </t>
+                <t t-else="">
+                    <p class="text-muted">No leave allocations found.</p>
+                </t>
+            </div>
+
+            <!-- Apply Button -->
+            <div class="container mt-2 mb-4">
+                <a href="/my/timeoff/new" class="btn btn-primary">
+                    Apply for Leave
+                </a>
+            </div>
+
+            <!-- Leave Requests Table -->
+            <div class="container">
+                <h4>My Requests</h4>
+                <t t-if="leaves">
+                    <table class="table table-hover o_portal_my_doc_table">
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>From</th>
+                                <th>To</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="leaves" t-as="leave">
+                                <tr>
+                                    <td>
+                                        <a t-attf-href="/my/timeoff/#{leave.id}">
+                                            <t t-esc="leave.holiday_status_id.name"/>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <span t-field="leave.date_from"
+                                              t-options='{"widget": "date"}'/>
+                                    </td>
+                                    <td>
+                                        <span t-field="leave.date_to"
+                                              t-options='{"widget": "date"}'/>
+                                    </td>
+                                    <td>
+                                        <t t-if="leave.state == 'draft'">
+                                            <span class="badge bg-secondary">Draft</span>
+                                        </t>
+                                        <t t-elif="leave.state == 'confirm'">
+                                            <span class="badge bg-warning text-dark">Waiting Approval</span>
+                                        </t>
+                                        <t t-elif="leave.state in ('validate1', 'validate')">
+                                            <span class="badge bg-success">Approved</span>
+                                        </t>
+                                        <t t-elif="leave.state == 'refuse'">
+                                            <span class="badge bg-danger">Refused</span>
+                                        </t>
+                                    </td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+                    <div t-if="pager" class="o_portal_pager text-center">
+                        <t t-call="portal.pager"/>
+                    </div>
+                </t>
+                <t t-else="">
+                    <p class="text-muted">You have no leave requests yet.</p>
+                </t>
+            </div>
+
+        </t>
+    </template>
+
+</odoo>

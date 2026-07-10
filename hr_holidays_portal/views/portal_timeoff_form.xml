@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="portal_timeoff_new" name="Apply for Leave">
+        <t t-call="portal.portal_layout">
+
+            <t t-set="breadcrumbs_searchbar" t-value="False"/>
+
+            <div class="container mt-4">
+
+                <!-- Breadcrumb -->
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <a href="/my/timeoff">Time Off</a>
+                        </li>
+                        <li class="breadcrumb-item active">New Request</li>
+                    </ol>
+                </nav>
+
+                <h4>Apply for Leave</h4>
+
+                <!-- General error -->
+                <t t-if="errors.get('general')">
+                    <div class="alert alert-danger">
+                        <t t-esc="errors['general']"/>
+                    </div>
+                </t>
+
+                <form action="/my/timeoff/new" method="POST">
+                    <input type="hidden" name="csrf_token"
+                           t-att-value="request.csrf_token()"/>
+
+                    <!-- Leave Type -->
+                    <div class="mb-3">
+                        <label for="leave_type_id" class="form-label fw-bold">
+                            Leave Type <span class="text-danger">*</span>
+                        </label>
+                        <select name="leave_type_id" id="leave_type_id"
+                                t-attf-class="form-select #{'is-invalid' if errors.get('leave_type_id') else ''}">
+                            <option value="">-- Select a leave type --</option>
+                            <t t-foreach="leave_types" t-as="lt">
+                                <option t-att-value="lt.id"
+                                        t-att-selected="str(lt.id) == str(post.get('leave_type_id', ''))">
+                                    <t t-esc="lt.name"/>
+                                </option>
+                            </t>
+                        </select>
+                        <t t-if="errors.get('leave_type_id')">
+                            <div class="invalid-feedback">
+                                <t t-esc="errors['leave_type_id']"/>
+                            </div>
+                        </t>
+                    </div>
+
+                    <!-- Date From -->
+                    <div class="mb-3">
+                        <label for="date_from" class="form-label fw-bold">
+                            From <span class="text-danger">*</span>
+                        </label>
+                        <input type="date" name="date_from" id="date_from"
+                               t-att-value="post.get('date_from', '')"
+                               t-attf-class="form-control #{'is-invalid' if errors.get('date_from') else ''}"/>
+                        <t t-if="errors.get('date_from')">
+                            <div class="invalid-feedback">
+                                <t t-esc="errors['date_from']"/>
+                            </div>
+                        </t>
+                    </div>
+
+                    <!-- Date To -->
+                    <div class="mb-3">
+                        <label for="date_to" class="form-label fw-bold">
+                            To <span class="text-danger">*</span>
+                        </label>
+                        <input type="date" name="date_to" id="date_to"
+                               t-att-value="post.get('date_to', '')"
+                               t-attf-class="form-control #{'is-invalid' if errors.get('date_to') else ''}"/>
+                        <t t-if="errors.get('date_to')">
+                            <div class="invalid-feedback">
+                                <t t-esc="errors['date_to']"/>
+                            </div>
+                        </t>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="mb-3">
+                        <label for="description" class="form-label fw-bold">
+                            Reason <span class="text-danger">*</span>
+                        </label>
+                        <textarea name="description" id="description"
+                                t-attf-class="form-control #{'is-invalid' if errors.get('description') else ''}"
+                                rows="3" required="">
+                            <t t-esc="post.get('description', '')"/>
+                        </textarea>
+                        <t t-if="errors.get('description')">
+                            <div class="invalid-feedback">
+                                <t t-esc="errors['description']"/>
+                            </div>
+                        </t>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            Submit Request
+                        </button>
+                        <a href="/my/timeoff" class="btn btn-secondary">
+                            Cancel
+                        </a>
+                    </div>
+
+                </form>
+            </div>
+
+        </t>
+    </template>
+
+</odoo>

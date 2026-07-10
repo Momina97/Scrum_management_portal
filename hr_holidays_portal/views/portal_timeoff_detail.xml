@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="portal_timeoff_detail" name="Leave Request Detail">
+        <t t-call="portal.portal_layout">
+
+            <div class="container mt-4">
+
+                <!-- Breadcrumb -->
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <a href="/my/timeoff">Time Off</a>
+                        </li>
+                        <li class="breadcrumb-item active">Request Detail</li>
+                    </ol>
+                </nav>
+
+                <!-- Success message after submission -->
+                <t t-if="submitted">
+                    <div class="alert alert-success">
+                        Your leave request has been submitted and is awaiting approval.
+                    </div>
+                </t>
+
+                <div class="card shadow-sm">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <t t-esc="leave.holiday_status_id.name"/>
+                        </h5>
+
+                        <!-- Status Badge -->
+                        <t t-if="leave.state == 'draft'">
+                            <span class="badge bg-secondary">Draft</span>
+                        </t>
+                        <t t-elif="leave.state == 'confirm'">
+                            <span class="badge bg-warning text-dark">Waiting Approval</span>
+                        </t>
+                        <t t-elif="leave.state == 'validate1'">
+                            <span class="badge bg-info">Approved (1st level)</span>
+                        </t>
+                        <t t-elif="leave.state == 'validate'">
+                            <span class="badge bg-success">Approved</span>
+                        </t>
+                        <t t-elif="leave.state == 'refuse'">
+                            <span class="badge bg-danger">Refused</span>
+                        </t>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="row mb-2">
+                            <div class="col-sm-4 fw-bold">Employee</div>
+                            <div class="col-sm-8">
+                                <t t-esc="leave.employee_id.name"/>
+                            </div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-sm-4 fw-bold">From</div>
+                            <div class="col-sm-8">
+                                <span t-field="leave.date_from"
+                                      t-options='{"widget": "date"}'/>
+                            </div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-sm-4 fw-bold">To</div>
+                            <div class="col-sm-8">
+                                <span t-field="leave.date_to"
+                                      t-options='{"widget": "date"}'/>
+                            </div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-sm-4 fw-bold">Reason</div>
+                            <div class="col-sm-8">
+                                <t t-esc="leave.name"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cancel button — only if still pending -->
+                    <t t-if="leave.state in ('draft', 'confirm', 'validate1')">
+                        <div class="card-footer">
+                            <form t-attf-action="/my/timeoff/#{leave.id}/cancel"
+                                  method="POST">
+                                <input type="hidden" name="csrf_token"
+                                       t-att-value="request.csrf_token()"/>
+                                <button type="submit" class="btn btn-danger"
+                                        onclick="return confirm('Are you sure you want to cancel this request?')">
+                                    Cancel Request
+                                </button>
+                            </form>
+                        </div>
+                    </t>
+
+                </div>
+            </div>
+
+        </t>
+    </template>
+
+</odoo>

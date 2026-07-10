@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="hr_employee_view_form_portal_approver" model="ir.ui.view">
+        <field name="name">hr.employee.form.portal.approver</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='hr_settings']//group[@name='active_group']" position="after">
+                <group string="Portal Access" name="portal_approver_group">
+                    <field name="x_is_portal_approver" string="Portal Leave Approver"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

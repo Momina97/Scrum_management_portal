@@ -9,6 +9,7 @@
     ],
     'data': [
         'security/ir.model.access.csv',
+        'views/hr_employee_views.xml',
         'views/portal_layout.xml',
         'views/portal_timeoff_list.xml',
         'views/portal_timeoff_form.xml',

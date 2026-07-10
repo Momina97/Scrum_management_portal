@@ -89,11 +89,25 @@ class TimeOffPortal(CustomerPortal):
                 balance[lt_id]['allocated'] - balance[lt_id]['taken']
             )
 
+        # --- Team leads: fetch their team's leaves ---
+        is_approver = employee.x_is_portal_approver
+        team_leaves = []
+        if is_approver:
+            team_members = request.env['hr.employee'].sudo().search([
+                ('parent_id', '=', employee.id),
+            ])
+            if team_members:
+                team_leaves = Leave.search([
+                    ('employee_id', 'in', team_members.ids),
+                ], order='write_date desc')
+
         return request.render('hr_holidays_portal.portal_my_timeoff', {
             'employee': employee,
             'leaves': leaves,
             'pager': pager,
             'balance': list(balance.values()),
+            'is_approver': is_approver,
+            'team_leaves': team_leaves,
             'page_name': 'timeoff',
         })
     
@@ -223,3 +237,56 @@ class TimeOffPortal(CustomerPortal):
             leave.action_refuse()
 
         return request.redirect('/my/timeoff/%d' % leave_id)
+    
+    @http.route('/my/timeoff/<int:leave_id>/approve',
+            type='http', 
+            auth='user', 
+            website=True, 
+            methods=['POST']
+            )
+    def portal_timeoff_approve(self, leave_id, **kw):
+        employee = self._get_employee_sudo()
+
+        if not employee or not employee.x_is_portal_approver:
+            return request.redirect('/my/timeoff')
+
+        leave = request.env['hr.leave'].sudo().browse(leave_id)
+        if not leave.exists():
+            return request.redirect('/my/timeoff')
+
+        # Check this leave belongs to one of the approver's team members
+        team_members = request.env['hr.employee'].sudo().search([
+            ('parent_id', '=', employee.id),
+        ])
+        if leave.employee_id.id not in team_members.ids:
+            return request.redirect('/my/timeoff')
+
+        if leave.state == 'confirm':
+            leave.write({'state': 'validate1'})
+
+        return request.redirect('/my/timeoff')
+
+    @http.route(
+        '/my/timeoff/<int:leave_id>/refuse',
+        type='http', auth='user', website=True, methods=['POST']
+    )
+    def portal_timeoff_refuse(self, leave_id, **kw):
+        employee = self._get_employee_sudo()
+
+        if not employee or not employee.x_is_portal_approver:
+            return request.redirect('/my/timeoff')
+
+        leave = request.env['hr.leave'].sudo().browse(leave_id)
+        if not leave.exists():
+            return request.redirect('/my/timeoff')
+
+        team_members = request.env['hr.employee'].sudo().search([
+            ('parent_id', '=', employee.id),
+        ])
+        if leave.employee_id.id not in team_members.ids:
+            return request.redirect('/my/timeoff')
+
+        if leave.state in ('confirm', 'validate1'):
+            leave.action_refuse()
+
+        return request.redirect('/my/timeoff')

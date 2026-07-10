@@ -34,16 +34,21 @@
                             <span class="badge bg-secondary">Draft</span>
                         </t>
                         <t t-elif="leave.state == 'confirm'">
-                            <span class="badge bg-warning text-dark">Waiting Approval</span>
+                            <span class="badge bg-warning text-dark">Waiting for Team Lead</span>
                         </t>
                         <t t-elif="leave.state == 'validate1'">
-                            <span class="badge bg-info">Approved (1st level)</span>
+                            <span class="badge bg-info">Waiting for Admin Approval</span>
                         </t>
                         <t t-elif="leave.state == 'validate'">
                             <span class="badge bg-success">Approved</span>
                         </t>
                         <t t-elif="leave.state == 'refuse'">
-                            <span class="badge bg-danger">Refused</span>
+                            <span class="badge bg-danger">
+                                Refused
+                                <t t-if="leave.first_approver_id">
+                                    by <t t-esc="leave.first_approver_id.name"/>
+                                </t>
+                            </span>
                         </t>
                     </div>
 

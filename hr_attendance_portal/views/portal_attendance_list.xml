@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="portal_my_attendance" name="My Attendance">
+        <t t-call="portal.portal_layout">
+
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title">My Attendance</t>
+            </t>
+
+            <!-- Check In / Check Out Button -->
+            <div class="container mt-4">
+                <t t-if="is_checked_in">
+                    <form action="/my/attendance/checkout" method="POST">
+                        <input type="hidden" name="csrf_token"
+                               t-att-value="request.csrf_token()"/>
+                        <button type="submit" class="btn btn-danger btn-lg">
+                            Check Out
+                        </button>
+                    </form>
+                </t>
+                <t t-else="">
+                    <form action="/my/attendance/checkin" method="POST">
+                        <input type="hidden" name="csrf_token"
+                               t-att-value="request.csrf_token()"/>
+                        <button type="submit" class="btn btn-success btn-lg">
+                            Check In
+                        </button>
+                    </form>
+                </t>
+            </div>
+
+            <!-- Filters -->
+            <div class="container mt-4">
+                <form method="GET" action="/my/attendance"
+                      class="d-flex gap-2 flex-wrap"
+                      id="attendance_filter_form">
+                    <select name="filter_year" class="form-select w-auto"
+                            onchange="document.getElementById('attendance_filter_form').submit()">
+                        <option value="">All Years</option>
+                        <t t-foreach="years" t-as="year">
+                            <option t-att-value="year"
+                                    t-att-selected="str(year) == filter_year">
+                                <t t-esc="year"/>
+                            </option>
+                        </t>
+                    </select>
+                    <select name="filter_month" class="form-select w-auto"
+                            onchange="document.getElementById('attendance_filter_form').submit()">
+                        <option value="">All Months</option>
+                        <t t-foreach="months" t-as="month">
+                            <option t-att-value="month[0]"
+                                    t-att-selected="month[0] == filter_month">
+                                <t t-esc="month[1]"/>
+                            </option>
+                        </t>
+                    </select>
+                    <a href="/my/attendance" class="btn btn-secondary">Reset</a>
+                </form>
+            </div>
+
+            <!-- Attendance Table -->
+            <div class="container mt-4">
+                <t t-if="attendances">
+                    <table class="table table-hover o_portal_my_doc_table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Check In</th>
+                                <th>Check Out</th>
+                                <th>Worked Hours</th>
+                                <th>Extra Hours</th>
+                                <th>Overtime Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="attendances" t-as="att">
+                                <tr>
+                                    <td>
+                                        <span t-field="att.check_in"
+                                              t-options='{"widget": "date"}'/>
+                                    </td>
+                                    <td>
+                                        <span t-field="att.check_in"
+                                              t-options='{"widget": "datetime", "format": "HH:mm"}'/>
+                                    </td>
+                                    <td>
+                                        <t t-if="att.check_out">
+                                            <span t-field="att.check_out"
+                                                  t-options='{"widget": "datetime", "format": "HH:mm"}'/>
+                                        </t>
+                                        <t t-else="">
+                                            <span class="badge bg-success">Currently Working</span>
+                                        </t>
+                                    </td>
+                                    <td>
+                                        <t t-if="att.worked_hours">
+                                            <t t-esc="'%02d:%02d' % (int(att.worked_hours), int((att.worked_hours % 1) * 60))"/>
+                                        </t>
+                                        <t t-else="">—</t>
+                                    </td>
+                                    <td>
+                                        <t t-if="att.overtime_hours">
+                                            <t t-esc="'%02d:%02d' % (int(att.overtime_hours), int((att.overtime_hours % 1) * 60))"/>
+                                        </t>
+                                        <t t-else="">—</t>
+                                    </td>
+                                    <td>
+                                        <t t-if="att.overtime_hours">
+                                            <t t-if="att.overtime_status == 'approved'">
+                                                <span class="badge bg-success">Approved</span>
+                                            </t>
+                                            <t t-elif="att.overtime_status == 'to_approve'">
+                                                <span class="badge bg-warning text-dark">Pending</span>
+                                            </t>
+                                            <t t-elif="att.overtime_status == 'refused'">
+                                                <span class="badge bg-danger">Refused</span>
+                                            </t>
+                                            <t t-else="">
+                                                <span class="text-muted">—</span>
+                                            </t>
+                                        </t>
+                                        <t t-else="">
+                                            <span class="text-muted">—</span>
+                                        </t>
+                                    </td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+                    <div t-if="pager" class="o_portal_pager text-center">
+                        <t t-call="portal.pager"/>
+                    </div>
+                </t>
+                <t t-else="">
+                    <p class="text-muted">No attendance records found.</p>
+                </t>
+            </div>
+
+        </t>
+    </template>
+
+</odoo>

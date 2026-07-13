@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Add Attendance counter on /my/home -->
+    <template id="portal_my_home_attendance" name="Attendance on Portal Home"
+              inherit_id="portal.portal_my_home" customize_show="True" priority="40">
+        <xpath expr="//div[hasclass('o_portal_docs')]" position="before">
+            <t t-set="portal_service_category_enable" t-value="True"/>
+        </xpath>
+        <div id="portal_service_category" position="inside">
+            <t t-call="portal.portal_docs_entry">
+                <t t-set="title">My Attendance</t>
+                <t t-set="url" t-value="'/my/attendance'"/>
+                <t t-set="text">View your attendance records and check in/out</t>
+                <t t-set="placeholder_count" t-value="'attendance_count'"/>
+                <t t-set="config_card" t-value="True"/>
+            </t>
+        </div>
+    </template>
+
+    <!-- Breadcrumbs for Attendance portal pages -->
+    <template id="portal_breadcrumbs_attendance" name="Portal Breadcrumbs: Attendance"
+              inherit_id="portal.portal_breadcrumbs" priority="100">
+        <xpath expr="." position="inside">
+            <t t-if="page_name == 'attendance'">
+                <li class="breadcrumb-item active">
+                    Attendance
+                </li>
+            </t>
+        </xpath>
+    </template>
+
+</odoo>

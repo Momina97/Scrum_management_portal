@@ -1,0 +1,63 @@
+/* ================================================================
+   scrum_bulk_wizard.css
+   Styles for the redesigned Bulk Update Tasks modal.
+   Scoped with .o_scrum_buw_* prefix to avoid collisions.
+   ================================================================ */
+
+/* ── Modal icon badge ──────────────────────────────────────────── */
+.o_scrum_buw_icon {
+    width           : 38px;
+    height          : 38px;
+    border-radius   : 10px;
+    background      : #eff6ff;
+    display         : flex;
+    align-items     : center;
+    justify-content : center;
+    flex-shrink     : 0;
+}
+
+/* ── Field section ─────────────────────────────────────────────── */
+.o_scrum_buw_fields .o_group {
+    margin-bottom: 0.75rem !important;
+}
+
+.o_scrum_buw_label {
+    font-weight  : 600 !important;
+    color        : #374151 !important;
+    font-size    : 0.88rem !important;
+    margin-bottom: 4px !important;
+}
+
+.o_scrum_buw_field_wrap .o_field_widget {
+    width: 100% !important;
+}
+
+/* ── Make the many2one / tags fields look clean ────────────────── */
+.o_scrum_buw_fields .o_field_many2one input,
+.o_scrum_buw_fields .o_field_many2many_tags .o_input {
+    border-radius   : 8px !important;
+    border          : 1px solid #d1d5db !important;
+    padding         : 6px 10px !important;
+    font-size       : 0.9rem !important;
+    transition      : border-color 0.15s ease !important;
+}
+
+.o_scrum_buw_fields .o_field_many2one input:focus,
+.o_scrum_buw_fields .o_field_many2many_tags .o_input:focus {
+    border-color : #3b82f6 !important;
+    box-shadow   : 0 0 0 3px rgba(59, 130, 246, 0.12) !important;
+    outline      : none !important;
+}
+
+/* ── Footer buttons ────────────────────────────────────────────── */
+.o_scrum_buw_footer {
+    display         : flex;
+    justify-content : flex-end;
+    gap             : 8px;
+    padding-top     : 4px;
+}
+
+/* ── Dialog sizing — medium compact width ──────────────────────── */
+.o_dialog .modal-dialog:has(.o_scrum_buw_header) {
+    max-width: 520px !important;
+}

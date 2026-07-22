@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="portal_my_home_inherit" inherit_id="portal.portal_my_home" priority="50">
+
+        <xpath expr="//div[hasclass('o_portal_docs')]" position="before">
+            <div class="cymax_portal_home cymax_home_page">
+
+                <!-- HEADING -->
+                <div class="cymax_hero">
+                    <h1 class="cymax_hero_title">Your Workspace</h1>
+                    <p class="cymax_hero_subtitle">Everything you need, all in one place.</p>
+                </div>
+
+                <!-- ICON GRID — modules inject tiles here -->
+                <div class="cymax_icon_grid" id="cymax_portal_cards">
+                </div>
+
+            </div>
+        </xpath>
+
+        <xpath expr="//div[hasclass('o_portal_docs')]" position="attributes">
+            <attribute name="style">display: none;</attribute>
+        </xpath>
+
+    </template>
+</odoo>

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_sprint_details_wizard_form" model="ir.ui.view">
+        <field name="name">project.sprint.details.wizard.form</field>
+        <field name="model">project.sprint.details.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Project Sprint">
+                <sheet>
+                    <field name="line_ids" nolabel="1">
+                        <kanban create="false" delete="false">
+                            <field name="sprint_id"/>
+                            <field name="sprint_name"/>
+                            <field name="team_member_count"/>
+                            <field name="work_progress"/>
+                            <field name="days_elapsed"/>
+                            <field name="days_remaining"/>
+                            <field name="task_count"/>
+                            <field name="completed_task_count"/>
+                            <templates>
+                                <t t-name="kanban-box">
+                                    <!--
+                                        THE FINAL FIX: We place the <a> tag with the action *inside*
+                                        the card. The "stretched-link" class (from Bootstrap) makes
+                                        its parent container (the card div) fully clickable.
+                                        This is the correct and reliable way to solve this.
+                                    -->
+                                    <div class="card shadow-sm">
+                                        <div class="card-body p-3 position-relative">
+                                            <a type="object" name="action_open_sprint" class="stretched-link"/>
+                                            <h5 class="card-title text-primary mb-3"><t t-esc="record.sprint_name.value"/></h5>
+                                            <div class="mb-2">
+                                                <strong>Work Progress:</strong>
+                                                <div class="progress" style="height: 18px;">
+                                                    <div class="progress-bar" role="progressbar" t-att-style="'width: ' + record.work_progress.value + '%;'">
+                                                        <t t-esc="record.work_progress.value"/>%
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row text-center">
+                                                <div class="col"><strong><t t-esc="record.team_member_count.value"/></strong><br/><small class="text-muted">Members</small></div>
+                                                <div class="col"><strong><t t-esc="record.completed_task_count.value"/> / <t t-esc="record.task_count.value"/></strong><br/><small class="text-muted">Tasks</small></div>
+                                                <div class="col"><strong><t t-esc="record.days_elapsed.value"/></strong><br/><small class="text-muted">Elapsed</small></div>
+                                                <div class="col"><strong><t t-esc="record.days_remaining.value"/></strong><br/><small class="text-muted">Remaining</small></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </t>
+                            </templates>
+                        </kanban>
+                    </field>
+                </sheet>
+                <footer>
+                    <button string="Close" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- The action window remains the same -->
+    <record id="action_open_sprint_details_wizard" model="ir.actions.act_window">
+        <field name="name">Sprint Details</field>
+        <field name="res_model">project.sprint.details.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

@@ -4,46 +4,59 @@
     <template id="portal_timeoff_detail" name="Leave Request Detail">
         <t t-call="portal.portal_layout">
 
-            <div class="container mt-4">
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title">Time Off</t>
+            </t>
 
-                <!-- Breadcrumb -->
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item">
-                            <a href="/my/timeoff">Time Off</a>
-                        </li>
-                        <li class="breadcrumb-item active">Request Detail</li>
-                    </ol>
-                </nav>
+            <div class="cymax_timeoff_page">
 
-                <!-- Success message after submission -->
+                <!-- PAGE HEADER -->
+                <div class="ct_page_header">
+                    <div class="ct_header_left">
+                        <h1 class="ct_page_title">
+                            <t t-esc="leave.holiday_status_id.name"/>
+                        </h1>
+                        <div class="ct_detail_meta">
+                            <span t-field="leave.date_from" t-options='{"widget": "date"}'/>
+                            <span class="ct_meta_divider">—</span>
+                            <span t-field="leave.date_to" t-options='{"widget": "date"}'/>
+                            <span class="ct_meta_divider">·</span>
+                            <span><t t-esc="leave.number_of_days"/> days</span>
+                        </div>
+                    </div>
+                    <div class="ct_header_right">
+                        <a href="/my/timeoff/requests" class="ct_secondary_btn">← Back</a>
+                        <a href="/my/timeoff/new" class="ct_primary_btn">+ Apply for Leave</a>
+                    </div>
+                </div>
+
+                <!-- SUCCESS MESSAGE -->
                 <t t-if="submitted">
-                    <div class="alert alert-success">
+                    <div class="ct_alert ct_alert_success">
                         Your leave request has been submitted and is awaiting approval.
                     </div>
                 </t>
 
-                <div class="card shadow-sm">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">
-                            <t t-esc="leave.holiday_status_id.name"/>
-                        </h5>
-
-                        <!-- Status Badge -->
+                <!-- DETAIL CARD -->
+                <div class="ct_detail_card">
+                    <div class="ct_detail_card_header">
+                        <span class="ct_detail_card_label">Request Details</span>
+                        <!-- STATUS BADGE -->
                         <t t-if="leave.state == 'draft'">
-                            <span class="badge bg-secondary">Draft</span>
+                            <span class="ct_badge ct_badge_secondary">Draft</span>
                         </t>
                         <t t-elif="leave.state == 'confirm'">
-                            <span class="badge bg-warning text-dark">Waiting for Team Lead</span>
+                            <span class="ct_badge ct_badge_warning">Waiting for Team Lead</span>
                         </t>
                         <t t-elif="leave.state == 'validate1'">
-                            <span class="badge bg-info">Waiting for Admin Approval</span>
+                            <span class="ct_badge ct_badge_info">Waiting for Admin Approval</span>
                         </t>
                         <t t-elif="leave.state == 'validate'">
-                            <span class="badge bg-success">Approved</span>
+                            <span class="ct_badge ct_badge_success">Approved</span>
                         </t>
                         <t t-elif="leave.state == 'refuse'">
-                            <span class="badge bg-danger">
+                            <span class="ct_badge ct_badge_danger">
                                 Refused
                                 <t t-if="leave.first_approver_id">
                                     by <t t-esc="leave.first_approver_id.name"/>
@@ -52,51 +65,52 @@
                         </t>
                     </div>
 
-                    <div class="card-body">
-                        <div class="row mb-2">
-                            <div class="col-sm-4 fw-bold">Employee</div>
-                            <div class="col-sm-8">
-                                <t t-esc="leave.employee_id.name"/>
-                            </div>
+                    <div class="ct_detail_rows">
+                        <div class="ct_detail_row">
+                            <span class="ct_detail_key">Employee</span>
+                            <span class="ct_detail_val"><t t-esc="leave.employee_id.name"/></span>
                         </div>
-                        <div class="row mb-2">
-                            <div class="col-sm-4 fw-bold">From</div>
-                            <div class="col-sm-8">
-                                <span t-field="leave.date_from"
-                                      t-options='{"widget": "date"}'/>
-                            </div>
+                        <div class="ct_detail_row">
+                            <span class="ct_detail_key">Leave Type</span>
+                            <span class="ct_detail_val"><t t-esc="leave.holiday_status_id.name"/></span>
                         </div>
-                        <div class="row mb-2">
-                            <div class="col-sm-4 fw-bold">To</div>
-                            <div class="col-sm-8">
-                                <span t-field="leave.date_to"
-                                      t-options='{"widget": "date"}'/>
-                            </div>
+                        <div class="ct_detail_row">
+                            <span class="ct_detail_key">From</span>
+                            <span class="ct_detail_val">
+                                <span t-field="leave.date_from" t-options='{"widget": "date"}'/>
+                            </span>
                         </div>
-                        <div class="row mb-2">
-                            <div class="col-sm-4 fw-bold">Reason</div>
-                            <div class="col-sm-8">
-                                <t t-esc="leave.name"/>
-                            </div>
+                        <div class="ct_detail_row">
+                            <span class="ct_detail_key">To</span>
+                            <span class="ct_detail_val">
+                                <span t-field="leave.date_to" t-options='{"widget": "date"}'/>
+                            </span>
+                        </div>
+                        <div class="ct_detail_row">
+                            <span class="ct_detail_key">Duration</span>
+                            <span class="ct_detail_val"><t t-esc="leave.number_of_days"/> days</span>
+                        </div>
+                        <div class="ct_detail_row">
+                            <span class="ct_detail_key">Reason</span>
+                            <span class="ct_detail_val"><t t-esc="leave.name"/></span>
                         </div>
                     </div>
 
-                    <!-- Cancel button — only if still pending -->
+                    <!-- CANCEL BUTTON -->
                     <t t-if="leave.state in ('draft', 'confirm', 'validate1')">
-                        <div class="card-footer">
-                            <form t-attf-action="/my/timeoff/#{leave.id}/cancel"
-                                  method="POST">
+                        <div class="ct_detail_card_footer">
+                            <form t-attf-action="/my/timeoff/#{leave.id}/cancel" method="POST">
                                 <input type="hidden" name="csrf_token"
                                        t-att-value="request.csrf_token()"/>
-                                <button type="submit" class="btn btn-danger"
+                                <button type="submit" class="ct_danger_btn"
                                         onclick="return confirm('Are you sure you want to cancel this request?')">
                                     Cancel Request
                                 </button>
                             </form>
                         </div>
                     </t>
-
                 </div>
+
             </div>
 
         </t>

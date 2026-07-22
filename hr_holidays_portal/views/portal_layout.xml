@@ -1,38 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- Add Time Off counter on /my/home -->
+    <!-- Home tile -->
     <template id="portal_my_home_timeoff" name="Time Off"
-              inherit_id="portal.portal_my_home" customize_show="True" priority="40">
-        <xpath expr="//div[hasclass('o_portal_docs')]" position="before">
-            <t t-set="portal_service_category_enable" t-value="True"/>
+              inherit_id="cymax_portal_theme.portal_my_home_inherit"
+              customize_show="True" priority="40">
+        <xpath expr="//div[@id='cymax_portal_cards']" position="inside">
+            <a href="/my/timeoff" class="cymax_tile">
+                <div class="cymax_tile_icon">
+                    <img src="/hr_holidays/static/description/icon.png" alt="Time Off"/>
+                </div>
+                <span class="cymax_tile_name">Time Off</span>
+            </a>
         </xpath>
-        <div id="portal_service_category" position="inside">
-            <t t-call="portal.portal_docs_entry">
-                <t t-set="title">Time Off</t>
-                <t t-set="url" t-value="'/my/timeoff'"/>
-                <t t-set="text">Apply for leave and track your requests</t>
-                <t t-set="placeholder_count" t-value="'leave_count'"/>
-                <t t-set="config_card" t-value="True"/>
-            </t>
-        </div>
     </template>
 
-    <!-- Breadcrumbs for Time Off portal pages -->
+    <!-- Breadcrumbs -->
     <template id="portal_breadcrumbs_timeoff" name="Portal Breadcrumbs: Time Off"
               inherit_id="portal.portal_breadcrumbs" priority="100">
         <xpath expr="." position="inside">
-            <t t-if="page_name in ['timeoff', 'timeoff_new', 'timeoff_detail']">
+            <t t-if="page_name in ['timeoff', 'timeoff_requests', 'timeoff_new', 'timeoff_detail']">
+
+                <!-- Always show Time Off link -->
                 <li t-attf-class="breadcrumb-item #{'active' if page_name == 'timeoff' else ''}">
                     <a t-if="page_name != 'timeoff'" href="/my/timeoff">Time Off</a>
                     <t t-if="page_name == 'timeoff'">Time Off</t>
                 </li>
+
+                <!-- Requests list -->
+                <li t-if="page_name == 'timeoff_requests'" class="breadcrumb-item active">
+                    Requests
+                </li>
+
+                <!-- New form -->
                 <li t-if="page_name == 'timeoff_new'" class="breadcrumb-item active">
                     New Request
                 </li>
-                <li t-if="page_name == 'timeoff_detail'" class="breadcrumb-item active">
-                    Request Detail
-                </li>
+
+                <!-- Detail — show Requests link then leave type -->
+                <t t-if="page_name == 'timeoff_detail'">
+                    <li class="breadcrumb-item">
+                        <a href="/my/timeoff/requests">Requests</a>
+                    </li>
+                    <li class="breadcrumb-item active">
+                        <t t-esc="leave.holiday_status_id.name"/>
+                    </li>
+                </t>
+
             </t>
         </xpath>
     </template>

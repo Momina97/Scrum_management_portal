@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Action for the Backlog button -->
+    <record id="action_view_project_backlog" model="ir.actions.act_window">
+        <field name="name">Backlog</field>
+        <field name="res_model">project.task</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="domain">[('project_id', '=', active_id), ('sprint_id', '=', False)]</field>
+        <field name="context">{'default_project_id': active_id}</field>
+    </record>
+
+    <!-- The main project form view -->
+    <record id="project_scrum_project_form_view" model="ir.ui.view">
+        <field name="name">project.project.scrum.form</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="project.edit_project"/>
+        <field name="arch" type="xml">
+
+            <!-- Smart buttons -->
+            <xpath expr="//div[hasclass('oe_button_box')]" position="inside">
+                <button name="action_view_sprints" type="object" class="oe_stat_button" icon="fa-retweet">
+                    <field string="Sprints" name="sprint_count" widget="statinfo"/>
+                </button>
+                 <button class="oe_stat_button" type="action" name="%(action_view_project_backlog)d" icon="fa-list">
+                     <div class="o_field_widget o_stat_info"><span class="o_stat_text">Backlog</span></div>
+                 </button>
+            </xpath>
+
+            <!-- Replace the standard notebook with our enhanced Scrum notebook -->
+            <xpath expr="//notebook" position="replace">
+                <notebook invisible="not is_scrum_project">
+                    <!-- 1. Per-Project Dashboard Tab -->
+                    <page string="Project Dashboard" name="scrum_dashboard">
+                        <div class="oe_form_sheet_bg p-4">
+                            <h3>Project Statistics</h3>
+                            <div class="row">
+                                <div class="col-lg-3"><strong>Sprints:</strong> <field name="sprint_count"/></div>
+                                <div class="col-lg-3"><strong>Backlog Tasks:</strong> <field name="backlog_task_count"/></div>
+                                <div class="col-lg-3"><strong>Active Tasks:</strong> <field name="active_task_count"/></div>
+                            </div>
+                            <hr/>
+
+                            <!-- MODIFIED: Added a new card for the Project Burn Rate -->
+                            <h3>Current Performance &amp; Forecasting</h3>
+                            <div class="row">
+                                <div class="col-lg-3 text-center">
+                                    <div class="card shadow-sm"><div class="card-body">
+                                        <h5 class="card-title text-muted">Burn Rate (SP/Day)</h5>
+                                        <h2 class="display-4 text-info"><field name="project_burn_rate_per_day"/></h2>
+                                        <small class="text-muted">For active sprints</small>
+                                    </div></div>
+                                </div>
+                                <div class="col-lg-3 text-center">
+                                    <div class="card shadow-sm"><div class="card-body">
+                                        <h5 class="card-title text-muted">Average Velocity</h5>
+                                        <h2 class="display-4 text-primary"><field name="average_velocity"/></h2>
+                                        <small class="text-muted">SP / Sprint</small>
+                                    </div></div>
+                                </div>
+                                <div class="col-lg-3 text-center">
+                                    <div class="card shadow-sm"><div class="card-body">
+                                        <h5 class="card-title text-muted">Total Backlog SP</h5>
+                                        <h2 class="display-4"><field name="total_backlog_sp"/></h2>
+                                        <small class="text-muted">Total Story Points</small>
+                                    </div></div>
+                                </div>
+                                <div class="col-lg-3 text-center">
+                                    <div class="card shadow-sm"><div class="card-body">
+                                        <h5 class="card-title text-muted">Sprints Remaining</h5>
+                                        <h2 class="display-4 text-success"><field name="estimated_sprints_remaining"/></h2>
+                                        <small class="text-muted">Sprints Left</small>
+                                    </div></div>
+                                </div>
+                            </div>
+                        </div>
+                    </page>
+
+                    <!-- 2. Backlog Tab -->
+                    <page string="Backlog" name="scrum_backlog">
+                        <field name="backlog_task_ids" context="{'default_project_id': id}">
+                            <list editable="bottom">
+                                <field name="name"/>
+                                <field name="sprint_id" domain="[('project_id','=',parent.id)]"/>
+                                <field name="story_points"/>
+                                <field name="user_ids" widget="many2many_tags"/>
+                            </list>
+                        </field>
+                    </page>
+
+                    <!-- Other tabs...-->
+                    <page string="Active Tasks" name="scrum_active_tasks"><field name="active_task_ids"/></page>
+                    <page string="Sprints" name="scrum_sprints">
+                        <field name="sprint_ids"><list editable="bottom"><field name="name"/><field name="committed_story_points"/><field name="completed_story_points" readonly="1"/><field name="progress" widget="progressbar"/><field name="state"/></list></field>
+                    </page>
+                    <page string="Team" name="scrum_team"><field name="team_member_ids"/></page>
+                    <page string="Releases" name="scrum_releases"><field name="release_ids"/></page>
+                    <page string="Meetings" name="scrum_meetings"><field name="meeting_ids"/></page>
+                </notebook>
+            </xpath>
+
+        </field>
+    </record>
+</odoo>

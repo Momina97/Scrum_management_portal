@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ══════════════════════════════════════════════════════════════════════
+         PORTAL REPORT ACTION
+         ══════════════════════════════════════════════════════════════════════ -->
+    <record id="action_report_product_requisition_portal" model="ir.actions.report">
+        <field name="name">Product Requisition / Indent (Portal)</field>
+        <field name="model">product.requisition</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">product_requisition.report_product_requisition_portal_template</field>
+        <field name="report_file">product_requisition.report_product_requisition_portal_template</field>
+        <field name="print_report_name">'Indent - ' + (object.name or '')</field>
+    </record>
+
+    <!-- ══════════════════════════════════════════════════════════════════════
+         PORTAL QWEB REPORT TEMPLATE
+         ══════════════════════════════════════════════════════════════════════ -->
+    <template id="report_product_requisition_portal_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <!-- use sudo to bypass portal field restrictions -->
+                <t t-set="o" t-value="o.sudo()"/>
+                <t t-call="web.external_layout">
+                    <div class="page" style="font-family:'Arial', sans-serif; font-size:12px; color:#1e293b;">
+
+                        <!-- ── Report Title ─────────────────────────────── -->
+                        <div style="text-align:center; margin-bottom:18px;">
+                            <h2 style="margin:0; font-size:16px; font-weight:700;
+                                       text-transform:uppercase; letter-spacing:0.08em; color:#1e293b;">
+                                PRODUCT REQUISITION / INDENT FORM
+                            </h2>
+                        </div>
+
+                        <!-- ── Header Info ──────────────────────────────── -->
+                        <table style="width:100%; border-collapse:collapse; margin-bottom:14px;">
+                            <tr>
+                                <!-- Left column -->
+                                <td style="width:50%; vertical-align:top;">
+                                    <table style="width:100%; border-collapse:collapse;">
+                                        <tr>
+                                            <td style="font-weight:700; padding:3px 8px 3px 0; width:40%; color:#475569; font-size:11px;">INDENT NO.:</td>
+                                            <td style="padding:3px 0; font-weight:700; font-size:13px; color:#2c3e50;">
+                                                <t t-esc="o.name"/>
+                                            </td>
+                                        </tr>
+                                        <tr t-if="o.file_no">
+                                            <td style="font-weight:700; padding:3px 8px 3px 0; color:#475569; font-size:11px;">FILE NO.:</td>
+                                            <td style="padding:3px 0; font-weight:600;">
+                                                <t t-esc="o.file_no"/>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style="font-weight:700; padding:3px 8px 3px 0; color:#475569; font-size:11px;">REQUEST DATE:</td>
+                                            <td style="padding:3px 0;">
+                                                <t t-esc="o.date_request" t-options="{'widget': 'date'}"/>
+                                            </td>
+                                        </tr>
+                                        <tr t-if="o.date_required">
+                                            <td style="font-weight:700; padding:3px 8px 3px 0; color:#475569; font-size:11px;">REQUIRED BY:</td>
+                                            <td style="padding:3px 0;">
+                                                <t t-esc="o.date_required" t-options="{'widget': 'date'}"/>
+                                            </td>
+                                        </tr>
+                                        <tr t-if="o.delivery_lead_days">
+                                            <td style="font-weight:700; padding:3px 8px 3px 0; color:#475569; font-size:11px;">DELIVERY LEAD TIME:</td>
+                                            <td style="padding:3px 0;">
+                                                <t t-esc="o.delivery_lead_days"/>
+                                                <t t-esc="' ' + dict(o._fields['delivery_lead_unit'].selection).get(o.delivery_lead_unit, '')"/>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                                <!-- Right column -->
+                                <td style="width:50%; vertical-align:top; padding-left:20px;">
+                                    <table style="width:100%; border-collapse:collapse;">
+                                        <tr>
+                                            <td style="font-weight:700; padding:3px 8px 3px 0; width:40%; color:#475569; font-size:11px;">INDENTER:</td>
+                                            <td style="padding:3px 0;">
+                                                <t t-esc="o.partner_id.name"/>
+                                            </td>
+                                        </tr>
+                                        <tr t-if="o.department_id">
+                                            <td style="font-weight:700; padding:3px 8px 3px 0; color:#475569; font-size:11px;">DEPARTMENT:</td>
+                                            <td style="padding:3px 0;">
+                                                <t t-esc="o.department_id.name"/>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style="font-weight:700; padding:3px 8px 3px 0; color:#475569; font-size:11px;">STATUS:</td>
+                                            <td style="padding:3px 0;">
+                                                <t t-esc="dict(o._fields['state'].selection).get(o.state, o.state)"/>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <!-- ── Procurement Details ──────────────────────── -->
+                        <table style="width:100%; border-collapse:collapse; margin-bottom:14px;
+                                      background:#f8fafc; border:1px solid #e2e8f0;">
+                            <tr>
+                                <td style="padding:7px 12px; font-weight:700; font-size:11px;
+                                           text-transform:uppercase; color:#475569;
+                                           border-bottom:1px solid #e2e8f0;" colspan="4">
+                                    Procurement Details
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding:6px 12px; font-weight:600; font-size:11px; color:#64748b; width:20%;">Purchase Option</td>
+                                <td style="padding:6px 12px; width:30%;">
+                                    <t t-esc="dict(o._fields['purchase_option'].selection).get(o.purchase_option or '', o.purchase_option or '—')"/>
+                                </td>
+                                <td style="padding:6px 12px; font-weight:600; font-size:11px; color:#64748b; width:20%;">Purchase Mode</td>
+                                <td style="padding:6px 12px;">
+                                    <t t-esc="dict(o._fields['purchase_mode'].selection).get(o.purchase_mode, o.purchase_mode)"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding:6px 12px; font-weight:600; font-size:11px; color:#64748b;">Estimated Cost</td>
+                                <td style="padding:6px 12px; font-weight:700;" colspan="3">
+                                    <t t-esc="'{:,.2f}'.format(sum(l.estimated_unit_price * l.qty_requested for l in o.requisition_line_ids))"/>
+                                    &#160;<t t-esc="o.company_id.currency_id.symbol"/>
+                                </td>
+                            </tr>
+                            <tr t-if="o.priority != '0'">
+                                <td style="padding:6px 12px; font-weight:600; font-size:11px; color:#64748b;">Priority</td>
+                                <td style="padding:6px 12px; font-weight:700; color:#dc2626;" colspan="3">
+                                    <t t-esc="dict(o._fields['priority'].selection).get(o.priority, o.priority)"/>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <!-- ── Product Lines ────────────────────────────── -->
+                        <table style="width:100%; border-collapse:collapse; margin-bottom:16px;">
+                            <thead>
+                                <tr style="background:#2c3e50; color:#fff;">
+                                    <th style="padding:8px 10px; text-align:center; font-size:11px; font-weight:700; width:40px;">Sr#</th>
+                                    <th style="padding:8px 10px; text-align:left; font-size:11px; font-weight:700;">Product</th>
+                                    <th style="padding:8px 10px; text-align:left; font-size:11px; font-weight:700;">Description</th>
+                                    <th style="padding:8px 10px; text-align:center; font-size:11px; font-weight:700; width:55px;">Unit</th>
+                                    <th style="padding:8px 10px; text-align:center; font-size:11px; font-weight:700; width:60px;">Qty</th>
+                                    <th style="padding:8px 10px; text-align:right; font-size:11px; font-weight:700; width:90px;">Est. Price</th>
+                                    <th style="padding:8px 10px; text-align:center; font-size:11px; font-weight:700; width:60px;">On Hand</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="o.requisition_line_ids" t-as="line">
+                                    <tr t-attf-style="background: {{ 'white' if line_odd else '#f8fafc' }}; border-bottom:1px solid #e2e8f0;">
+                                        <td style="padding:7px 10px; text-align:center; font-weight:600;">
+                                            <t t-esc="line_index + 1"/>
+                                        </td>
+                                        <td style="padding:7px 10px;">
+                                            <t t-esc="line.product_id.display_name"/>
+                                        </td>
+                                        <td style="padding:7px 10px; color:#475569;">
+                                            <t t-esc="line.description or '—'"/>
+                                        </td>
+                                        <td style="padding:7px 10px; text-align:center;">
+                                            <t t-esc="line.product_uom_id.name if line.product_uom_id else '—'"/>
+                                        </td>
+                                        <td style="padding:7px 10px; text-align:center; font-weight:700;">
+                                            <t t-esc="line.qty_requested"/>
+                                        </td>
+                                        <td style="padding:7px 10px; text-align:right;">
+                                            <t t-if="line.estimated_unit_price">
+                                                <t t-esc="'{:,.2f}'.format(line.estimated_unit_price)"/>
+                                            </t>
+                                            <t t-else="">—</t>
+                                        </td>
+                                        <td style="padding:7px 10px; text-align:center;">
+                                            <t t-esc="'{:,.0f}'.format(line.qty_on_hand)"/>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                            <tfoot>
+                                <tr style="background:#f1f5f9; border-top:2px solid #2c3e50;">
+                                    <td colspan="4" style="padding:7px 10px; font-weight:700;
+                                                           text-align:right; font-size:11px;
+                                                           text-transform:uppercase; color:#475569;">
+                                        Total Items:
+                                    </td>
+                                    <td style="padding:7px 10px; text-align:center; font-weight:800; font-size:13px;">
+                                        <t t-esc="len(o.requisition_line_ids)"/>
+                                    </td>
+                                    <td style="padding:7px 10px; text-align:right; font-weight:800; font-size:12px;">
+                                        <t t-esc="'{:,.2f}'.format(sum(l.estimated_unit_price * l.qty_requested for l in o.requisition_line_ids))"/>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+
+                        <!-- ── Notes ────────────────────────────────────── -->
+                        <t t-if="o.notes">
+                            <table style="width:100%; border-collapse:collapse; margin-bottom:16px; border:1px solid #e2e8f0;">
+                                <tr>
+                                    <td style="padding:7px 12px; font-weight:700; font-size:11px;
+                                               text-transform:uppercase; color:#475569;
+                                               background:#f8fafc; border-bottom:1px solid #e2e8f0;">
+                                        Notes / Justification
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding:10px 12px; color:#334155; line-height:1.5;">
+                                        <t t-esc="o.notes"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </t>
+
+                        <!-- ── Approval History ──────────────────────────── -->
+                        <t t-if="o.approval_history_ids">
+                            <table style="width:100%; border-collapse:collapse; margin-bottom:20px;">
+                                <tr>
+                                    <th colspan="4" style="padding:7px 10px; background:#f1f5f9;
+                                                           font-size:11px; text-transform:uppercase;
+                                                           color:#475569; border:1px solid #e2e8f0;
+                                                           border-bottom:2px solid #cbd5e1;">
+                                        Approval History
+                                    </th>
+                                </tr>
+                                <tr style="background:#f8fafc;">
+                                    <th style="padding:6px 10px; text-align:left; font-size:11px; color:#64748b; border:1px solid #e2e8f0; width:150px;">Date</th>
+                                    <th style="padding:6px 10px; text-align:left; font-size:11px; color:#64748b; border:1px solid #e2e8f0;">By</th>
+                                    <th style="padding:6px 10px; text-align:left; font-size:11px; color:#64748b; border:1px solid #e2e8f0; width:100px;">Step</th>
+                                    <th style="padding:6px 10px; text-align:left; font-size:11px; color:#64748b; border:1px solid #e2e8f0; width:100px;">Decision</th>
+                                </tr>
+                                <t t-foreach="o.approval_history_ids" t-as="h">
+                                    <tr>
+                                        <td style="padding:6px 10px; border:1px solid #e2e8f0; font-size:11px;">
+                                            <t t-esc="h.date" t-options="{'widget': 'datetime'}"/>
+                                        </td>
+                                        <td style="padding:6px 10px; border:1px solid #e2e8f0;">
+                                            <t t-esc="h.user_id.name"/>
+                                        </td>
+                                        <td style="padding:6px 10px; border:1px solid #e2e8f0;">
+                                            <t t-esc="h.step_name or '—'"/>
+                                        </td>
+                                        <td style="padding:6px 10px; border:1px solid #e2e8f0; font-weight:700;"
+                                            t-attf-style="color: {{ '#059669' if h.decision == 'approved' else ('#dc2626' if h.decision == 'rejected' else '#64748b') }}">
+                                            <t t-esc="dict(h._fields['decision'].selection).get(h.decision, h.decision)"/>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </table>
+                        </t>
+
+                        <!-- ── Signature Block ───────────────────────────── -->
+                        <table style="width:100%; border-collapse:collapse; margin-top:30px;">
+                            <tr>
+                                <td style="width:33%; text-align:center; padding:0 10px;">
+                                    <div style="border-top:1px solid #334155; padding-top:6px;
+                                                font-size:11px; color:#475569;
+                                                text-transform:uppercase; letter-spacing:0.05em; font-weight:600;">
+                                        Indenter
+                                    </div>
+                                    <div style="font-size:10px; color:#94a3b8; margin-top:3px;">
+                                        <t t-esc="o.partner_id.name"/>
+                                    </div>
+                                </td>
+                                <td style="width:33%; text-align:center; padding:0 10px;">
+                                    <div style="border-top:1px solid #334155; padding-top:6px;
+                                                font-size:11px; color:#475569;
+                                                text-transform:uppercase; letter-spacing:0.05em; font-weight:600;">
+                                        Department Head
+                                    </div>
+                                    <div style="font-size:10px; color:#94a3b8; margin-top:3px;">
+                                        <t t-esc="o.department_id.name if o.department_id else ''"/>
+                                    </div>
+                                </td>
+                                <td style="width:33%; text-align:center; padding:0 10px;">
+                                    <div style="border-top:1px solid #334155; padding-top:6px;
+                                                font-size:11px; color:#475569;
+                                                text-transform:uppercase; letter-spacing:0.05em; font-weight:600;">
+                                        SCM / Procurement
+                                    </div>
+                                    <div style="font-size:10px; color:#94a3b8; margin-top:3px;">&#160;</div>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <!-- ── Footer ────────────────────────────────────── -->
+                        <div style="margin-top:20px; padding-top:8px; border-top:1px solid #e2e8f0;
+                                    display:flex; justify-content:space-between;
+                                    font-size:9px; color:#94a3b8;">
+                            <span>
+                                Printed on: <t t-esc="context_timestamp(datetime.datetime.now()).strftime('%d-%b-%Y %H:%M')"/>
+                            </span>
+                            <span>
+                                Ref: <t t-esc="o.name"/>
+                                <t t-if="o.file_no"> | File: <t t-esc="o.file_no"/></t>
+                            </span>
+                        </div>
+
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+</odoo>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_task_type_form_inherit_scrum" model="ir.ui.view">
+        <field name="name">project.task.type.form.inherit.scrum</field>
+        <field name="model">project.task.type</field>
+        <field name="inherit_id" ref="project.task_type_edit"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group" position="inside">
+                <field name="project_type" invisible="1"/>
+                <group string="Agile Workflow Settings" invisible="project_type != 'scrum'" class="mt-3">
+                    <field name="category" widget="radio" class="oe_inline"/>
+                    <div colspan="2" class="text-muted mt-2" style="font-size: 0.85rem;">
+                        <i class="fa fa-info-circle me-1"/>
+                        Categories dictate strict workflow rules (e.g., preventing Backlog items from moving to QA or Closed).
+                    </div>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_task_type_tree_inherit_scrum" model="ir.ui.view">
+        <field name="name">project.task.type.tree.inherit.scrum</field>
+        <field name="model">project.task.type</field>
+        <field name="inherit_id" ref="project.task_type_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="category"
+                       column_invisible="context.get('default_project_type') != 'scrum'"
+                       decoration-info="category in ('new', 'committed')"
+                       decoration-warning="category in ('active', 'blocked')"
+                       decoration-danger="category in ('qa', 'review')"
+                       decoration-success="category == 'closed'"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_scrum_task_stages" model="ir.actions.act_window">
+        <field name="name">Scrum Task Stages</field>
+        <field name="res_model">project.task.type</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('project_type', '=', 'scrum')]</field>
+        <field name="context">{'default_project_type': 'scrum', 'is_scrum_app': True, 'default_user_id': False}</field>
+    </record>
+
+</odoo>

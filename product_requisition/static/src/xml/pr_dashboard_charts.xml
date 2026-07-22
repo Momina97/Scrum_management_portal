@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="product_requisition.PrStatusDonut">
+        <div class="o_pr_chart_container">
+            <canvas t-ref="canvas"/>
+        </div>
+    </t>
+
+    <t t-name="product_requisition.PrMonthlyLine">
+        <div class="o_pr_chart_container">
+            <canvas t-ref="canvas"/>
+        </div>
+    </t>
+
+    <!-- Department Breakdown Table -->
+    <t t-name="product_requisition.PrDeptTable">
+        <div class="o_pr_data_table_wrap">
+            <t t-if="rows.length">
+                <table class="o_pr_data_table">
+                    <thead>
+                        <tr>
+                            <th>Department</th>
+                            <th class="text-end">Total</th>
+                            <th class="text-end">Approved</th>
+                            <th class="text-end">Pending</th>
+                            <th style="min-width:110px;">Share</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-foreach="rows" t-as="row" t-key="row.name">
+                            <tr>
+                                <td><t t-esc="row.name"/></td>
+                                <td class="text-end fw-semibold"><t t-esc="row.total"/></td>
+                                <td class="text-end" style="color:#10b981;"><t t-esc="row.approved"/></td>
+                                <td class="text-end" style="color:#f59e0b;"><t t-esc="row.pending"/></td>
+                                <td>
+                                    <div class="o_pr_mini_progress">
+                                        <div class="o_pr_mini_bar" t-att-style="'width:' + row.perc + '%;'"/>
+                                    </div>
+                                    <span class="o_pr_mini_pct"><t t-esc="row.perc"/>%</span>
+                                </td>
+                            </tr>
+                        </t>
+                    </tbody>
+                </table>
+            </t>
+            <t t-else="">
+                <div class="o_pr_table_empty">No department data available</div>
+            </t>
+        </div>
+    </t>
+
+    <!-- Purchase Type Breakdown Table -->
+    <t t-name="product_requisition.PrTypeTable">
+        <div class="o_pr_data_table_wrap">
+            <t t-if="rows.length">
+                <table class="o_pr_data_table">
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th class="text-end">Count</th>
+                            <th style="min-width:110px;">Share</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-foreach="rows" t-as="row" t-key="row.label">
+                            <tr>
+                                <td><t t-esc="row.label"/></td>
+                                <td class="text-end fw-semibold"><t t-esc="row.total"/></td>
+                                <td>
+                                    <div class="o_pr_mini_progress">
+                                        <div class="o_pr_mini_bar" t-att-style="'width:' + row.perc + '%;'"/>
+                                    </div>
+                                    <span class="o_pr_mini_pct"><t t-esc="row.perc"/>%</span>
+                                </td>
+                            </tr>
+                        </t>
+                    </tbody>
+                </table>
+            </t>
+            <t t-else="">
+                <div class="o_pr_table_empty">No type data available</div>
+            </t>
+        </div>
+    </t>
+
+    <!-- Recent Requisitions Table -->
+    <t t-name="product_requisition.PrRecentTable">
+        <div class="o_pr_data_table_wrap">
+            <t t-if="rows.length">
+                <table class="o_pr_data_table">
+                    <thead>
+                        <tr>
+                            <th>Reference</th>
+                            <th>Requester</th>
+                            <th>Department</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th class="text-end">Est. Cost</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-foreach="rows" t-as="row" t-key="row.id">
+                            <tr>
+                                <td class="fw-semibold" style="color:#3b82f6;"><t t-esc="row.ref"/></td>
+                                <td><t t-esc="row.user"/></td>
+                                <td><t t-esc="row.dept"/></td>
+                                <td><t t-esc="row.date"/></td>
+                                <td>
+                                    <span t-att-class="'o_pr_badge ' + stateClass(row.state_key)">
+                                        <t t-esc="row.state"/>
+                                    </span>
+                                </td>
+                                <td class="text-end"><t t-esc="formatCost(row.cost)"/></td>
+                            </tr>
+                        </t>
+                    </tbody>
+                </table>
+            </t>
+            <t t-else="">
+                <div class="o_pr_table_empty">No recent requisitions found</div>
+            </t>
+        </div>
+    </t>
+
+</templates>

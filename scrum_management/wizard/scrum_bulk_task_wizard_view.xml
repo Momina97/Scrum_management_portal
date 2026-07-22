@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         UPDATE FORM — Owner / Project / Sprint
+         ═══════════════════════════════════════════════════════════════ -->
+    <record id="view_scrum_bulk_update_wizard_form" model="ir.ui.view">
+        <field name="name">scrum.bulk.task.wizard.update.form</field>
+        <field name="model">scrum.bulk.task.wizard</field>
+        <field name="priority">5</field>
+        <field name="arch" type="xml">
+            <form string="Bulk Update Tasks">
+
+                <!-- hidden technical fields -->
+                <field name="operation"  invisible="1"/>
+                <field name="task_count" invisible="1"/>
+                <field name="task_ids"   invisible="1"/>
+
+                <sheet>
+
+                    <!-- ── Header ──────────────────────────────────────── -->
+                    <div class="d-flex align-items-center gap-3 mb-4 px-3 py-3 rounded-3"
+                         style="background:#f0f9ff;border:1px solid #bae6fd;">
+                        <div style="width:44px;height:44px;border-radius:10px;background:#3b82f6;
+                                    flex-shrink:0;display:flex;align-items:center;justify-content:center;">
+                            <i class="fa fa-bolt" style="color:#fff;font-size:1.15rem;"/>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="fw-bold" style="font-size:1rem;color:#0c4a6e;">
+                                Bulk Update Tasks
+                            </div>
+                            <div style="font-size:0.8rem;color:#0369a1;">
+                                Fill only the fields you want to change.
+                                Empty fields will <strong>not</strong> be overwritten.
+                            </div>
+                        </div>
+                        <span class="badge rounded-pill px-3 py-2"
+                              style="background:#0ea5e9;color:#fff;font-size:0.78rem;
+                                     font-weight:600;white-space:nowrap;">
+                            <i class="fa fa-check-square me-1"/>
+                            <field name="task_count" readonly="1" nolabel="1"
+                                   class="d-inline fw-bold"/> selected
+                        </span>
+                    </div>
+
+                    <!-- ── Ownership section ───────────────────────────── -->
+                    <div class="mb-4">
+                        <div class="fw-semibold text-muted text-uppercase mb-2"
+                             style="font-size:0.72rem;letter-spacing:0.6px;">
+                            Ownership
+                        </div>
+                        <div class="p-3 rounded-3"
+                             style="background:#f8fafc;border:1px solid #e2e8f0;">
+                            <div class="mb-1 fw-semibold"
+                                 style="font-size:0.85rem;color:#374151;">
+                                Owner(s)
+                            </div>
+                            <field name="user_ids"
+                                   nolabel="1"
+                                   widget="many2many_tags"
+                                   options="{'no_create':True,'no_open':True}"
+                                   placeholder="Leave empty to keep existing owner(s)"/>
+                            <div class="text-muted mt-1"
+                                 style="font-size:0.75rem;">
+                                Replaces all current owners on selected tasks.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ── Assignment section ──────────────────────────── -->
+                    <div class="mb-3">
+                        <div class="fw-semibold text-muted text-uppercase mb-2"
+                             style="font-size:0.72rem;letter-spacing:0.6px;">
+                            Assignment
+                        </div>
+                        <div class="p-3 rounded-3"
+                             style="background:#f8fafc;border:1px solid #e2e8f0;">
+
+                            <!-- Project field -->
+                            <div class="mb-3">
+                                <div class="mb-1 fw-semibold"
+                                     style="font-size:0.85rem;color:#374151;">
+                                    Project
+                                </div>
+                                <field name="project_id"
+                                       nolabel="1"
+                                       options="{'no_create':True,'no_open':True}"
+                                       placeholder="Select a Scrum project…"/>
+                                <div class="text-muted mt-1"
+                                     style="font-size:0.75rem;">
+                                    Only Scrum projects are shown.
+                                    Without a sprint, tasks go to the project backlog.
+                                </div>
+                            </div>
+
+                            <!-- Divider -->
+                            <div style="height:1px;background:#e2e8f0;margin:4px 0 12px;"/>
+
+                            <!-- Sprint field — visible only when project is chosen -->
+                            <div invisible="not project_id">
+                                <div class="mb-1 fw-semibold"
+                                     style="font-size:0.85rem;color:#374151;">
+                                    Sprint
+                                </div>
+                                <field name="sprint_id"
+                                       nolabel="1"
+                                       invisible="not project_id"
+                                       domain="[('project_id','=',project_id),('state','!=','completed')]"
+                                       options="{'no_create':True,'no_open':True}"
+                                       placeholder="Optional — leave empty for project backlog"/>
+                                <div class="text-muted mt-1"
+                                     style="font-size:0.75rem;">
+                                    <i class="fa fa-info-circle me-1 text-primary"/>
+                                    <b>With sprint:</b> tasks added to the sprint.
+                                    <b>Without sprint:</b> tasks go to project backlog.
+                                </div>
+                            </div>
+
+                            <!-- Hint shown when no project selected yet -->
+                            <div invisible="project_id"
+                                 class="d-flex align-items-center gap-2 py-1"
+                                 style="color:#94a3b8;font-size:0.82rem;">
+                                <i class="fa fa-arrow-up text-primary"/>
+                                Select a project above to choose a sprint.
+                            </div>
+
+                        </div>
+                    </div>
+
+                </sheet>
+
+                <footer>
+                    <button name="action_apply_update" string="Save Changes"
+                            type="object" class="btn btn-primary px-4"/>
+                    <button string="Cancel" special="cancel"
+                            class="btn btn-secondary ms-2 px-4"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         DELETE CONFIRMATION FORM
+         ═══════════════════════════════════════════════════════════════ -->
+    <record id="view_scrum_bulk_delete_wizard_form" model="ir.ui.view">
+        <field name="name">scrum.bulk.task.wizard.delete.form</field>
+        <field name="model">scrum.bulk.task.wizard</field>
+        <field name="priority">6</field>
+        <field name="arch" type="xml">
+            <form string="Delete Selected Tasks">
+
+                <field name="operation"  invisible="1"/>
+                <field name="task_count" invisible="1"/>
+                <field name="task_ids"   invisible="1"/>
+
+                <sheet>
+                    <div class="d-flex align-items-center gap-3 mb-4 px-3 py-3 rounded-3"
+                         style="background:#fef2f2;border:1px solid #fecaca;">
+                        <div style="width:44px;height:44px;border-radius:10px;background:#dc2626;
+                                    flex-shrink:0;display:flex;align-items:center;justify-content:center;">
+                            <i class="fa fa-trash" style="color:#fff;font-size:1.15rem;"/>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="fw-bold" style="font-size:1rem;color:#7f1d1d;">
+                                Delete Selected Tasks
+                            </div>
+                            <div style="font-size:0.8rem;color:#991b1b;">
+                                This action is <strong>permanent</strong> and cannot be undone.
+                            </div>
+                        </div>
+                        <span class="badge rounded-pill px-3 py-2"
+                              style="background:#dc2626;color:#fff;font-size:0.78rem;
+                                     font-weight:600;white-space:nowrap;">
+                            <i class="fa fa-tasks me-1"/>
+                            <field name="task_count" readonly="1" nolabel="1"
+                                   class="d-inline fw-bold"/> will be deleted
+                        </span>
+                    </div>
+                    <div class="alert alert-danger rounded-3 p-3 mb-0">
+                        <div class="d-flex align-items-start gap-2">
+                            <i class="fa fa-exclamation-triangle fa-lg mt-1 flex-shrink-0"/>
+                            <div>
+                                <strong>Are you sure you want to delete the selected tasks?</strong>
+                                <ul class="mb-0 mt-2 ps-3 small">
+                                    <li>All selected tasks will be permanently removed.</li>
+                                    <li>Subtasks, timesheets, and attachments will also be removed.</li>
+                                    <li>This cannot be undone.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </sheet>
+
+                <footer>
+                    <button name="action_apply_delete" string="Yes, Delete"
+                            type="object" class="btn btn-danger px-4"/>
+                    <button string="No, Cancel" special="cancel"
+                            class="btn btn-secondary ms-2 px-4"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+</odoo>

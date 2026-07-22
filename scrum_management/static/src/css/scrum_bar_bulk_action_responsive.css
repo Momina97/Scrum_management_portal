@@ -1,0 +1,133 @@
+
+Copy
+
+/*
+ * scrum_bulk_bar.css
+ *
+ * Unified button design:
+ *   Desktop  ≥ 992px  →  [⚡  Bulk Actions  (2)  ▾]
+ *   Small    < 992px  →  [⚡  2  ▾]
+ *
+ * RULES — never break these:
+ *   ✗  display:none  on  #_scrum_bulk_host      (OWL mount anchor)
+ *   ✗  display:none  on  .scrum-bulk-bar-root   (OWL mount anchor)
+ *   ✗  display:none  on  .scrum-bulk-bar        (OWL t-if managed)
+ *   ✓  display:none  on  .scrum-btn-label       (plain <span>, safe)
+ *   ✓  display:none  on  .scrum-btn-count       (plain <span>, safe)
+ *   ✓  display:none  on  .scrum-btn-count-sm    (plain <span>, safe)
+ */
+
+@keyframes scrumBarFadeIn {
+    from { opacity: 0; transform: translateX(-4px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+/* ── Host and root wrappers — always inline-flex, never hidden ───────────── */
+/* Host and root wrappers */
+#_scrum_bulk_host {
+    display: inline-flex !important;
+    align-items: center;
+    flex-shrink: 0;
+    margin-left: 0 !important;
+}
+
+.scrum-bulk-bar-root {
+    display: inline-flex !important;
+    align-items: center;
+}
+
+/* Status indicator */
+.o_form_status_indicator {
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 4px;
+}
+
+.o_form_status_indicator > * {
+    flex-shrink: 0;
+}
+
+/* Apply ONLY on 992px and larger screens */
+@media (min-width: 992px) {
+
+    #_scrum_bulk_host {
+        margin-right: 20rem !important;
+    }
+
+}
+
+/* ══════════════════════════════════════════════════════
+   DESKTOP  ≥ 992px
+   Button: [⚡  Bulk Actions  (2)  ▾]
+   ══════════════════════════════════════════════════════ */
+
+/* Full label visible */
+.scrum-btn-label {
+    display: inline;
+}
+
+/* Count badge "(2)" visible */
+.scrum-btn-count {
+    display: inline;
+}
+
+/* Compact count "2" hidden on desktop */
+.scrum-btn-count-sm {
+    display: none;
+}
+
+.scrum-bulk-btn {
+    padding: 5px 14px;
+    gap: 5px;
+}
+
+
+/* ══════════════════════════════════════════════════════
+   SMALL  < 992px
+   Button: [⚡  2  ▾]
+   ══════════════════════════════════════════════════════ */
+
+@media (max-width: 1250px) {
+
+    /* Hide "Bulk Actions" text */
+    .scrum-btn-label {
+        display: none;
+    }
+
+    /* Hide "(2)" desktop count pill */
+    .scrum-btn-count {
+        display: none;
+    }
+
+    /* Show compact "2" */
+    .scrum-btn-count-sm {
+        display: inline;
+    }
+
+    /* Tighter padding without label */
+    .scrum-bulk-btn {
+        padding: 5px 10px;
+        gap: 4px;
+    }
+
+    /* Anchor dropdown to right edge so it doesn't clip off screen */
+    .scrum-dropdown-menu {
+        left: auto !important;
+        right: 0 !important;
+    }
+}
+
+
+/* ══════════════════════════════════════════════════════
+   MOBILE  < 768px — tightest
+   ══════════════════════════════════════════════════════ */
+
+@media (max-width: 767px) {
+    .scrum-bulk-btn {
+        padding: 4px 8px;
+        gap: 3px;
+    }
+}
+
+
+

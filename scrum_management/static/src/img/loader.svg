@@ -1,0 +1,68 @@
+<svg viewBox="0 0 200 200" width="200" height="200" xmlns="http://www.w3.org/2000/svg" style="background:transparent">
+  <defs>
+    <style>
+      #snake {
+        transform-origin: 100px 100px;
+        animation: spin 2.4s linear infinite;
+      }
+      #snake2 {
+        transform-origin: 100px 100px;
+        animation: spin 2.4s linear infinite;
+        animation-delay: -0.4s;
+      }
+      #snake3 {
+        transform-origin: 100px 100px;
+        animation: spin 2.4s linear infinite;
+        animation-delay: -0.8s;
+      }
+      @keyframes spin {
+        from { transform: rotate(0deg); }
+        to   { transform: rotate(360deg); }
+      }
+      #text-group {
+        animation: fadeInOut 2.4s ease-in-out infinite;
+      }
+      @keyframes fadeInOut {
+        0%, 100% { opacity: 0; }
+        40%, 65%  { opacity: 1; }
+      }
+    </style>
+  </defs>
+
+  <!-- Ghost track -->
+  <circle cx="100" cy="100" r="60" fill="none" stroke="#714B67" stroke-width="5" opacity="0.1"/>
+
+  <!-- Snake arcs -->
+  <circle id="snake3" cx="100" cy="100" r="63"
+    fill="none" stroke="#714B67" stroke-width="3"
+    stroke-linecap="round" stroke-dasharray="40 340"
+    opacity="0.25"/>
+  <circle id="snake2" cx="100" cy="100" r="57"
+    fill="none" stroke="#714B67" stroke-width="4"
+    stroke-linecap="round" stroke-dasharray="55 325"
+    opacity="0.45"/>
+  <circle id="snake" cx="100" cy="100" r="60"
+    fill="none" stroke="#714B67" stroke-width="6"
+    stroke-linecap="round" stroke-dasharray="75 305"/>
+
+  <!-- Teal head dot -->
+  <circle cx="100" cy="40" r="5" fill="#017E84">
+    <animateTransform attributeName="transform" type="rotate"
+      from="0 100 100" to="360 100 100"
+      dur="2.4s" repeatCount="indefinite"/>
+  </circle>
+
+  <!-- BizzSync text fading in and out -->
+  <g id="text-group">
+    <text
+      x="100" y="105"
+      font-family="'Helvetica Neue', Helvetica, Arial, sans-serif"
+      font-size="15"
+      font-weight="400"
+      text-anchor="middle"
+      dominant-baseline="middle">
+      <tspan fill="#714B67">Bizz</tspan><tspan fill="#017E84">Sync</tspan>
+    </text>
+  </g>
+
+</svg>

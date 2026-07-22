@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Root menu — visible to all PR groups -->
+    <menuitem id="menu_product_requisition_root"
+              name="Product Requisitions"
+              web_icon="product_requisition,static/description/icon.png"
+              sequence="90"
+              groups="product_requisition.group_pr_user"/>
+
+    <!-- Dashboard — all PR groups -->
+    <menuitem id="menu_product_requisition_dashboard"
+              name="Dashboard"
+              parent="menu_product_requisition_root"
+              action="action_product_requisition_dashboard_server"
+              sequence="1"
+              groups="product_requisition.group_pr_user"/>
+
+    <!-- All Requisitions — all PR groups (record rules filter what each group sees) -->
+    <menuitem id="menu_product_requisition_all"
+              name="All Requisitions"
+              parent="menu_product_requisition_root"
+              action="action_product_requisition"
+              sequence="10"
+              groups="product_requisition.group_pr_user"/>
+
+    <!-- Pending My Approval — approvers and admins only -->
+    <menuitem id="menu_product_requisition_my_approval"
+              name="Pending My Approval"
+              parent="menu_product_requisition_root"
+              action="action_product_requisition_my_approval"
+              sequence="20"
+              groups="product_requisition.group_pr_approver"/>
+
+    <!-- Configuration — admins only -->
+    <menuitem id="menu_product_requisition_config"
+              name="Configuration"
+              parent="menu_product_requisition_root"
+              sequence="90"
+              groups="product_requisition.group_pr_admin"/>
+
+    <menuitem id="menu_product_requisition_workflow"
+              name="Approval Workflows"
+              parent="menu_product_requisition_config"
+              action="action_product_requisition_workflow"
+              sequence="10"
+              groups="product_requisition.group_pr_admin"/>
+</odoo>
+

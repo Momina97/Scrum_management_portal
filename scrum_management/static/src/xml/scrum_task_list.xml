@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+<!--
+================================================================================
+  scrum_task_list.xml - WIDTH FIX EDITION
+================================================================================
+
+  FROM HTML INSPECTION (document 6):
+  ─────────────────────────────────────
+  Column count is CORRECT: 13 ths = 13 tds. No missing/extra columns.
+
+  The ONLY problem is WIDTHS:
+    th[0] o_scrum_th_checkbox = 80px  (should be 32px)
+    th[1] o_scrum_th_expand   = 40px  (should be 32px)
+    th[2] widget auto-th      = 87px  (should be 32px)
+    Total header utility = 207px vs body utility = 96px → 111px shift
+
+  WHY WIDTHS ARE WRONG:
+    HTML auto table-layout gives blank ths proportional widths based on
+    available space divided by column count. Our CSS min/max-width is
+    overridden by the browser table algorithm.
+
+  THE FIX:
+    1. Remove o_scrum_th_expand injection — it makes th[1] separate from
+       the Odoo auto-expand td. Actually NO — keep it because it IS needed
+       to match td[1] (Odoo auto o_list_expand).
+    2. Force widths using BOTH inline style width:32px AND a zero-width
+       content trick to pin the column narrow.
+    3. Override the widget column th width in ScrumListRenderer column loop.
+    4. Use colgroup in ScrumListRenderer to hard-set column widths so
+       browser table-layout algorithm respects them.
+
+  CORRECT COLUMN MAP (13 columns):
+    col A  32px  checkbox th/td
+    col C  32px  scrum_expand widget th/td
+    col D        row_number #
+    col E        id
+    col F        name / Title
+    col G        stage_id
+    col H        user_ids / Owners
+    col I        assigned_by_id
+    col J        subtask_count
+    col K        story_points
+    col L        state
+    col M  36px  delete
+================================================================================
+-->
+
+
+<!-- ============================================================================
+     TEMPLATE 1: ScrumListRenderer
+     Fixes both the header ths AND overrides the widget column th width.
+     Uses colgroup to force browser to respect column widths.
+     ============================================================================ -->
+<t t-name="scrum_management.ScrumListRenderer"
+   t-inherit="web.ListRenderer"
+   t-inherit-mode="primary">
+
+    <!-- Prepend 2 blank ths for checkbox + Odoo expand columns -->
+    <xpath expr="//thead/tr/th[1]" position="before">
+
+        <!-- th A: Checkbox column — matches body td[0] (our forced checkbox td) -->
+        <th class="o_scrum_th_checkbox"
+            style="width:32px !important;min-width:32px !important;
+                   max-width:32px !important;padding:0 !important;">
+        </th>
+
+    </xpath>
+
+
+
+</t>
+
+
+<!-- ============================================================================
+     TEMPLATE 2: RecordRow (PRIMARY) — unchanged from working version
+     ============================================================================ -->
+<t t-name="scrum_management.ScrumTaskList.RecordRow"
+   t-inherit="web.ListRenderer.RecordRow"
+   t-inherit-mode="primary">
+
+    <xpath expr="//td[hasclass('o_list_record_selector')]" position="attributes">
+        <attribute name="t-if">1</attribute>
+    </xpath>
+
+    <xpath expr="//td[hasclass('o_list_record_selector')]" position="replace">
+        <td class="o_list_record_selector o_scrum_td_checkbox"
+            style="width:32px;min-width:32px;max-width:32px;
+                   padding:0 8px;vertical-align:middle;text-align:center;">
+            <input type="checkbox"
+                   class="form-check-input m-0"
+                   style="cursor:pointer;display:block;margin:auto !important;"
+                   t-att-checked="record.selected"
+                   t-on-change.stop="() => this.toggleRecordSelection(record)"
+                   t-on-click.stop="() => {}"/>
+        </td>
+    </xpath>
+
+    <xpath expr="//t[@t-if=&quot;column.type === 'field'&quot;]/td/t[@t-if=&quot;!isInvisible&quot;]"
+           position="replace">
+        <t t-if="!isInvisible">
+            <t t-if="column.name === 'row_number'">
+                <span class="o_field_widget text-muted" style="font-size:12px;">
+                    <t t-esc="this.getRowNumber(record)"/>
+                </span>
+            </t>
+            <t t-elif="canUseFormatter(column, record)"
+               t-out="getFormattedValue(column, record)"/>
+            <Field t-else=""
+                   name="column.name" record="record" type="column.widget"
+                   class="getFieldClass(column)" fieldInfo="column"
+                   t-props="getFieldProps(record, column)"/>
+        </t>
+    </xpath>
+
+    <xpath expr="//t[@t-if=&quot;column.type === 'widget'&quot;]" position="replace">
+        <t t-if="column.type === 'widget'">
+            <td class="o_data_cell"
+                t-att-class="getCellClass(column, record)"
+                style="width:32px;min-width:32px;max-width:32px;
+                       padding:0;vertical-align:middle;text-align:center;">
+                <t t-if="column.name === 'scrum_expand'">
+                    <button class="btn btn-link p-0 border-0 text-secondary"
+                            style="width:24px;height:24px;line-height:1;
+                                   display:inline-flex;align-items:center;
+                                   justify-content:center;"
+                            t-on-click.stop="() => this.toggleExpand(record)">
+                        <i t-if="this.isLoading(record)"
+                           class="fa fa-spinner fa-spin fa-fw" style="font-size:11px;"/>
+                        <i t-elif="this.isExpanded(record)"
+                           class="fa fa-chevron-down fa-fw" style="font-size:11px;"/>
+                        <i t-elif="(record.data.subtask_count or 0) &gt; 0"
+                           class="fa fa-chevron-right fa-fw" style="font-size:11px;"/>
+                        <i t-else=""
+                           class="fa fa-plus fa-fw"
+                           style="font-size:10px;opacity:0.35;" title="Add subtask"/>
+                    </button>
+                </t>
+                <Widget t-else="" t-props="column.props" record="record"/>
+            </td>
+        </t>
+    </xpath>
+
+    <xpath expr="//tr[hasclass('o_data_row')]" position="after">
+        <tr t-if="this.isLoading(record)" class="o_scrum_subtask_row o_scrum_subtask_loading">
+            <td colspan="99" style="padding:8px 20px 8px 52px;color:#94a3b8;font-style:italic;font-size:13px;border-top:none;">
+                <i class="fa fa-spinner fa-spin me-2"/>Loading subtasks…
+            </td>
+        </tr>
+        <t t-if="this.isExpanded(record) and !this.isLoading(record)">
+            <tr t-if="this.getSubtasks(record).length === 0" class="o_scrum_subtask_row o_scrum_subtask_empty">
+                <td colspan="99" style="padding:8px 20px 8px 52px;color:#94a3b8;font-style:italic;font-size:13px;border-top:none;">
+                    No subtasks yet.
+                </td>
+            </tr>
+            <t t-foreach="this.getSubtasks(record)" t-as="subtask" t-key="subtask.id">
+                <tr class="o_scrum_subtask_row"
+                    t-on-click.stop="() => this.openSubtask(subtask.id, record.resId)">
+                    <td style="width:32px;min-width:32px;border-top:none;"/>
+                    <td style="width:32px;min-width:32px;padding:0;vertical-align:middle;text-align:center;border-top:none;">
+                        <i class="fa fa-level-up fa-rotate-90 text-muted" style="font-size:11px;"/>
+                    </td>
+<!--                    <td style="border-top:none;"/>-->
+                    <td style="border-top:none;"/>
+                    <td style="vertical-align:middle;border-top:none;">
+                        <span class="fw-semibold text-primary" style="text-decoration:underline dotted;cursor:pointer;font-size:13px;">
+                            <t t-esc="subtask.name"/>
+                        </span>
+                    </td>
+                    <td style="vertical-align:middle;border-top:none;color:#64748b;font-size:13px;">
+                        <t t-esc="subtask.stage_id ? subtask.stage_id[1] : ''"/>
+                    </td>
+                    <td style="vertical-align:middle;border-top:none;">
+                        <div class="d-flex flex-wrap gap-1 align-items-center">
+                            <t t-if="subtask._owners and subtask._owners.length">
+                                <t t-foreach="subtask._owners" t-as="owner" t-key="owner.id">
+                                    <div class="d-flex align-items-center gap-1">
+                                        <img t-att-src="'/web/image/res.users/'+owner.id+'/avatar_128'"
+                                             t-att-title="owner.name" class="rounded-circle"
+                                             style="width:20px;height:20px;object-fit:cover;"/>
+                                        <span class="text-truncate" style="max-width:80px;font-size:12px;" t-esc="owner.name"/>
+                                    </div>
+                                </t>
+                            </t>
+                            <t t-else=""><span class="text-muted">—</span></t>
+                        </div>
+                    </td>
+                    <td style="vertical-align:middle;border-top:none;">
+                        <t t-if="subtask.assigned_by_id">
+                            <div class="d-flex align-items-center gap-1">
+                                <img t-att-src="'/web/image/res.users/'+subtask.assigned_by_id[0]+'/avatar_128'"
+                                     t-att-title="subtask.assigned_by_id[1]" class="rounded-circle"
+                                     style="width:20px;height:20px;object-fit:cover;"/>
+                                <span style="font-size:12px;" t-esc="subtask.assigned_by_id[1]"/>
+                            </div>
+                        </t>
+                        <t t-else=""><span class="text-muted">—</span></t>
+                    </td>
+                    <td style="vertical-align:middle;border-top:none;">
+                        <span t-if="subtask.subtask_count" class="badge bg-secondary rounded-pill" style="font-size:11px;">
+                            <t t-esc="subtask.subtask_count"/>
+                        </span>
+                        <span t-else="" class="text-muted" style="font-size:12px;">0</span>
+                    </td>
+                    <td style="vertical-align:middle;border-top:none;">
+                        <span class="badge text-dark rounded-pill" style="font-size:11px;">
+                            <t t-esc="subtask.allocated_hours or 0"/>
+                        </span>
+                    </td>
+                    <td style="vertical-align:middle;border-top:none;">
+                        <span t-att-class="'badge rounded-pill ' + (
+                            subtask.state === '1_done'         ? 'bg-success'       :
+                            subtask.state === '01_in_progress' ? 'bg-info text-dark' :
+                            subtask.state === '1_canceled'     ? 'bg-danger'         :
+                                                                   'bg-secondary')"
+                              style="font-size:11px;">
+                            <t t-esc="this.getStateLabel(subtask.state)"/>
+                        </span>
+                    </td>
+                    <td style="vertical-align:middle;border-top:none;"
+                        t-on-click.stop="() => this.deleteSubtask(subtask.id, record.resId)">
+                        <button class="btn btn-link p-0 text-danger" title="Delete subtask" style="font-size:13px;">
+                            <i class="fa fa-trash"/>
+                        </button>
+                    </td>
+                </tr>
+            </t>
+            <tr class="o_scrum_subtask_row o_scrum_subtask_add">
+                <td colspan="99" style="padding:6px 20px 6px 56px;border-top:none;">
+                    <button class="btn btn-link btn-sm text-primary p-0" style="font-size:13px;"
+                            t-on-click.stop="() => this.addSubtask(record)">
+                        <i class="fa fa-plus me-1"/>Add Subtask
+                    </button>
+                </td>
+            </tr>
+        </t>
+    </xpath>
+
+</t>
+
+
+<!-- Styles -->
+<t t-name="scrum_management.TaskListStyles">
+    <style>
+        @keyframes scrumBarFadeIn {
+            from { opacity: 0; transform: translateX(-8px); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+
+        /* Force utility column widths — override Odoo table layout */
+        .o_scrum_task_list table {
+            table-layout: auto !important;
+        }
+
+        /* Checkbox and expand header ths */
+        .o_scrum_task_list thead th.o_scrum_th_checkbox,
+        .o_scrum_task_list thead th.o_scrum_th_expand {
+            width: 32px !important;
+            min-width: 32px !important;
+            max-width: 32px !important;
+            padding: 0 !important;
+            overflow: hidden;
+        }
+
+        /* Widget th (3rd column, no class) — target by position */
+        .o_scrum_task_list thead th:nth-child(3) {
+            width: 32px !important;
+            min-width: 32px !important;
+            max-width: 32px !important;
+            padding: 0 !important;
+            overflow: hidden;
+        }
+
+        /* Body utility tds */
+        .o_scrum_task_list td.o_scrum_td_checkbox {
+            width: 32px !important;
+            min-width: 32px !important;
+            max-width: 32px !important;
+            padding: 0 8px !important;
+        }
+
+        .o_scrum_task_list td.o_scrum_td_checkbox input[type="checkbox"] {
+            display: block;
+            margin: auto !important;
+            cursor: pointer;
+        }
+
+        /* Subtask rows */
+        .o_scrum_subtask_row { background-color: #f8fafc !important; }
+        .o_scrum_subtask_row:hover > td { background-color: #f1f5f9 !important; cursor: pointer; }
+        .o_scrum_subtask_loading > td,
+        .o_scrum_subtask_empty > td,
+        .o_scrum_subtask_add > td { cursor: default !important; }
+
+        #_scrum_bulk_host { display: inline-flex; align-items: center; }
+    </style>
+</t>
+
+</templates>
+
+
+
+

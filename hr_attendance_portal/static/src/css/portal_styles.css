@@ -1,0 +1,709 @@
+/* =============================================
+   HR ATTENDANCE PORTAL STYLES
+   Main color: #6b4e76
+   ============================================= */
+
+.cymax_attendance_page {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 16px 20px 24px;
+}
+
+.o_portal_navbar {
+    margin-bottom: 0 !important;
+    padding-right: 20px !important;
+    padding-left: 20px !important;
+}
+
+/* =============================================
+   PAGE HEADER
+   ============================================= */
+.ca_page_header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.ca_page_title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #6b4e76;
+    margin: 0 0 4px 0;
+}
+
+.ca_page_subtitle {
+    font-size: 0.9rem;
+    color: #9ca3af;
+    margin: 0;
+}
+
+/* =============================================
+   FILTER FORM
+   ============================================= */
+.ca_header_right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.ca_filter_form {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.ca_select {
+    border: 1px solid #e0d9f7;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 0.875rem;
+    color: #1a1a2e;
+    background-color: #ffffff;
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+    outline: none;
+}
+
+.ca_select:focus {
+    border-color: #6b4e76;
+    box-shadow: 0 0 0 3px rgba(107, 78, 118, 0.15);
+}
+
+.ca_reset_btn,
+.ca_secondary_btn {
+    background-color: #ffffff;
+    border: 1px solid #6b4e76;
+    color: #6b4e76;
+    border-radius: 8px;
+    padding: 8px 18px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    display: inline-block;
+}
+
+.ca_reset_btn:hover,
+.ca_secondary_btn:hover {
+    background-color: #6b4e76;
+    color: #ffffff;
+    text-decoration: none;
+}
+
+/* =============================================
+   STATS ROW
+   ============================================= */
+.ca_stats_row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+@media (max-width: 768px) {
+    .ca_stats_row {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .ca_stats_row {
+        grid-template-columns: 1fr;
+    }
+}
+
+.ca_stat_card {
+    /* background: rgba(107, 78, 118, 0.06); */
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(107, 78, 118, 0.15);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    transition: box-shadow 0.2s ease;
+}
+
+.ca_stat_card:hover {
+    box-shadow: 0 4px 16px rgba(107, 78, 118, 0.15);
+}
+
+.ca_stat_value {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #6b4e76;
+}
+
+.ca_stat_label {
+    font-size: 0.8rem;
+    color: #9ca3af;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+/* =============================================
+   TABLE
+   ============================================= */
+.ca_table_wrapper {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(107, 78, 118, 0.15);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 4px 24px rgba(107, 78, 118, 0.08);
+}
+
+.ca_table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+/* ── Header ── */
+.ca_table thead tr {
+    background-color: #6b4e76;
+}
+
+.ca_table thead th {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #ffffff;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    padding: 16px 20px;
+    border: none;
+}
+
+/* ── Body Rows ── */
+.ca_table tbody tr {
+    border-bottom: 1px solid rgba(107, 78, 118, 0.08);
+    transition: background-color 0.15s ease;
+}
+
+.ca_table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.ca_table tbody tr:hover {
+    background-color: rgba(107, 78, 118, 0.05);
+}
+
+.ca_table tbody td {
+    font-size: 0.875rem;
+    color: #1a1a2e;
+    padding: 14px 20px;
+    vertical-align: middle;
+    border: none;
+}
+
+/* =============================================
+   BADGES
+   ============================================= */
+.ca_badge {
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 5px 14px;
+    border-radius: 20px;
+    letter-spacing: 0.3px;
+    display: inline-block;
+}
+
+.ca_badge_approved {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+.ca_badge_refused {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+.ca_badge_pending {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+.ca_badge_working {
+    background-color: rgba(107, 78, 118, 0.1);
+    color: #6b4e76;
+}
+
+/* =============================================
+   SORTABLE COLUMN HEADERS
+   ============================================= */
+.ca_table thead th.ca_sortable_th {
+    padding: 0;
+}
+
+.ca_sort_link {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    height: 100%;
+    padding: 16px 20px;
+    color: #ffffff;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+    white-space: nowrap;
+}
+
+.ca_sort_link:hover,
+.ca_sort_link:focus {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    text-decoration: none;
+}
+
+.ca_sort_link:active {
+    background-color: rgba(255, 255, 255, 0.16);
+}
+
+.ca_sort_link .ca_sort_icon_idle,
+.ca_sort_link > t {
+    font-size: 0.7rem;
+}
+
+.ca_sort_icon_idle {
+    opacity: 0.45;
+    font-size: 0.7rem;
+    transition: opacity 0.15s ease;
+}
+
+.ca_sort_link:hover .ca_sort_icon_idle {
+    opacity: 0.85;
+}
+
+
+/* =============================================
+   EMPTY STATE
+   ============================================= */
+.ca_empty_state {
+    text-align: center;
+    padding: 64px 24px;
+    color: #9ca3af;
+    font-size: 0.95rem;
+}
+
+/* =============================================
+   PAGER
+   ============================================= */
+.o_portal_pager .btn {
+    border-color: rgba(107, 78, 118, 0.3);
+    color: #6b4e76;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    transition: all 0.2s ease;
+}
+
+.o_portal_pager .btn:hover {
+    background-color: #6b4e76;
+    border-color: #6b4e76;
+    color: #ffffff;
+}
+
+/* =============================================
+   RESPONSIVE
+   ============================================= */
+@media (max-width: 768px) {
+    .ca_page_header {
+        flex-direction: column;
+    }
+
+    .ca_table thead th,
+    .ca_table tbody td {
+        padding: 12px 12px;
+        font-size: 0.8rem;
+    }
+
+    .ca_dashboard_grid {
+        grid-template-columns: 1fr;
+    }
+
+    .ca_chart_bars {
+        gap: 8px;
+    }
+}
+
+.ca_select {
+    border: 1px solid #e0d9f7;
+    border-radius: 8px;
+    padding: 8px 36px 8px 14px;
+    font-size: 0.875rem;
+    color: #1a1a2e;
+    background-color: #ffffff;
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b4e76' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+}
+
+.ca_select:focus {
+    border-color: #6b4e76;
+    box-shadow: 0 0 0 3px rgba(107, 78, 118, 0.15);
+}
+
+/* =============================================
+   DASHBOARD GRID
+   ============================================= */
+.ca_dashboard_grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-top: 24px;
+}
+
+@media (max-width: 768px) {
+    .ca_dashboard_grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.ca_dashboard_card {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(107, 78, 118, 0.15);
+    border-radius: 14px;
+    padding: 24px;
+    box-shadow: 0 4px 24px rgba(107, 78, 118, 0.08);
+}
+
+.ca_dashboard_card_header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+}
+
+.ca_dashboard_card_header h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #6b4e76;
+    margin: 0;
+}
+
+/* =============================================
+   BAR CHART (shared by monthly + weekly)
+   ============================================= */
+.ca_chart_container {
+    height: 200px;
+    display: flex;
+    align-items: flex-end;
+}
+
+.ca_chart_bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+    width: 100%;
+    height: 100%;
+}
+
+.ca_chart_column {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
+    height: 100%;
+    justify-content: flex-end;
+}
+
+.ca_chart_value {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #6b4e76;
+}
+
+.ca_chart_bar_wrap {
+    width: 100%;
+    height: 140px;
+    display: flex;
+    align-items: flex-end;
+    background: rgba(107, 78, 118, 0.06);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.ca_chart_fill {
+    width: 100%;
+    background: linear-gradient(180deg, #9b7aaa 0%, #6b4e76 100%);
+    border-radius: 6px;
+    min-height: 4px;
+    transition: height 0.3s ease;
+}
+
+.ca_chart_fill_today {
+    background: linear-gradient(180deg, #CCBDF0 0%, #9b7aaa 100%);
+}
+
+.ca_chart_label {
+    font-size: 0.7rem;
+    color: #9ca3af;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.ca_chart_label_today {
+    color: #6b4e76 !important;
+    font-weight: 600;
+}
+
+/* =============================================
+   RECENT ACTIVITY LIST
+   ============================================= */
+.ca_activity_list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.ca_activity_item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.ca_activity_dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #6b4e76;
+    margin-top: 6px;
+    flex-shrink: 0;
+}
+
+.ca_activity_info {
+    flex: 1;
+}
+
+.ca_activity_info strong {
+    font-size: 0.875rem;
+    color: #1a1a2e;
+    display: block;
+    margin-bottom: 2px;
+}
+
+.ca_activity_info p {
+    font-size: 0.8rem;
+    color: #9ca3af;
+    margin: 0;
+}
+
+/* =============================================
+   OVERTIME BREAKDOWN
+   ============================================= */
+.ca_ot_breakdown {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding-top: 8px;
+}
+
+.ca_ot_row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.ca_ot_meta {
+    width: 100px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.ca_ot_label {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #1a1a2e;
+}
+
+.ca_ot_count {
+    font-size: 0.75rem;
+    color: #9ca3af;
+}
+
+.ca_ot_bar_wrap {
+    flex: 1;
+    height: 10px;
+    background: rgba(107, 78, 118, 0.08);
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.ca_ot_bar {
+    height: 100%;
+    border-radius: 20px;
+    min-width: 4px;
+    transition: width 0.3s ease;
+}
+
+.ca_ot_approved { background: #6b4e76; }
+.ca_ot_pending  { background: #CCBDF0; }
+.ca_ot_refused  { background: #f4a0a0; }
+
+.ca_ot_percent {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #6b4e76;
+    width: 36px;
+    text-align: right;
+    flex-shrink: 0;
+}
+
+.ca_ot_total {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 12px;
+    border-top: 1px solid rgba(107, 78, 118, 0.1);
+    font-size: 0.85rem;
+    color: #6b7280;
+}
+
+.ca_ot_total strong {
+    color: #6b4e76;
+}
+
+/* =============================================
+   TODAY'S TIMELINE
+   ============================================= */
+.ca_timeline_card {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(107, 78, 118, 0.15);
+    border-radius: 14px;
+    padding: 24px;
+    box-shadow: 0 4px 24px rgba(107, 78, 118, 0.08);
+    margin-bottom: 24px;
+}
+
+.ca_timeline_hours {
+    position: relative;
+    height: 20px;
+    margin-bottom: 4px;
+}
+
+.ca_timeline_hour_label {
+    position: absolute;
+    font-size: 0.65rem;
+    color: #9ca3af;
+    transform: translateX(-50%);
+}
+
+/* ── Main bar ── */
+.ca_timeline_bar {
+    position: relative;
+    height: 36px;
+    background: rgba(107, 78, 118, 0.06);
+    border-radius: 8px;
+    overflow: visible !important;  /* allow needle to show above */
+    margin-bottom: 4px;
+}
+
+/* ── Segments ── */
+.ca_timeline_segment {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    background: linear-gradient(90deg, #9b7aaa 0%, #6b4e76 100%);
+    border-radius: 4px;
+    min-width: 3px;
+    transition: width 1s linear;
+}
+
+.ca_timeline_active {
+    background: linear-gradient(90deg, #CCBDF0 0%, #9b7aaa 100%);
+    animation: ca_pulse 2s ease-in-out infinite;
+}
+
+/* ── Current time needle ── */
+.ca_timeline_now {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    width: 2px;
+    background: #6b4e76;
+    border-radius: 2px;
+    z-index: 10;
+    pointer-events: none;
+    transform: translateX(-1px);
+}
+
+.ca_timeline_now::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: -3px;
+    width: 8px;
+    height: 8px;
+    background: #6b4e76;
+    border-radius: 50%;
+}
+
+.ca_timeline_ticks {
+    position: relative;
+    height: 8px;
+    margin-bottom: 12px;
+}
+
+.ca_timeline_tick {
+    position: absolute;
+    top: 0;
+    width: 1px;
+    height: 8px;
+    background: rgba(107, 78, 118, 0.2);
+}
+
+/* ── Legend ── */
+.ca_timeline_legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.ca_timeline_legend_item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8rem;
+    color: #6b7280;
+}
+
+.ca_legend_dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #6b4e76;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+.ca_legend_dot_active {
+    background: #CCBDF0;
+    animation: ca_pulse 2s ease-in-out infinite;
+}
+
+.ca_timeline_empty {
+    font-size: 0.85rem;
+    color: #9ca3af;
+}

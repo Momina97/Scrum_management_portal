@@ -1,0 +1,11 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_hik_central_db_config_admin,hik.central.db.config admin,model_hik_central_db_config,base.group_system,1,1,1,1
+access_hik_central_db_config_hr_manager,hik.central.db.config hr manager,model_hik_central_db_config,hr.group_hr_manager,1,0,0,0
+access_hik_central_db_config_user,hik.central.db.config user,model_hik_central_db_config,base.group_user,0,0,0,0
+access_hik_central_db_config_wizard,hik.central.db.config.wizard,model_hik_central_db_config_wizard,base.group_system,1,1,1,1
+access_hik_attendance_record_admin,hik.attendance.record admin,model_hik_attendance_record,base.group_system,1,1,1,1
+access_hik_attendance_record_hr_manager,hik.attendance.record hr manager,model_hik_attendance_record,hr.group_hr_manager,1,1,0,0
+access_hik_attendance_record_hr_user,hik.attendance.record hr user,model_hik_attendance_record,hr.group_hr_user,1,0,0,0
+access_hik_attendance_record_user,hik.attendance.record user,model_hik_attendance_record,base.group_user,0,0,0,0
+access_hik_process_attendance_wizard,hik.process.attendance.wizard,model_hik_process_attendance_wizard,base.group_system,1,1,1,1
+access_hik_set_sync_date_wizard,hik.set.sync.date.wizard,model_hik_set_sync_date_wizard,base.group_system,1,1,1,1

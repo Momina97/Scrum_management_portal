@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ══════════════════════════════════════════════════════════════════════
+         WORKFLOW FORM VIEW
+         ══════════════════════════════════════════════════════════════════════ -->
+    <record id="view_product_requisition_workflow_form" model="ir.ui.view">
+        <field name="name">product.requisition.workflow.form</field>
+        <field name="model">product.requisition.workflow</field>
+        <field name="arch" type="xml">
+            <form string="Approval Workflow">
+                <sheet>
+                    <widget name="web_ribbon" title="Archived"
+                            bg_color="text-bg-danger" invisible="active"/>
+
+                    <div class="oe_title">
+                        <label for="name" class="text-muted"
+                               style="font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em;">
+                            Workflow Name
+                        </label>
+                        <h1>
+                            <field name="name"
+                                   placeholder="e.g. IT Department Workflow, Global Default…"/>
+                        </h1>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <group string="Scope">
+                                <field name="department_id"
+                                       options="{'no_create': True}"
+                                       placeholder="Leave empty — acts as global fallback"/>
+                                <field name="company_id"
+                                       groups="base.group_multi_company"/>
+                                <field name="sequence"
+                                       help="Lower sequence = higher priority when multiple workflows match."/>
+                                <field name="active" widget="boolean_toggle"/>
+                            </group>
+                        </div>
+                        <div class="col-lg-6">
+                            <group string="Summary">
+                                <field name="step_count" readonly="1" string="Total Steps"/>
+                                <field name="approver_summary" readonly="1"
+                                       string="Approval Chain"/>
+                            </group>
+                            <group string="Description">
+                                <field name="description" nolabel="1"
+                                       placeholder="Optional — describe when or why this workflow applies…"/>
+                            </group>
+                        </div>
+                    </div>
+
+                    <notebook>
+                        <page string="Approval Steps" name="steps">
+                            <div class="alert alert-info d-flex align-items-center gap-2 mb-3">
+                                <i class="fa fa-info-circle"/>
+                                <span>
+                                    Drag steps to reorder. Each step requires a responsible approver.
+                                    The workflow runs top-to-bottom until all required steps are approved.
+                                </span>
+                            </div>
+                            <field name="step_ids" nolabel="1">
+                                <list string="Approval Steps" editable="bottom"
+                                      sequence="sequence">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name" required="1"
+                                           placeholder="e.g. Line Manager, Finance, HOD, CEO"/>
+                                    <field name="approver_id" required="1"
+                                           widget="many2one_avatar_user"/>
+                                    <field name="is_required" string="Required"
+                                           widget="boolean_toggle"/>
+                                    <field name="timeout_days" string="Timeout (days)"
+                                           optional="show"/>
+                                    <field name="notes" string="Instructions"
+                                           optional="hide"
+                                           placeholder="Approver instructions…"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- ══════════════════════════════════════════════════════════════════════
+         WORKFLOW LIST VIEW
+         ══════════════════════════════════════════════════════════════════════ -->
+    <record id="view_product_requisition_workflow_list" model="ir.ui.view">
+        <field name="name">product.requisition.workflow.list</field>
+        <field name="model">product.requisition.workflow</field>
+        <field name="arch" type="xml">
+            <list string="Approval Workflows"
+                  decoration-muted="not active">
+                <field name="sequence" widget="handle"/>
+                <field name="name" string="Workflow"/>
+                <field name="department_id" string="Department"
+                       placeholder="— Global —"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="step_count" string="Steps"/>
+                <field name="approver_summary" string="Approval Chain"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ══════════════════════════════════════════════════════════════════════
+         WORKFLOW SEARCH VIEW
+         ══════════════════════════════════════════════════════════════════════ -->
+    <record id="view_product_requisition_workflow_search" model="ir.ui.view">
+        <field name="name">product.requisition.workflow.search</field>
+        <field name="model">product.requisition.workflow</field>
+        <field name="arch" type="xml">
+            <search string="Search Workflows">
+                <field name="name"/>
+                <field name="department_id"/>
+                <separator/>
+                <filter string="Active"   name="active"
+                        domain="[('active','=',True)]"/>
+                <filter string="Global (no department)" name="global"
+                        domain="[('department_id','=',False)]"/>
+                <filter string="Archived" name="archived"
+                        domain="[('active','=',False)]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Department" name="by_dept"
+                            context="{'group_by': 'department_id'}"/>
+                    <filter string="Company"    name="by_company"
+                            context="{'group_by': 'company_id'}"
+                            groups="base.group_multi_company"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ══════════════════════════════════════════════════════════════════════
+         WINDOW ACTION
+         ══════════════════════════════════════════════════════════════════════ -->
+    <record id="action_product_requisition_workflow" model="ir.actions.act_window">
+        <field name="name">Approval Workflows</field>
+        <field name="res_model">product.requisition.workflow</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_product_requisition_workflow_search"/>
+        <field name="context">{'search_default_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No workflows configured yet
+            </p>
+            <p>
+                Create a workflow and add approval steps for each role in your
+                procurement approval chain (e.g. Line Manager → Finance → CEO).
+                Assign one workflow per department or leave the department blank
+                for a global fallback used by all departments.
+            </p>
+        </field>
+    </record>
+
+</odoo>

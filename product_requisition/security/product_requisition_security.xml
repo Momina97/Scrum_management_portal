@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ══ Module Category ══════════════════════════════════════════════════ -->
+    <record id="module_category_product_requisition" model="ir.module.category">
+        <field name="name">Product Requisition</field>
+        <field name="description">Manage product and inventory requisitions with approval workflows.</field>
+        <field name="sequence">20</field>
+    </record>
+
+    <!-- ══ Groups ═══════════════════════════════════════════════════════════
+         Hierarchy:  User  ⊂  Approver  ⊂  Administrator
+    ═══════════════════════════════════════════════════════════════════════ -->
+
+    <!-- Level 1: Requester — can create and submit their own requisitions only -->
+    <record id="group_pr_user" model="res.groups">
+        <field name="name">User</field>
+        <field name="category_id" ref="module_category_product_requisition"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        <field name="comment">Can create and submit their own requisitions. Cannot approve or access configuration.</field>
+    </record>
+
+    <!-- Level 2: Approver — can approve/reject requisitions assigned or historically handled -->
+    <record id="group_pr_approver" model="res.groups">
+        <field name="name">Approver</field>
+        <field name="category_id" ref="module_category_product_requisition"/>
+        <field name="implied_ids" eval="[(4, ref('group_pr_user'))]"/>
+        <field name="comment">Can approve/reject requisitions currently assigned to them and view those they acted on previously.</field>
+    </record>
+
+    <!-- Level 3: Administrator — full access including configuration and all records -->
+    <record id="group_pr_admin" model="res.groups">
+        <field name="name">Administrator</field>
+        <field name="category_id" ref="module_category_product_requisition"/>
+        <field name="implied_ids" eval="[(4, ref('group_pr_approver'))]"/>
+        <field name="comment">Full access: see and manage all requisitions, configure approval workflows.</field>
+    </record>
+
+    <!-- ══ Record Rules ══════════════════════════════════════════════════════
+         Rules within the same group are OR'd; rules from different groups
+         a user belongs to are also OR'd (Odoo default behaviour).
+         Because groups are hierarchical (admin implies approver implies user),
+         each level automatically inherits the visibility of the level below.
+    ═══════════════════════════════════════════════════════════════════════ -->
+
+    <!-- Portal: own records only -->
+    <record id="rule_requisition_portal_user" model="ir.rule">
+        <field name="name">Product Requisition: Portal — Own Records</field>
+        <field name="model_id" ref="model_product_requisition"/>
+        <field name="domain_force">[('user_id', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <!-- PR User: own requisitions only -->
+    <record id="rule_requisition_internal_user" model="ir.rule">
+        <field name="name">Product Requisition: User — Own Records Only</field>
+        <field name="model_id" ref="model_product_requisition"/>
+        <field name="domain_force">[('user_id', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('group_pr_user'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+    <!-- PR Approver: own + currently assigned + previously acted on -->
+    <record id="rule_requisition_approver" model="ir.rule">
+        <field name="name">Product Requisition: Approver — Assigned and History</field>
+        <field name="model_id" ref="model_product_requisition"/>
+        <field name="domain_force">['|', '|', ('user_id', '=', user.id), ('current_approver_id', '=', user.id), ('approval_history_ids.user_id', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('group_pr_approver'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <!-- PR Admin: all requisitions without restriction -->
+    <record id="rule_requisition_admin_all" model="ir.rule">
+        <field name="name">Product Requisition: Admin — All Records</field>
+        <field name="model_id" ref="model_product_requisition"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_pr_admin'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+</odoo>

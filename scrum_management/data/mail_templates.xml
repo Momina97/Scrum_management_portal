@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- 1. Email Template for Meeting Invitation -->
+    <record id="email_template_meeting_invitation" model="mail.template">
+        <field name="name">Scrum Meeting: Invitation</field>
+        <field name="model_id" ref="scrum_management.model_project_scrum_meeting"/>
+        <field name="subject">Meeting Invitation: ${object.subject}</field>
+        <field name="email_to">${object.attendee_ids.mapped('email') and ','.join(object.attendee_ids.mapped('email')) or ''}</field>
+        <field name="body_html" type="html">
+            <div style="margin: 0px; padding: 0px; font-family: 'Lucica Grande', Ubuntu, Arial, Verdana, sans-serif; font-size: 12px;">
+                <p>Hello,</p>
+                <p>You are invited to the following Scrum meeting:</p>
+                <strong>${object.subject}</strong>
+                <ul>
+                    <li><strong>Date:</strong> <t t-esc="object.date" t-options='{"widget": "datetime"}'/></li>
+                    <li t-if="object.project_id"><strong>Project:</strong> ${object.project_id.name}</li>
+                    <li t-if="object.sprint_id"><strong>Sprint:</strong> ${object.sprint_id.name}</li>
+                </ul>
+
+                <div t-if="object.description">
+                    <strong>Agenda / Description:</strong>
+                    ${object.description}
+                </div>
+
+                <p>Thank you,</p>
+                <p>-- <br/>OdooBot</p>
+            </div>
+        </field>
+    </record>
+
+    <!-- 2. Email Template for Meeting Reminder -->
+    <record id="email_template_meeting_reminder" model="mail.template">
+        <field name="name">Scrum Meeting: Reminder</field>
+        <field name="model_id" ref="scrum_management.model_project_scrum_meeting"/>
+        <field name="subject">Meeting Reminder: ${object.subject}</field>
+        <field name="email_to">${object.attendee_ids.mapped('email') and ','.join(object.attendee_ids.mapped('email')) or ''}</field>
+        <field name="body_html" type="html">
+            <div style="margin: 0px; padding: 0px; font-family: 'Lucica Grande', Ubuntu, Arial, Verdana, sans-serif; font-size: 12px;">
+                <p>Hello,</p>
+                <p>This is a reminder for the upcoming Scrum meeting:</p>
+                <strong>${object.subject}</strong>
+                <ul>
+                    <li><strong>Date:</strong> <t t-esc="object.date" t-options='{"widget": "datetime"}'/></li>
+                    <li t-if="object.project_id"><strong>Project:</strong> ${object.project_id.name}</li>
+                    <li t-if="object.sprint_id"><strong>Sprint:</strong> ${object.sprint_id.name}</li>
+                </ul>
+                <div t-if="object.description">
+                    <strong>Agenda / Description:</strong>
+                    ${object.description}
+                </div>
+                <p>See you soon!</p>
+            </div>
+        </field>
+    </record>
+
+    <!-- 3. Email Template for Meeting Cancellation -->
+    <record id="email_template_meeting_cancellation" model="mail.template">
+        <field name="name">Scrum Meeting: Cancellation</field>
+        <field name="model_id" ref="scrum_management.model_project_scrum_meeting"/>
+        <field name="subject">Meeting Cancelled: ${object.subject}</field>
+        <field name="email_to">${object.attendee_ids.mapped('email') and ','.join(object.attendee_ids.mapped('email')) or ''}</field>
+        <field name="body_html" type="html">
+            <div style="margin: 0px; padding: 0px; font-family: 'Lucica Grande', Ubuntu, Arial, Verdana, sans-serif; font-size: 12px;">
+                <p>Hello,</p>
+                <p>Please note that the following meeting has been cancelled:</p>
+                <strong>${object.subject}</strong>
+                <ul>
+                    <li><strong>Original Date:</strong> <t t-esc="object.date" t-options='{"widget": "datetime"}'/></li>
+                    <li t-if="object.project_id"><strong>Project:</strong> ${object.project_id.name}</li>
+                </ul>
+                <p>We apologize for any inconvenience.</p>
+            </div>
+        </field>
+    </record>
+</odoo>

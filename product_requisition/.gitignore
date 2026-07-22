@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+**/__pycache__/
+controllers/__pycache__/
+models/__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+*.egg-info/
+*.egg
+dist/
+build/
+.eggs/
+
+
+# Odoo specific
+*.log
+*.pot
+*.pyc
+filestore/
+sessions/
+.odoo_history
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Test / Coverage
+.coverage
+htmlcov/
+.pytest_cache/
+*.cover
+
+# Compiled translations
+*.mo

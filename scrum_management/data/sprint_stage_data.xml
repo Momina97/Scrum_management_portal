@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+
+        <record id="sprint_stage_backlog" model="project.scrum.sprint.stage">
+            <field name="name">Backlog</field>
+            <field name="sequence">1</field>
+            <field name="category">backlog</field>
+        </record>
+
+        <record id="sprint_stage_todo" model="project.scrum.sprint.stage">
+            <field name="name">Active / To Do</field>
+            <field name="sequence">2</field>
+            <field name="category">todo</field>
+        </record>
+
+        <record id="sprint_stage_in_progress" model="project.scrum.sprint.stage">
+            <field name="name">Active / In Progress</field>
+            <field name="sequence">3</field>
+            <field name="category">in_progress</field>
+        </record>
+
+        <record id="sprint_stage_qa" model="project.scrum.sprint.stage">
+            <field name="name">In QA</field>
+            <field name="sequence">4</field>
+            <field name="category">qa</field>
+        </record>
+
+        <record id="sprint_stage_review" model="project.scrum.sprint.stage">
+            <field name="name">In Review</field>
+            <field name="sequence">5</field>
+            <field name="category">review</field>
+        </record>
+
+        <record id="sprint_stage_finalized" model="project.scrum.sprint.stage">
+            <field name="name">Finished / Closed</field>
+            <field name="sequence">10</field>
+            <field name="category">finalized</field>
+            <field name="fold" eval="True"/>
+        </record>
+
+    </data>
+</odoo>

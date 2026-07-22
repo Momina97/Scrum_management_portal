@@ -1,7 +1,8 @@
 from odoo import http, _
 from odoo.http import request
 from odoo.addons.portal.controllers.portal import CustomerPortal, pager as portal_pager
-from odoo.exceptions import ValidationError, AccessError, UserError
+from odoo.exceptions import AccessError, ValidationError, UserError
+
 
 class TimeOffPortal(CustomerPortal):
 
@@ -16,7 +17,7 @@ class TimeOffPortal(CustomerPortal):
         if not leave.exists() or leave.employee_id.id != employee.id:
             raise AccessError(_("You do not have access to this leave request."))
         return leave
-    
+
     def _prepare_home_portal_values(self, counters):
         values = super()._prepare_home_portal_values(counters)
         if 'leave_count' in counters:
@@ -28,37 +29,9 @@ class TimeOffPortal(CustomerPortal):
             else:
                 values['leave_count'] = 0
         return values
-    
-    @http.route(['/my/timeoff', '/my/timeoff/page/<int:page>'],
-                type = 'http',
-                auth = 'user',
-                website = True
-                )
-    def portal_my_timeoff(self, page = 1, **kw):
-        page = int(page)
-        employee = self._get_employee_sudo()
 
-        if not employee:
-            return request.render('hr_holidays_portal.portal_no_employee', {})
-        
-        domain = [('employee_id', '=' , employee.id)]
+    def _get_balance(self, employee):
         Leave = request.env['hr.leave'].sudo()
-
-        leave_count = Leave.search_count(domain)
-        pager = portal_pager(
-            url ='/my/timeoff',
-            url_args={},
-            total=leave_count,
-            page=page,
-            step=10,
-        )
-        leaves = Leave.search(
-            domain,
-            order='write_date desc',
-            limit=10,
-            offset=pager['offset'],
-        )
-        
         allocations = request.env['hr.leave.allocation'].sudo().search([
             ('employee_id', '=', employee.id),
             ('state', '=', 'validate'),
@@ -85,11 +58,76 @@ class TimeOffPortal(CustomerPortal):
                 balance[lt_id]['taken'] += lv.number_of_days
 
         for lt_id in balance:
-            balance[lt_id]['remaining'] = (
-                balance[lt_id]['allocated'] - balance[lt_id]['taken']
-            )
+            remaining = balance[lt_id]['allocated'] - balance[lt_id]['taken']
+            balance[lt_id]['remaining'] = remaining
+            pct = int(min((remaining / balance[lt_id]['allocated'] * 100) if balance[lt_id]['allocated'] else 0, 100))
+            balance[lt_id]['bar_style'] = 'width: %s%%' % pct
 
-        # --- Team leads: fetch their team's leaves ---
+        return list(balance.values())
+
+    # ── DASHBOARD ──
+    @http.route(['/my/timeoff'],
+                type='http', auth='user', website=True)
+    def portal_my_timeoff(self, **kw):
+        employee = self._get_employee_sudo()
+        if not employee:
+            return request.render('hr_holidays_portal.portal_no_employee', {})
+
+        balance = self._get_balance(employee)
+        is_approver = bool(employee.x_is_portal_approver)
+
+        to_approve = []
+        if is_approver:
+            team_members = request.env['hr.employee'].sudo().search([
+                ('parent_id', '=', employee.id),
+            ])
+            if team_members:
+                to_approve = request.env['hr.leave'].sudo().search([
+                    ('employee_id', 'in', team_members.ids),
+                    ('state', '=', 'confirm'),
+                ], order='write_date desc')
+
+        waiting = request.env['hr.leave'].sudo().search([
+            ('employee_id', '=', employee.id),
+            ('state', 'in', ['confirm', 'validate1']),
+        ], order='write_date desc')
+
+        return request.render('hr_holidays_portal.portal_my_timeoff', {
+            'employee':     employee,
+            'balance':      balance,
+            'page_name':    'timeoff',
+            'is_approver':  is_approver,
+            'to_approve':   to_approve,
+            'waiting':      waiting,
+        })
+
+    # ── REQUESTS LIST ──
+    @http.route(['/my/timeoff/requests', '/my/timeoff/requests/page/<int:page>'],
+                type='http', auth='user', website=True)
+    def portal_timeoff_requests(self, page=1, **kw):
+        page = int(page)
+        employee = self._get_employee_sudo()
+        if not employee:
+            return request.render('hr_holidays_portal.portal_no_employee', {})
+
+        Leave = request.env['hr.leave'].sudo()
+        domain = [('employee_id', '=', employee.id)]
+
+        leave_count = Leave.search_count(domain)
+        pager = portal_pager(
+            url='/my/timeoff/requests',
+            url_args={},
+            total=leave_count,
+            page=page,
+            step=10,
+        )
+        leaves = Leave.search(
+            domain,
+            order='write_date desc',
+            limit=10,
+            offset=pager['offset'],
+        )
+
         is_approver = employee.x_is_portal_approver
         team_leaves = []
         if is_approver:
@@ -101,152 +139,32 @@ class TimeOffPortal(CustomerPortal):
                     ('employee_id', 'in', team_members.ids),
                 ], order='write_date desc')
 
-        return request.render('hr_holidays_portal.portal_my_timeoff', {
-            'employee': employee,
-            'leaves': leaves,
-            'pager': pager,
-            'balance': list(balance.values()),
+        balance = self._get_balance(employee)
+
+        return request.render('hr_holidays_portal.portal_timeoff_requests', {
+            'employee':    employee,
+            'leaves':      leaves,
+            'pager':       pager,
             'is_approver': is_approver,
             'team_leaves': team_leaves,
-            'page_name': 'timeoff',
-        })
-    
-    @http.route('/my/timeoff/new', 
-            type='http', 
-            auth='user', 
-            website=True
-            )
-    def portal_timeoff_new(self, **post):
-        employee = self._get_employee_sudo()
-
-        if not employee:
-            return request.render('hr_holidays_portal.portal_no_employee', {})
-
-        leave_types = request.env['hr.leave.type'].sudo().search([
-            ('active', '=', True),
-        ])
-
-        if post.get('leave_type_id'):
-            errors = {}
-            leave_type_id = int(post.get('leave_type_id', 0))
-            date_from     = post.get('date_from', '').strip()
-            date_to       = post.get('date_to', '').strip()
-            description   = post.get('description', '').strip()
-
-            if not leave_type_id:
-                errors['leave_type_id'] = _("Please select a leave type.")
-            if not date_from:
-                errors['date_from'] = _("Please set the start date.")
-            if not date_to:
-                errors['date_to'] = _("Please set the end date.")
-            if not description:
-                errors['description'] = _("Please provide a reason for your leave.")
-
-            if not errors:
-                try:
-                    leave = request.env['hr.leave'].sudo().with_context(
-                        leave_fast_create=True
-                    ).create({
-                        'holiday_status_id': leave_type_id,
-                        'employee_id': employee.id,
-                        'request_date_from': date_from,
-                        'request_date_to': date_to,
-                        'state': 'confirm',
-                        'name': description,
-                    })
-                except (ValidationError, UserError) as e:
-                    errors['general'] = str(e)
-                    return request.render('hr_holidays_portal.portal_timeoff_new', {
-                        'employee': employee,
-                        'leave_types': leave_types,
-                        'post': post,
-                        'errors': errors,
-                        'page_name': 'timeoff_new',
-                    })
-                except Exception as e:
-                    errors['general'] = str(e)
-                    return request.render('hr_holidays_portal.portal_timeoff_new', {
-                        'employee': employee,
-                        'leave_types': leave_types,
-                        'post': post,
-                        'errors': errors,
-                        'page_name': 'timeoff_new',
-                    })
-                return request.redirect('/my/timeoff/%d?submitted=1' % leave.id)
-
-            return request.render('hr_holidays_portal.portal_timeoff_new', {
-                'employee':    employee,
-                'leave_types': leave_types,
-                'post':        post,
-                'errors':      errors,
-                'page_name':   'timeoff_new',
-            })
-
-        return request.render('hr_holidays_portal.portal_timeoff_new', {
-            'employee':    employee,
-            'leave_types': leave_types,
-            'post':        {},
-            'errors':      {},
-            'page_name':   'timeoff_new',
+            'balance':     balance,
+            'page_name':   'timeoff_requests',
         })
 
-    @http.route('/my/timeoff/<int:leave_id>', 
-                type='http', 
-                auth='user', 
-                website=True
-                )
-    def portal_timeoff_detail(self, leave_id, **kw):
-        employee = self._get_employee_sudo()
-
-        if not employee:
-            return request.render('hr_holidays_portal.portal_no_employee', {})
-
-        try:
-            leave = self._get_leave_sudo(leave_id, employee)
-        except AccessError:
-            return request.render('website.403')
-
-        submitted = kw.get('submitted') == '1'
-
-        return request.render('hr_holidays_portal.portal_timeoff_detail', {
-            'employee':  employee,
-            'leave':     leave,
-            'submitted': submitted,
-            'page_name': 'timeoff_detail',
+    def _render_timeoff_error(self, error_title, error_message, back_url='/my/timeoff', back_label='Go Back'):
+        return request.render('hr_holidays_portal.portal_timeoff_error', {
+            'error_title':   error_title,
+            'error_message': error_message,
+            'back_url':      back_url,
+            'back_label':    back_label,
+            'page_name':     'timeoff',
         })
 
-    @http.route(
-        '/my/timeoff/<int:leave_id>/cancel',
-                type='http', 
-                auth='user', 
-                website=True, 
-                methods=['POST']
-    )
-    def portal_timeoff_cancel(self, leave_id, **kw):
-        employee = self._get_employee_sudo()
-
-        if not employee:
-            return request.redirect('/my/timeoff')
-
-        try:
-            leave = self._get_leave_sudo(leave_id, employee)
-        except AccessError:
-            return request.redirect('/my/timeoff')
-
-        if leave.state in ('draft', 'confirm', 'validate1'):
-            leave.action_refuse()
-
-        return request.redirect('/my/timeoff/%d' % leave_id)
-    
+    # ── APPROVE ──
     @http.route('/my/timeoff/<int:leave_id>/approve',
-            type='http', 
-            auth='user', 
-            website=True, 
-            methods=['POST']
-            )
+                type='http', auth='user', website=True, methods=['POST'])
     def portal_timeoff_approve(self, leave_id, **kw):
         employee = self._get_employee_sudo()
-
         if not employee or not employee.x_is_portal_approver:
             return request.redirect('/my/timeoff')
 
@@ -254,7 +172,6 @@ class TimeOffPortal(CustomerPortal):
         if not leave.exists():
             return request.redirect('/my/timeoff')
 
-        # Check this leave belongs to one of the approver's team members
         team_members = request.env['hr.employee'].sudo().search([
             ('parent_id', '=', employee.id),
         ])
@@ -262,17 +179,28 @@ class TimeOffPortal(CustomerPortal):
             return request.redirect('/my/timeoff')
 
         if leave.state == 'confirm':
-            leave.write({'state': 'validate1'})
+            try:
+                with request.env.cr.savepoint():
+                    leave.write({'state': 'validate1'})
+                    leave.flush_recordset()
+            except (ValidationError, UserError) as e:
+                return self._render_timeoff_error(
+                    _("Cannot Approve Request"),
+                    _(
+                        "This leave request could not be approved: %s The request remains "
+                        "pending and must not be approved until the issue is resolved."
+                    ) % str(e).strip(),
+                    back_url='/my/timeoff/requests#team-requests',
+                    back_label='Back to Team Requests',
+                )
 
-        return request.redirect('/my/timeoff')
+        return request.redirect('/my/timeoff/requests#team-requests')
 
-    @http.route(
-        '/my/timeoff/<int:leave_id>/refuse',
-        type='http', auth='user', website=True, methods=['POST']
-    )
+    # ── REFUSE ──
+    @http.route('/my/timeoff/<int:leave_id>/refuse',
+                type='http', auth='user', website=True, methods=['POST'])
     def portal_timeoff_refuse(self, leave_id, **kw):
         employee = self._get_employee_sudo()
-
         if not employee or not employee.x_is_portal_approver:
             return request.redirect('/my/timeoff')
 
@@ -286,7 +214,17 @@ class TimeOffPortal(CustomerPortal):
         if leave.employee_id.id not in team_members.ids:
             return request.redirect('/my/timeoff')
 
-        if leave.state in ('confirm', 'validate1'):
-            leave.action_refuse()
+        try:
+            with request.env.cr.savepoint():
+                if leave.state in ('confirm', 'validate1'):
+                    leave.action_refuse()
+                leave.flush_recordset()
+        except (ValidationError, UserError) as e:
+            return self._render_timeoff_error(
+                _("Cannot Refuse Request"),
+                _("This leave request could not be refused: %s") % str(e).strip(),
+                back_url='/my/timeoff/requests#team-requests',
+                back_label='Back to Team Requests',
+            )
 
-        return request.redirect('/my/timeoff')
+        return request.redirect('/my/timeoff/requests#team-requests')

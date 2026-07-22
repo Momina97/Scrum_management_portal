@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_product_requisition_reject_wizard_form" model="ir.ui.view">
+        <field name="name">product.requisition.reject.wizard.form</field>
+        <field name="model">product.requisition.reject.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Reject Requisition">
+
+                <!-- ── Danger Header ────────────────────────────────────── -->
+                <div class="alert alert-danger d-flex align-items-start gap-3 mb-0">
+                    <i class="fa fa-exclamation-circle fa-2x mt-1"/>
+                    <div>
+                        <div class="fw-bold" style="font-size:1rem;">
+                            Reject this Requisition?
+                        </div>
+                        <div class="text-muted" style="font-size:0.88rem;">
+                            This action will stop the approval process.
+                            The requester will be notified and must revise and resubmit.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── Context ─────────────────────────────────────────── -->
+                <div class="p-3 mt-2"
+                     style="background:#f8f9fa; border-radius:8px; border:1px solid #dee2e6;">
+                    <div class="text-muted mb-2"
+                         style="font-size:0.78rem; text-transform:uppercase; letter-spacing:0.05em;">
+                        Requisition Details
+                    </div>
+                    <div class="row">
+                        <div class="col-4">
+                            <div class="text-muted" style="font-size:0.8rem;">Requester</div>
+                            <field name="requester_name" readonly="1" nolabel="1"
+                                   class="fw-semibold"/>
+                        </div>
+                        <div class="col-4">
+                            <div class="text-muted" style="font-size:0.8rem;">Current Step</div>
+                            <field name="current_step" readonly="1" nolabel="1"
+                                   class="fw-semibold"/>
+                        </div>
+                        <div class="col-4">
+                            <div class="text-muted" style="font-size:0.8rem;">Department</div>
+                            <field name="department_name" readonly="1" nolabel="1"
+                                   class="fw-semibold"/>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── Rejection Reason ─────────────────────────────────── -->
+                <div class="mt-3">
+                    <label for="reason" class="fw-semibold">
+                        Rejection Reason
+                        <span class="text-danger ms-1">*</span>
+                    </label>
+                    <field name="reason" nolabel="1"
+                           widget="text"
+                           required="1"
+                           placeholder="Explain clearly why this requisition is being rejected (minimum 10 characters). Be specific so the requester knows what to correct…"
+                           style="min-height:100px;"/>
+                </div>
+
+                <footer>
+                    <button name="action_confirm_reject"
+                            string="&#10007;  Confirm Rejection"
+                            type="object"
+                            class="btn-danger"
+                            confirm="Are you sure you want to reject this requisition? This cannot be undone by you."/>
+                    <button string="Go Back" special="cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

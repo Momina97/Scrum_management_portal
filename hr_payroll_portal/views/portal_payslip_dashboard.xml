@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="portal_payslip_dashboard" name="Payslip Dashboard">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title">Payslips</t>
+            </t>
+
+            <div class="cymax_payslips_page">
+
+                <!-- PAGE HEADER -->
+                <div class="cp_page_header">
+                    <div class="cp_header_left">
+                        <h1 class="cp_page_title">Payslip Dashboard</h1>
+                        <p class="cp_page_subtitle">Your salary overview and payment history.</p>
+                    </div>
+                    <div class="cp_header_right">
+                        <form method="GET" action="/my/payslips"
+                              class="cp_filter_form"
+                              id="payslip_dash_filter_form">
+                            <select name="filter_year" class="cp_select"
+                                    onchange="document.getElementById('payslip_dash_filter_form').submit()">
+                                <option value="">All Years</option>
+                                <t t-foreach="years" t-as="year">
+                                    <option t-att-value="year"
+                                            t-att-selected="str(year) == filter_year">
+                                        <t t-esc="year"/>
+                                    </option>
+                                </t>
+                            </select>
+                            <select name="filter_month" class="cp_select"
+                                    onchange="document.getElementById('payslip_dash_filter_form').submit()">
+                                <option value="">All Months</option>
+                                <t t-foreach="months" t-as="month">
+                                    <option t-att-value="month[0]"
+                                            t-att-selected="month[0] == filter_month">
+                                        <t t-esc="month[1]"/>
+                                    </option>
+                                </t>
+                            </select>
+                            <a href="/my/payslips" class="cp_reset_btn">Reset</a>
+                        </form>
+                        <a href="/my/payslips/list" class="cp_reset_btn">View Payslips →</a>
+                    </div>
+                </div>
+
+                <!-- STATS ROW -->
+                <div class="cp_stats_row">
+                    <div class="cp_stat_card">
+                        <span class="cp_stat_value">
+                            <t t-esc="total_payslips"/>
+                        </span>
+                        <span class="cp_stat_label">Total Payslips</span>
+                    </div>
+                    <div class="cp_stat_card">
+                        <span class="cp_stat_value">
+                            <t t-esc="total_gross"/>
+                        </span>
+                        <span class="cp_stat_label">Total Gross</span>
+                    </div>
+                    <div class="cp_stat_card">
+                        <span class="cp_stat_value cp_stat_success">
+                            <t t-esc="total_net"/>
+                        </span>
+                        <span class="cp_stat_label">Total Net</span>
+                    </div>
+                    <div class="cp_stat_card">
+                        <span class="cp_stat_value cp_stat_danger">
+                            <t t-esc="total_deductions"/>
+                        </span>
+                        <span class="cp_stat_label">Total Deductions</span>
+                    </div>
+                </div>
+
+                <!-- ROW 2 — Monthly Chart + Recent Payslips -->
+                <div class="cp_dashboard_grid">
+
+                    <!-- MONTHLY NET PAY CHART -->
+                    <div class="cp_dashboard_card">
+                        <div class="cp_dashboard_card_header">
+                            <h3>Monthly Net Pay</h3>
+                            <span class="cp_dash_badge">Last 6 months</span>
+                        </div>
+                        <div class="cp_chart_container">
+                            <div class="cp_chart_bars">
+                                <t t-foreach="monthly_counts" t-as="month">
+                                    <div class="cp_chart_column">
+                                        <span class="cp_chart_value">
+                                            <t t-esc="month['value_str']"/>
+                                        </span>
+                                        <div class="cp_chart_bar_wrap">
+                                            <div class="cp_chart_fill"
+                                                 t-att-style="month['style']"/>
+                                        </div>
+                                        <span class="cp_chart_label">
+                                            <t t-esc="month['label']"/>
+                                        </span>
+                                    </div>
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RECENT PAYSLIPS -->
+                    <div class="cp_dashboard_card">
+                        <div class="cp_dashboard_card_header">
+                            <h3>Recent Payslips</h3>
+                            <span class="cp_dash_badge">Last 5</span>
+                        </div>
+                        <ul class="cp_activity_list">
+                            <t t-foreach="recent_payslips" t-as="slip">
+                                <li class="cp_activity_item">
+                                    <div class="cp_activity_dot"/>
+                                    <div class="cp_activity_info">
+                                        <strong>
+                                            <a t-attf-href="/my/payslips/#{slip.id}"
+                                               class="cp_link">
+                                                <t t-esc="slip.name"/>
+                                            </a>
+                                        </strong>
+                                        <p>
+                                            <span t-field="slip.date_from" t-options='{"widget": "date"}'/>
+                                            —
+                                            <span t-field="slip.date_to" t-options='{"widget": "date"}'/>
+                                            · Net: <t t-esc="slip.net_wage"/>
+                                        </p>
+                                    </div>
+                                    <a t-attf-href="/my/payslips/#{slip.id}/download"
+                                       class="cp_download_icon" title="Download">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                            <polyline points="7 10 12 15 17 10"/>
+                                            <line x1="12" y1="15" x2="12" y2="3"/>
+                                        </svg>
+                                    </a>
+                                </li>
+                            </t>
+                            <t t-if="not recent_payslips">
+                                <li class="cp_empty_state" style="padding: 32px;">
+                                    No payslips found.
+                                </li>
+                            </t>
+                        </ul>
+                    </div>
+
+                </div>
+
+                <!-- ROW 3 — Earnings vs Deductions + Yearly Comparison -->
+                <div class="cp_dashboard_grid" style="margin-top: 24px;">
+
+                    <!-- EARNINGS VS DEDUCTIONS -->
+                    <div class="cp_dashboard_card">
+                        <div class="cp_dashboard_card_header">
+                            <h3>Earnings vs Deductions</h3>
+                            <span class="cp_dash_badge">Breakdown</span>
+                        </div>
+                        <div class="cp_ot_breakdown">
+                            <t t-foreach="breakdown" t-as="item">
+                                <div class="cp_ot_row">
+                                    <div class="cp_ot_meta">
+                                        <span class="cp_ot_label"><t t-esc="item['label']"/></span>
+                                        <span class="cp_ot_count"><t t-esc="item['value_str']"/></span>
+                                    </div>
+                                    <div class="cp_ot_bar_wrap">
+                                        <div t-att-class="'cp_ot_bar ' + item['class']"
+                                             t-att-style="item['style']"/>
+                                    </div>
+                                    <span class="cp_ot_percent"><t t-esc="item['percent']"/>%</span>
+                                </div>
+                            </t>
+                            <div class="cp_ot_total">
+                                <span>Total Gross:</span>
+                                <strong><t t-esc="total_gross"/></strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- YEARLY COMPARISON -->
+                    <div class="cp_dashboard_card">
+                        <div class="cp_dashboard_card_header">
+                            <h3>Yearly Comparison</h3>
+                            <span class="cp_dash_badge">Last 3 years</span>
+                        </div>
+                        <div class="cp_yearly_breakdown">
+                            <t t-foreach="yearly_data" t-as="yr">
+                                <div class="cp_yearly_row">
+                                    <div class="cp_yearly_label"><t t-esc="yr['year']"/></div>
+                                    <div class="cp_yearly_bars">
+                                        <div class="cp_yearly_bar_row">
+                                            <span class="cp_yearly_tag">Gross</span>
+                                            <div class="cp_ot_bar_wrap">
+                                                <div class="cp_ot_bar cp_ot_approved"
+                                                     t-att-style="yr['gross_pct']"/>
+                                            </div>
+                                            <span class="cp_ot_percent"><t t-esc="yr['gross_str']"/></span>
+                                        </div>
+                                        <div class="cp_yearly_bar_row">
+                                            <span class="cp_yearly_tag">Net</span>
+                                            <div class="cp_ot_bar_wrap">
+                                                <div class="cp_ot_bar cp_ot_pending"
+                                                     t-att-style="yr['net_pct']"/>
+                                            </div>
+                                            <span class="cp_ot_percent"><t t-esc="yr['net_str']"/></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </t>
+                            <t t-if="not yearly_data">
+                                <div class="cp_empty_state" style="padding: 32px;">
+                                    No yearly data available.
+                                </div>
+                            </t>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </t>
+    </template>
+</odoo>

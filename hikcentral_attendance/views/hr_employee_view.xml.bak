@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Add manual_attendance_allowed field to employee form -->
+    <record id="view_employee_form_inherit_hikcentral" model="ir.ui.view">
+        <field name="name">hr.employee.form.hikcentral</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='hr_settings']" position="inside">
+                <group name="hikcentral_attendance" string="HikCentral Attendance">
+                    <field name="manual_attendance_allowed" groups="hr_attendance.group_hr_attendance_manager"/>
+                    <field name="work_from_home" groups="hr_attendance.group_hr_attendance_manager"/>
+                    <field name="work_from_home_start_date" groups="hr_attendance.group_hr_attendance_manager" 
+                           attrs="{'invisible': [('work_from_home', '=', False)], 'required': [('work_from_home', '=', True)]}"/>
+                    <field name="work_from_home_end_date" groups="hr_attendance.group_hr_attendance_manager"
+                           attrs="{'invisible': [('work_from_home', '=', False)]}"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

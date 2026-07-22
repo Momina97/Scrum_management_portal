@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Database Configuration Form View -->
+    <record id="view_hik_central_db_config_form" model="ir.ui.view">
+        <field name="name">hik.central.db.config.form</field>
+        <field name="model">hik.central.db.config</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button string="Test Connection" name="test_connection" type="object" class="btn-primary"/>
+                    <button string="Fetch Attendance Now" name="action_fetch_attendance" type="object"/>
+                    <button string="Fetch ALL Records (Full Import)" name="action_fetch_all_attendance" type="object"
+                           confirm="Warning: This will attempt to import ALL records from the HikCentral database, which could take a long time depending on the volume of data. Are you sure you want to proceed?" class="btn-primary"/>
+                    <button string="Reset Sync Date" name="action_reset_sync_date" type="object" confirm="Are you sure you want to reset the last synchronization date? This will cause all records to be re-imported."/>
+                    <button string="Set Sync Date" name="action_set_sync_date_wizard" type="object"/>
+                    <button string="Analyze Source Database" name="action_analyze_source_database" type="object" help="Analyze the structure of the source database to help diagnose import issues"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Configuration Name"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="host"/>
+                            <field name="port"/>
+                            <field name="database"/>
+                            <field name="schema"/>
+                        </group>
+                        <group>
+                            <field name="table_name"/>
+                            <field name="username"/>
+                            <field name="password" password="True"/>
+                            <field name="timezone"/>
+                            <field name="active"/>
+                        </group>
+                    </group>
+                    <group string="Synchronization">
+                        <field name="last_sync_date" readonly="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Database Configuration List View -->
+    <record id="view_hik_central_db_config_list" model="ir.ui.view">
+        <field name="name">hik.central.db.config.list</field>
+        <field name="model">hik.central.db.config</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="host"/>
+                <field name="database"/>
+                <field name="table_name"/>
+                <field name="last_sync_date"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Database Configuration Action -->
+    <record id="action_hik_central_db_config" model="ir.actions.act_window">
+        <field name="name">Database Configurations</field>
+        <field name="res_model">hik.central.db.config</field>
+        <field name="view_mode">list,form</field>
+    </record>
+    
+    <!-- Database Configuration Wizard Form View -->
+    <record id="view_hik_central_db_config_wizard_form" model="ir.ui.view">
+        <field name="name">hik.central.db.config.wizard.form</field>
+        <field name="model">hik.central.db.config.wizard</field>
+        <field name="arch" type="xml">
+            <form>
+                <group>
+                    <group>
+                        <field name="name" placeholder="e.g., HikCentral Attendance DB"/>
+                        <field name="host"/>
+                        <field name="port"/>
+                        <field name="database"/>
+                    </group>
+                    <group>
+                        <field name="schema"/>
+                        <field name="table_name"/>
+                        <field name="username"/>
+                        <field name="password" password="True"/>
+                        <field name="timezone"/>
+                    </group>
+                </group>
+                <footer>
+                    <button name="action_test_connection" string="Test Connection" type="object" class="btn-primary"/>
+                    <button name="action_create_config" string="Create" type="object" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+    
+    <!-- Database Configuration Wizard Action -->
+    <record id="action_hik_central_db_config_wizard" model="ir.actions.act_window">
+        <field name="name">Configure Database Connection</field>
+        <field name="res_model">hik.central.db.config.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <!-- Menu items defined in hik_attendance_record_views.xml -->
+
+</odoo>

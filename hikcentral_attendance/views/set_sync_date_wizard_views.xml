@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_hik_set_sync_date_wizard_form" model="ir.ui.view">
+        <field name="name">hik.set.sync.date.wizard.form</field>
+        <field name="model">hik.set.sync.date.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Set Synchronization Date">
+                <group>
+                    <field name="config_id" invisible="1"/>
+                    <field name="current_date"/>
+                    <field name="reset_type"/>
+                    <field name="days_back" invisible="reset_type != 'days'" required="reset_type == 'days'"/>
+                    <field name="new_date" invisible="reset_type == 'reset'" required="reset_type in ('specific', 'days')"/>
+                </group>
+                <footer>
+                    <button string="Set Date" name="action_set_sync_date" type="object" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

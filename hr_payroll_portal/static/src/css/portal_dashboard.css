@@ -1,0 +1,273 @@
+/* =============================================
+   PAYSLIP DASHBOARD STYLES
+   Main color: #6b4e76
+   ============================================= */
+
+/* =============================================
+   DASHBOARD GRID
+   ============================================= */
+.cp_dashboard_grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-top: 24px;
+}
+
+@media (max-width: 768px) {
+    .cp_dashboard_grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.cp_dashboard_card {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(107, 78, 118, 0.15);
+    border-radius: 14px;
+    padding: 24px;
+    box-shadow: 0 4px 24px rgba(107, 78, 118, 0.08);
+}
+
+.cp_dashboard_card_header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+}
+
+.cp_dashboard_card_header h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #6b4e76;
+    margin: 0;
+}
+
+.cp_dash_badge {
+    font-size: 0.72rem;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 20px;
+    background: rgba(107, 78, 118, 0.1);
+    color: #6b4e76;
+}
+
+/* =============================================
+   BAR CHART
+   ============================================= */
+.cp_chart_container {
+    height: 200px;
+    display: flex;
+    align-items: flex-end;
+}
+
+.cp_chart_bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+    width: 100%;
+    height: 100%;
+}
+
+.cp_chart_column {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
+    height: 100%;
+    justify-content: flex-end;
+}
+
+.cp_chart_value {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #6b4e76;
+}
+
+.cp_chart_bar_wrap {
+    width: 100%;
+    height: 140px;
+    display: flex;
+    align-items: flex-end;
+    background: rgba(107, 78, 118, 0.06);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.cp_chart_fill {
+    width: 100%;
+    background: linear-gradient(180deg, #9b7aaa 0%, #6b4e76 100%);
+    border-radius: 6px;
+    min-height: 4px;
+}
+
+.cp_chart_label {
+    font-size: 0.7rem;
+    color: #9ca3af;
+    text-align: center;
+    white-space: nowrap;
+}
+
+/* =============================================
+   RECENT PAYSLIPS LIST
+   ============================================= */
+.cp_activity_list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.cp_activity_item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.cp_activity_dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #6b4e76;
+    margin-top: 6px;
+    flex-shrink: 0;
+}
+
+.cp_activity_info {
+    flex: 1;
+}
+
+.cp_activity_info strong {
+    font-size: 0.875rem;
+    color: #1a1a2e;
+    display: block;
+    margin-bottom: 2px;
+}
+
+.cp_activity_info p {
+    font-size: 0.8rem;
+    color: #9ca3af;
+    margin: 0;
+}
+
+/* =============================================
+   EARNINGS VS DEDUCTIONS + YEARLY
+   ============================================= */
+.cp_ot_breakdown {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding-top: 8px;
+}
+
+.cp_ot_row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.cp_ot_meta {
+    width: 100px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.cp_ot_label {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #1a1a2e;
+}
+
+.cp_ot_count {
+    font-size: 0.75rem;
+    color: #9ca3af;
+}
+
+.cp_ot_bar_wrap {
+    flex: 1;
+    height: 10px;
+    background: rgba(107, 78, 118, 0.08);
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.cp_ot_bar {
+    height: 100%;
+    border-radius: 20px;
+    min-width: 4px;
+}
+
+.cp_ot_approved { background: #6b4e76; }
+.cp_ot_pending  { background: #CCBDF0; }
+.cp_ot_refused  { background: #f4a0a0; }
+
+.cp_ot_percent {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #6b4e76;
+    width: 36px;
+    text-align: right;
+    flex-shrink: 0;
+}
+
+.cp_ot_total {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 12px;
+    border-top: 1px solid rgba(107, 78, 118, 0.1);
+    font-size: 0.85rem;
+    color: #6b7280;
+}
+
+.cp_ot_total strong {
+    color: #6b4e76;
+}
+
+/* =============================================
+   YEARLY COMPARISON
+   ============================================= */
+.cp_yearly_breakdown {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding-top: 8px;
+}
+
+.cp_yearly_row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.cp_yearly_label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #6b4e76;
+    width: 40px;
+    flex-shrink: 0;
+}
+
+.cp_yearly_bars {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.cp_yearly_bar_row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.cp_yearly_tag {
+    font-size: 0.75rem;
+    color: #9ca3af;
+    width: 36px;
+    flex-shrink: 0;
+}

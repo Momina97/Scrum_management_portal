@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_scrum_dod_template_form" model="ir.ui.view">
+        <field name="name">project.scrum.dod.template.form</field>
+        <field name="model">project.scrum.dod.template</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_title">
+                        <div class="d-flex align-items-center">
+                            <field name="is_default" widget="boolean_favorite" class="me-3 fs-3" nolabel="1"/>
+                            <h1 class="mb-0">
+                                <field name="name" placeholder="e.g. Standard Web App DoD"/>
+                            </h1>
+                        </div>
+                    </div>
+                    <group>
+                        <field name="description" placeholder="Describe when to use this DoD template..." nolabel="1"/>
+                    </group>
+                    <notebook>
+                        <page string="Checklist Items">
+                            <field name="item_ids">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_scrum_dod_template_tree" model="ir.ui.view">
+        <field name="name">project.scrum.dod.template.tree</field>
+        <field name="model">project.scrum.dod.template</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="is_default" widget="boolean_favorite" nolabel="1"/>
+                <field name="name"/>
+                <field name="description"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_scrum_dod_template" model="ir.actions.act_window">
+        <field name="name">DoD Templates</field>
+        <field name="res_model">project.scrum.dod.template</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="view_scrum_sprint_form_inherit_dod" model="ir.ui.view">
+        <field name="name">project.scrum.sprint.form.inherit.dod</field>
+        <field name="model">project.scrum.sprint</field>
+        <field name="inherit_id" ref="scrum_management.view_project_scrum_sprint_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='end_date']" position="after">
+                <field name="dod_template_id" options="{'no_create': True}"/>
+            </xpath>
+
+            <xpath expr="//notebook" position="inside">
+                <page string="Definition of Done" name="dod_checklist">
+                    <field name="dod_ids">
+                        <list editable="bottom" decoration-muted="status == True">
+                            <field name="status" nolabel="1"/>
+                            <field name="description"/>
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_project_scrum_dod_wizard_form" model="ir.ui.view">
+        <field name="name">project.scrum.dod.wizard.form</field>
+        <field name="model">project.scrum.dod.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Update Definition of Done">
+                <div class="alert alert-info" role="alert" style="margin-bottom: 10px;">
+                    Ensure all checklist items are verified before completing the sprint.
+                </div>
+                <field name="dod_ids">
+                    <list editable="bottom" create="0" delete="0">
+                        <field name="status" nolabel="1"/>
+                        <field name="description" readonly="1"/>
+                    </list>
+                </field>
+                <footer>
+                    <button name="action_done" string="Save Checklist" type="object" class="btn-primary"/>
+                    <button string="Close" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_scrum_sprint_kanban_inherit_dod" model="ir.ui.view">
+        <field name="name">project.scrum.sprint.kanban.inherit.dod</field>
+        <field name="model">project.scrum.sprint</field>
+        <field name="inherit_id" ref="scrum_management.view_project_scrum_sprint_stage_kanban"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[hasclass('sprint_dod_hook')]" position="inside">
+                <button name="action_open_dod_wizard"
+                        type="object"
+                        class="btn btn-link btn-sm p-0 text-decoration-none border-0 ms-2"
+                        title="Quick View: Definition of Done">
+                    <field name="dod_progress_display" />
+                </button>
+            </xpath>
+        </field>
+    </record>
+</odoo>

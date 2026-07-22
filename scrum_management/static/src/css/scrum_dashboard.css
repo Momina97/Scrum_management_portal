@@ -1,0 +1,251 @@
+/* ============================================================================
+ * scrum_dashboard_height_fix.css
+ * ============================================================================
+ *
+ * PURPOSE
+ * -------
+ * Forces every dashboard card in `view_scrum_dashboard_form` and
+ * `view_scrum_project_dashboard_form` into a bounded height with internal
+ * scrolling, sticky table headers, and equal-height rows.
+ *
+ * WHY A SEPARATE FILE
+ * -------------------
+ * Loaded AFTER scrum_style.css so its rules win without `!important` wars
+ * everywhere. Easy to disable for debugging — comment one line in __manifest__.py.
+ *
+ * SCOPE
+ * -----
+ * Everything is namespaced under `.o_scrum_dashboard_scope`. That class must
+ * be present on the dashboard's <form> root (added in the XML patch below).
+ * This guarantees ZERO impact on any other list/kanban view in Odoo.
+ *
+ * KEY TECHNIQUES
+ * --------------
+ *  1. Bounded max-height on `.o_scrum_panel` (clamps card growth).
+ *  2. `overflow: hidden` on the panel + `overflow-y: auto` on the inner body
+ *     (scrolling is contained inside the card).
+ *  3. `min-height: 0` on the scrolling flex child (the #1 bug in flex-scroll
+ *     layouts — without it, the child grows to content and never scrolls).
+ *  4. `position: sticky` on the table thead (column headers stay visible
+ *     while scrolling, like a real admin panel).
+ *  5. Override the global `.o_scrum_content .o_content { height: 100% }`
+ *     trap by giving the dashboard sheet its own height context.
+ * ============================================================================ */
+
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   1. PANEL — the card itself
+   ───────────────────────────────────────────────────────────────────────────── */
+.o_scrum_dashboard_scope .o_scrum_panel {
+    /* Bounded height — pick ONE pair below depending on preference */
+    min-height: 320px;
+    max-height: 420px;          /* ~30vh on a 1400px viewport */
+    /* If you prefer viewport-relative, comment the two lines above and use:
+       min-height: 24vh;
+       max-height: 34vh;
+    */
+
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;            /* clips the internal scroll */
+    height: auto !important;     /* override scrum_style.css `height:100%` */
+}
+
+/* Panel header — fixed, never scrolls */
+.o_scrum_dashboard_scope .o_scrum_panel > .o_scrum_panel_header {
+    flex: 0 0 auto;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   2. PANEL BODY (embedded <field> + <list>) — scrolling region
+   ───────────────────────────────────────────────────────────────────────────── */
+.o_scrum_dashboard_scope .o_scrum_panel > .o_field_widget,
+.o_scrum_dashboard_scope .o_scrum_panel > .o_field_one2many,
+.o_scrum_dashboard_scope .o_scrum_panel > .o_field_x2many {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-height: 0;               /* CRITICAL — see header comment */
+}
+
+/* Tame the inner Odoo list-view container */
+.o_scrum_dashboard_scope .o_scrum_panel .o_list_view,
+.o_scrum_dashboard_scope .o_scrum_panel .o_list_renderer {
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;  /* parent .o_field_widget handles the scroll */
+    flex: none !important;
+}
+
+/* Custom scrollbar inside cards */
+.o_scrum_dashboard_scope .o_scrum_panel .o_field_widget::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+.o_scrum_dashboard_scope .o_scrum_panel .o_field_widget::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+}
+.o_scrum_dashboard_scope .o_scrum_panel .o_field_widget::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   3. STICKY TABLE HEADER inside the scrolling card
+   ───────────────────────────────────────────────────────────────────────────── */
+.o_scrum_dashboard_scope .o_scrum_panel table.o_list_table {
+    margin-bottom: 0 !important;
+}
+
+.o_scrum_dashboard_scope .o_scrum_panel table.o_list_table > thead {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    background: #fff;
+}
+
+.o_scrum_dashboard_scope .o_scrum_panel table.o_list_table > thead th {
+    background: #fff !important;
+    box-shadow: inset 0 -1px 0 #e2e8f0;
+}
+
+/* Tighter rows inside dashboard cards */
+.o_scrum_dashboard_scope .o_scrum_panel .o_list_table tbody td {
+    padding: 8px 16px !important;
+    font-size: 13px;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   4. KANBAN inside a panel (Team Members on project dashboard)
+   ───────────────────────────────────────────────────────────────────────────── */
+.o_scrum_dashboard_scope .o_scrum_panel > .o_field_widget .o_kanban_view,
+.o_scrum_dashboard_scope .o_scrum_panel > .o_field_widget .o_kanban_renderer {
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    padding: 8px 12px;
+    background: transparent;
+}
+
+.o_scrum_dashboard_scope .o_scrum_panel .o_kanban_record {
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    padding: 4px 0 !important;
+    margin: 0 !important;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   5. METRIC TILES (top gradient row) — keep them compact
+   ───────────────────────────────────────────────────────────────────────────── */
+.o_scrum_dashboard_scope .o_scrum_gradient_box {
+    min-height: 110px;
+    max-height: 140px;
+    height: auto !important;
+}
+
+.o_scrum_dashboard_scope .o_scrum_tile {
+    min-height: 90px;
+    max-height: 120px;
+    height: auto !important;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   6. ROW — equal-height columns
+   ───────────────────────────────────────────────────────────────────────────── */
+.o_scrum_dashboard_scope .row {
+    align-items: stretch;
+}
+
+.o_scrum_dashboard_scope .row > [class^="col-"],
+.o_scrum_dashboard_scope .row > [class*=" col-"] {
+    display: flex;
+    flex-direction: column;
+}
+
+.o_scrum_dashboard_scope .row > [class^="col-"] > .o_scrum_panel,
+.o_scrum_dashboard_scope .row > [class*=" col-"] > .o_scrum_panel,
+.o_scrum_dashboard_scope .row > [class^="col-"] > .o_scrum_gradient_box,
+.o_scrum_dashboard_scope .row > [class*=" col-"] > .o_scrum_gradient_box,
+.o_scrum_dashboard_scope .row > [class^="col-"] > .o_scrum_tile,
+.o_scrum_dashboard_scope .row > [class*=" col-"] > .o_scrum_tile {
+    flex: 1 1 auto;
+    width: 100%;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   7. OUTER SCROLL FIX — let the dashboard itself scroll, not the cards' page
+   ─────────────────────────────────────────────────────────────────────────────
+   The SPA wrapper in scrum_client_action.xml already has overflow-auto, so we
+   just neutralize the form's own height:100% trap from scrum_style.css. */
+.o_scrum_content .o_form_view:has(.o_scrum_dashboard_scope),
+.o_scrum_content .o_form_view:has(.o_scrum_dashboard_scope) .o_form_sheet_bg,
+.o_scrum_content .o_form_view:has(.o_scrum_dashboard_scope) .o_form_sheet {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   8. SAFETY — hide the list footer/pager inside panels (already done in
+   scrum_style.css but reinforced here so the body-flex calculation is clean)
+   ───────────────────────────────────────────────────────────────────────────── */
+.o_scrum_dashboard_scope .o_scrum_panel .o_list_footer,
+.o_scrum_dashboard_scope .o_scrum_panel .o_cp_pager,
+.o_scrum_dashboard_scope .o_scrum_panel .o_list_selection_box {
+    display: none !important;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   9. RESPONSIVE BREAKPOINTS
+   ───────────────────────────────────────────────────────────────────────────── */
+@media (max-width: 1199.98px) {
+    .o_scrum_dashboard_scope .o_scrum_panel {
+        min-height: 280px;
+        max-height: 380px;
+    }
+}
+
+@media (max-width: 991.98px) {
+    .o_scrum_dashboard_scope .o_scrum_panel {
+        min-height: 260px;
+        max-height: 360px;
+    }
+    .o_scrum_dashboard_scope .o_scrum_gradient_box {
+        min-height: 100px;
+        max-height: 130px;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .o_scrum_dashboard_scope .o_scrum_panel {
+        min-height: 240px;
+        max-height: 320px;
+    }
+    .o_scrum_dashboard_scope .o_scrum_gradient_box {
+        min-height: 90px;
+        max-height: 110px;
+    }
+    .o_scrum_dashboard_scope .o_scrum_tile {
+        min-height: 75px;
+        max-height: 100px;
+    }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   10. OPTIONAL MODIFIER CLASSES
+   ───────────────────────────────────────────────────────────────────────────── */
+/*.o_scrum_dashboard_scope .o_scrum_panel.o_scrum_panel--short {*/
+/*    min-height: 220px !important;*/
+/*    max-height: 280px !important;*/
+/*}*/
+.o_scrum_dashboard_scope .o_scrum_panel.o_scrum_panel--tall {
+    min-height: 440px !important;
+    max-height: 560px !important;
+}
+.o_scrum_dashboard_scope .o_scrum_panel.o_scrum_panel--auto {
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+}

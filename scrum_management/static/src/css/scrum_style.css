@@ -1,0 +1,811 @@
+/* ============================================== */
+/* === MAIN LAYOUT CONTAINER                  === */
+/* ============================================== */
+.o_scrum_app {
+    height: 100vh;
+    background-color: #f8fafc;
+    display: flex;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    overflow: hidden;
+    position: relative;
+}
+
+/* ============================================== */
+/* === SIDEBAR STYLING                        === */
+/* ============================================== */
+.o_scrum_sidebar {
+    width: 210px;
+    flex-shrink: 0;
+    z-index: 10;
+    background-color: #ffffff;
+    border-right: 1px solid #e2e8f0;
+    padding-top: 0;
+    display: flex;
+    flex-direction: column;
+    transition: width 0.25s ease, transform 0.25s ease;
+}
+
+/* === Sidebar header (brand + toggle) === */
+.o_scrum_sidebar_toggle_wrapper {
+    min-height: 56px;
+    height: 56px;
+    padding: 0 14px;
+    border-bottom: 1px solid #e2e8f0;
+    flex-shrink: 0;
+    box-sizing: border-box;
+}
+
+/* Align content control panel height with sidebar header */
+.o_scrum_content .o_control_panel {
+    min-height: 56px;
+    box-sizing: border-box;
+}
+
+/* Make sure the mobile topbar also matches */
+.o_scrum_mobile_topbar {
+    min-height: 56px;
+    box-sizing: border-box;
+}
+
+.o_scrum_sidebar_brand {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1e293b;
+    letter-spacing: 0.3px;
+}
+
+.o_scrum_sidebar_toggle {
+    background: transparent;
+    border: none;
+    color: #64748b;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.15s, color 0.15s;
+    padding: 0;
+    font-size: 14px;
+}
+.o_scrum_sidebar_toggle:hover {
+    background-color: #f1f5f9;
+    color: #0f172a;
+}
+
+.o_scrum_sidebar_scroll {
+    overflow-x: hidden;
+}
+
+.o_scrum_sidebar_header {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.6px; color: #94a3b8;
+    margin-top: 24px; margin-bottom: 8px; padding-left: 16px; text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.o_scrum_sidebar_link {
+    display: flex; align-items: center; margin: 2px 8px; padding: 7px 12px;
+    border-radius: 6px; color: #475569; font-size: 13px; font-weight: 500;
+    text-decoration: none !important; transition: all 0.1s ease-in-out; cursor: pointer;
+    position: relative;
+    white-space: nowrap;
+}
+.o_scrum_sidebar_link:hover { background-color: #f1f5f9; color: #0f172a; }
+
+.scrum-active {
+    background-color: #eff6ff !important;
+    color: #3b82f6 !important;
+    font-weight: 600;
+}
+.o_scrum_sidebar_link i {
+    font-size: 14px; width: 22px; text-align: center; margin-right: 12px; opacity: 0.85;
+    flex-shrink: 0;
+}
+
+/* Sub Menus */
+.transition-transform { transition: transform 0.2s ease-in-out; }
+.fa-rotate-90 { transform: rotate(90deg); }
+.o_scrum_sub_menu { display: flex; flex-direction: column; margin-bottom: 4px; }
+
+.o_scrum_sub_link {
+    display: flex; font-size: 13px; color: #64748b; padding: 6px 12px 6px 42px;
+    text-decoration: none !important; border-radius: 4px; margin: 1px 8px;
+    transition: all 0.1s; overflow: hidden; cursor: pointer;
+    white-space: nowrap;
+}
+.o_scrum_sub_link:hover { color: #0f172a; background-color: #f1f5f9; }
+.sub-active { color: #3b82f6 !important; background-color: #eff6ff; font-weight: 600; }
+
+.o_scrum_sprint_link {
+    display: block; font-size: 12px; color: #94a3b8; padding: 5px 12px 5px 57px;
+    text-decoration: none !important; border-radius: 4px; margin: 1px 8px;
+    transition: all 0.1s; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer;
+}
+.o_scrum_sprint_link:hover { color: #0f172a; background-color: #f1f5f9; }
+.sprint-active { color: #3b82f6 !important; background-color: rgba(59, 130, 246, 0.08); font-weight: 600; }
+
+/* ============================================== */
+/* === COLLAPSED SIDEBAR (DESKTOP RAIL)       === */
+/* ============================================== */
+.o_scrum_app.sidebar-collapsed .o_scrum_sidebar {
+    width: 60px;
+}
+
+/* Hide labels, headers, submenus, chevrons, search, brand when collapsed */
+.o_scrum_app.sidebar-collapsed .o_scrum_sidebar_link span,
+.o_scrum_app.sidebar-collapsed .o_scrum_sidebar_header,
+.o_scrum_app.sidebar-collapsed .o_scrum_sub_menu,
+.o_scrum_app.sidebar-collapsed .o_scrum_chevron,
+.o_scrum_app.sidebar-collapsed .o_scrum_sidebar_brand,
+.o_scrum_app.sidebar-collapsed .o_scrum_search_wrapper {
+    display: none !important;
+}
+
+/* Center icons in collapsed mode */
+.o_scrum_app.sidebar-collapsed .o_scrum_sidebar_link {
+    justify-content: center !important;
+    padding-left: 0;
+    padding-right: 0;
+    margin: 2px 6px;
+}
+.o_scrum_app.sidebar-collapsed .o_scrum_sidebar_link .o_scrum_link_inner {
+    justify-content: center;
+    width: 100%;
+}
+.o_scrum_app.sidebar-collapsed .o_scrum_sidebar_link i {
+    margin-right: 0;
+    font-size: 16px;
+}
+
+/* Center the toggle button when brand is hidden */
+.o_scrum_app.sidebar-collapsed .o_scrum_sidebar_toggle_wrapper {
+    justify-content: center !important;
+    padding: 0 8px;
+}
+
+/* Hover tooltip showing label when collapsed */
+.o_scrum_app.sidebar-collapsed .o_scrum_sidebar_link:hover::after {
+    content: attr(data-label);
+    position: absolute;
+    left: calc(100% + 8px);
+    top: 50%;
+    transform: translateY(-50%);
+    background: #1e293b;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 6px;
+    white-space: nowrap;
+    font-size: 12px;
+    font-weight: 500;
+    z-index: 1100;
+    pointer-events: none;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* ============================================== */
+/* === MOBILE: DRAWER BEHAVIOR                === */
+/* ============================================== */
+.o_scrum_mobile_topbar {
+    flex-shrink: 0;
+    z-index: 5;
+}
+.o_scrum_mobile_toggle {
+    background: transparent;
+    border: none;
+    color: #475569;
+    width: 36px;
+    height: 36px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 0;
+}
+.o_scrum_mobile_toggle:hover {
+    background-color: #f1f5f9;
+}
+
+.o_scrum_sidebar_backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.45);
+    z-index: 999;
+    animation: fadeInBackdrop 0.2s ease;
+}
+@keyframes fadeInBackdrop {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@media (max-width: 767.98px) {
+    .o_scrum_app.is-mobile .o_scrum_sidebar {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 260px !important;
+        transform: translateX(-100%);
+        box-shadow: 4px 0 16px rgba(0, 0, 0, 0.15);
+        z-index: 1000;
+    }
+    .o_scrum_app.is-mobile.mobile-open .o_scrum_sidebar {
+        transform: translateX(0);
+    }
+    /* On mobile, always show full sidebar content (no rail mode) */
+    .o_scrum_app.is-mobile.sidebar-collapsed .o_scrum_sidebar_link span,
+    .o_scrum_app.is-mobile.sidebar-collapsed .o_scrum_sidebar_header,
+    .o_scrum_app.is-mobile.sidebar-collapsed .o_scrum_chevron,
+    .o_scrum_app.is-mobile.sidebar-collapsed .o_scrum_sidebar_brand,
+    .o_scrum_app.is-mobile.sidebar-collapsed .o_scrum_search_wrapper {
+        display: revert !important;
+    }
+    .o_scrum_app.is-mobile.sidebar-collapsed .o_scrum_sidebar_link {
+        justify-content: flex-start !important;
+        padding: 7px 12px;
+        margin: 2px 8px;
+    }
+    .o_scrum_app.is-mobile.sidebar-collapsed .o_scrum_sidebar_link i {
+        margin-right: 12px;
+    }
+    /* Disable hover tooltip on mobile */
+    .o_scrum_app.is-mobile .o_scrum_sidebar_link:hover::after {
+        display: none !important;
+    }
+}
+
+/* Hide mobile topbar on desktop */
+@media (min-width: 768px) {
+    .o_scrum_mobile_topbar {
+        display: none !important;
+    }
+}
+
+/* ============================================== */
+/* === RIGHT CONTENT AREA                     === */
+/* ============================================== */
+.o_scrum_content {
+    position: relative; height: 100%; flex-grow: 1; overflow-y: auto;
+    background-color: #f8fafc; display: flex; flex-direction: column;
+    min-width: 0; /* allows shrinking inside flex container */
+}
+
+/* Control Panel Alignment Fixes for Odoo 18 Merger */
+.o_scrum_content .o_control_panel {
+    border-bottom: 1px solid #e2e8f0 !important;
+    background-color: #ffffff !important;
+    padding: 10px 20px !important;
+    position: sticky; top: 0; z-index: 100; flex-shrink: 0;
+}
+
+/* Fix Switcher pill positioning in Odoo Native Header */
+.o_form_view header .btn-group {
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    border-radius: 50rem !important;
+}
+
+/* Ensure Save/Discard buttons in Control Panel have proper spacing */
+.o_control_panel_main_buttons {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* ============================================== */
+/* === DASHBOARD WIDGETS                      === */
+/* ============================================== */
+
+.o_scrum_dash_title {
+    font-size: 1.1rem; font-weight: 700; color: #334155;
+    margin-bottom: 1rem; margin-top: 2rem; display: flex; align-items: center;
+}
+.o_scrum_dash_title i { margin-right: 12px; color: #94a3b8; opacity: 0.6; }
+
+/* --- 1. TOP CARDS (VIBRANT) --- */
+.o_scrum_gradient_box {
+    border-radius: 16px; padding: 1.5rem;
+    color: white;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    position: relative; overflow: hidden; height: 100%; transition: transform 0.2s;
+}
+.o_scrum_gradient_box:hover { transform: translateY(-3px); }
+
+/* VIBRANT GRADIENTS */
+.grad-blue    { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); }
+.grad-cyan    { background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%); }
+.grad-purple  { background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%); }
+.grad-pink    { background: linear-gradient(135deg, #ec4899 0%, #db2777 100%); }
+.grad-indigo  { background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); }
+.grad-teal    { background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%); }
+.grad-orange  { background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); }
+
+.o_scrum_grad_val { font-size: 2.5rem; font-weight: 800; line-height: 1; margin-bottom: 5px; color: white; }
+.o_scrum_grad_label { font-size: 0.9rem; font-weight: 500; opacity: 0.9; text-transform: uppercase; letter-spacing: 0.5px; }
+.o_scrum_grad_sub { font-size: 0.8rem; opacity: 0.7; margin-top: 8px; }
+.o_scrum_grad_icon { position: absolute; right: -10px; bottom: -10px; font-size: 5rem; opacity: 0.15; transform: rotate(-15deg); color: white; }
+
+/* --- 2. TILES (CLEAN) --- */
+.o_scrum_tile {
+    background: white; border-radius: 12px; padding: 1rem;
+    display: flex; align-items: center; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+    border: 1px solid #f1f5f9; height: 100%;
+}
+.o_scrum_tile_icon {
+    width: 50px; height: 50px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem; margin-right: 18px; flex-shrink: 0;
+}
+.tile-icon-gray   { background-color: #f8fafc; color: #94a3b8; }
+.tile-icon-green  { background-color: #f0fdf4; color: #22c55e; }
+.tile-icon-orange { background-color: #fff7ed; color: #f97316; }
+.tile-icon-blue   { background-color: #eff6ff; color: #3b82f6; }
+.tile-icon-purple { background-color: #faf5ff; color: #a855f7; }
+.tile-icon-red    { background-color: #fef2f2; color: #ef4444; }
+.tile-icon-yellow { background-color: #fefce8; color: #eab308; }
+
+.o_scrum_tile_content { display: flex; flex-direction: column; }
+.o_scrum_tile_val { font-size: 1.5rem; font-weight: 700; color: #1e293b; line-height: 1.1; }
+.o_scrum_tile_label { font-size: 0.85rem; color: #64748b; font-weight: 500; }
+
+/* ============================================== */
+/* === PANELS & PASTEL HEADERS (LISTS ONLY)   === */
+/* ============================================== */
+.o_scrum_panel {
+    background: white; border-radius: 16px; padding: 0;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+    border: 1px solid #e2e8f0; overflow: hidden; height: 100%;
+}
+
+.o_scrum_panel_header {
+    padding: 15px 20px; font-weight: 700; color: #334155 !important; font-size: 0.95rem;
+    letter-spacing: 0.5px; border-bottom: 1px solid rgba(0,0,0,0.03);
+    border-top-left-radius: 15px; border-top-right-radius: 15px;
+}
+
+/* Pastel Gradients for Headers */
+.panel-header-blue   { background: linear-gradient(to right, #eff6ff, #ffffff); border-top: 3px solid #60a5fa; }
+.panel-header-purple { background: linear-gradient(to right, #faf5ff, #ffffff); border-top: 3px solid #c084fc; }
+.panel-header-orange { background: linear-gradient(to right, #fff7ed, #ffffff); border-top: 3px solid #fb923c; }
+.panel-header-green  { background: linear-gradient(to right, #f0fdf4, #ffffff); border-top: 3px solid #4ade80; }
+.panel-header-dark   { background: linear-gradient(to right, #f8fafc, #ffffff); border-top: 3px solid #94a3b8; }
+
+/* --- TABLE STYLES --- */
+.o_list_table{
+    table-layout: auto!important;
+}
+.o_scrum_panel .o_list_view { margin-bottom: 0 !important; border: none !important; }
+.o_scrum_panel .o_list_table { border: none !important; background-color: transparent !important; }
+
+/* Hide Odoo Selection Checkboxes in specific panels */
+.o_scrum_panel .o_list_table thead th.o_list_record_selector,
+.o_scrum_panel .o_list_table tbody td.o_list_record_selector {
+    display: none !important; width: 0 !important; padding: 0 !important;
+}
+
+.o_scrum_panel .o_list_table thead { border-bottom: 1px solid #f1f5f9; color: #94a3b8; }
+.o_scrum_panel .o_list_table thead th {
+    text-transform: uppercase; font-size: 11px; font-weight: 700; letter-spacing: 0.5px;
+    padding: 14px 20px !important; border: none !important; background-color: transparent !important;
+}
+
+.o_scrum_panel .o_list_table tbody tr { transition: background-color 0.1s; border-bottom: 1px solid #f8fafc; }
+.o_scrum_panel .o_list_table tbody tr:last-child { border-bottom: none; }
+.o_scrum_panel .o_list_table tbody tr:hover { background-color: #f8fafc !important; }
+
+.o_scrum_panel .o_list_table tbody td {
+    padding: 12px 20px !important; vertical-align: middle !important;
+    border: none !important; font-size: 13px; color: #334155;
+}
+
+/* !!! VISIBILITY FIX: FORCE DARK TEXT FOR USERS/LINKS !!! */
+.o_scrum_panel .o_list_table tbody td,
+.o_scrum_panel .o_list_table tbody td a,
+.o_scrum_panel .o_list_table tbody td span,
+.o_scrum_panel .o_field_many2one_avatar,
+.o_scrum_panel .o_field_many2one_avatar > span {
+    color: #1e293b !important; font-weight: 500; text-decoration: none;
+}
+
+.o_scrum_panel .o_field_many2one_avatar {
+    display: flex !important; align-items: center !important; justify-content: flex-start !important;
+}
+
+.o_scrum_panel .o_list_table tbody tr:focus-within { outline: none !important; background-color: transparent !important; }
+
+/* Hide Pagers in dashboard panels */
+.o_scrum_panel .o_cp_pager, .o_scrum_panel .o_list_footer { display: none !important; }
+.o_scrum_panel .o_progressbar_cell { padding-top: 0 !important; padding-bottom: 0 !important; }
+.o_scrum_panel .progress { height: 6px !important; border-radius: 10px; background-color: #e2e8f0; margin-top: 4px; }
+.o_scrum_panel .progress-bar { border-radius: 10px; }
+
+/* ============================================== */
+/* === LAYOUT UTILS                           === */
+/* ============================================== */
+
+/* Fix Odoo 18 Form Sheet widths to be full-width inside our Client Action */
+.o_scrum_content .o_form_view:has(.o_Chatter) { display: flex !important; flex-direction: column !important; width: 100% !important; min-height: 100%; }
+.o_scrum_content .o_form_view:has(.o_Chatter) .o_form_sheet_bg { width: 100% !important; max-width: 100% !important; margin: 0 !important; border-right: 0px !important; flex: 0 0 auto !important; }
+.o_scrum_content .o_ChatterContainer { width: 100% !important; margin: 0 !important; flex: 1 1 auto !important; }
+.o_scrum_content .o_Chatter { width: 100% !important; max-width: 100% !important; border-left: none !important; border-top: 1px solid #e2e8f0; padding: 24px !important; background-color: #ffffff !important; }
+.o_scrum_content .o_form_view:not(:has(.o_Chatter)) .o_form_sheet_bg { max-width: 100% !important; border-right: none !important; }
+
+/* Core view sizing */
+.o_scrum_content .o_action_manager,
+.o_scrum_content .o_view_controller,
+.o_scrum_content .o_content { width: 100% !important; height: 100%; display: flex; flex-direction: column; }
+
+/* Kanban Renderer sizing fixes */
+.o_scrum_content .o_kanban_view { width: 100% !important; flex-grow: 1; display: flex; flex-direction: column; }
+.o_scrum_content .o_kanban_renderer { width: 100% !important; flex-grow: 1; display: flex; }
+.o_scrum_content .o_kanban_grouped { height: 100%; overflow-x: auto; }
+.o_scrum_content .o_list_view { width: 100% !important; flex-grow: 1; }
+
+/* Odoo 18 FIX: Remove the default native background and border around our custom cards */
+.o_kanban_renderer.o_scrum_kanban_view .o_kanban_record {
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin-bottom: 12px !important;
+}
+
+.o_scrum_card_inner {
+    background-color: #ffffff;
+    transition: transform 0.1s ease-in-out;
+}
+
+.o_scrum_card_inner:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+}
+.progresPercentage{
+    display:flex !important;
+}
+.o_tab_count {
+    color: #6c757d;
+    font-weight: 400;
+    margin-left: 4px;
+}
+
+/* ============================================== */
+/* === SCRUM TASK LIST (sprint view)          === */
+/* ============================================== */
+.o_scrum_task_list table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.o_scrum_task_list thead th {
+    font-weight: 600;
+    font-size: 13px;
+    background: #f8f9fa;
+    padding: 10px 8px;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.o_scrum_task_list tbody td {
+    padding: 8px 8px;
+    font-size: 13px;
+    border-bottom: 1px solid #f1f1f1;
+    vertical-align: middle;
+}
+
+.o_scrum_task_list td:nth-child(1),
+.o_scrum_task_list td:nth-child(2),
+.o_scrum_task_list td:nth-child(3),
+.o_scrum_task_list td:nth-child(8),
+.o_scrum_task_list td:nth-child(9),
+.o_scrum_task_list td:nth-child(10) {
+    text-align: center;
+}
+
+.o_scrum_task_list td:nth-child(4),
+.o_scrum_task_list td:nth-child(5),
+.o_scrum_task_list td:nth-child(6),
+.o_scrum_task_list td:nth-child(7) {
+    text-align: left;
+}
+
+.o_list_renderer .o_list_table tbody > tr > td:not(.o_list_record_selector).o_list_button > div > button {
+    white-space: nowrap;
+    padding: 0 !important;
+}
+
+.o_scrum_task_list th:first-child,
+.o_scrum_task_list td:first-child {
+    width: 28px !important;
+    min-width: 28px !important;
+    max-width: 28px !important;
+}
+
+.o_scrum_task_list th[data-name="row_number"],
+.o_scrum_task_list td[data-name="row_number"] {
+    width: 30px !important;
+    min-width: 30px !important;
+    max-width: 30px !important;
+}
+
+.o_scrum_task_list th:nth-child(4),
+.o_scrum_task_list td:nth-child(4) {
+    width: 180px !important;
+    min-width: 180px !important;
+    max-width: 220px !important;
+    text-align: left !important;
+}
+.o_scrum_task_list td:nth-child(4) {
+    white-space: normal !important;
+    word-break: break-word;
+}
+
+.o_scrum_task_list th:nth-child(6),
+.o_scrum_task_list td:nth-child(6) {
+    width: 120px !important;
+    min-width: 120px !important;
+    max-width: 140px !important;
+}
+.o_assignees {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    flex-wrap: nowrap;
+}
+
+.o_user_avatar {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.o_user_avatar img {
+    width: 22px !important;
+    height: 22px !important;
+    border-radius: 50%;
+}
+
+.o_user_name {
+    font-size: 12px;
+    color: #333;
+    white-space: nowrap;
+}
+
+.o_scrum_task_list th:nth-child(7),
+.o_scrum_task_list td:nth-child(7) {
+    width: 120px !important;
+    min-width: 120px !important;
+    max-width: 140px !important;
+}
+
+.o_assigned_by {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+
+.o_assigned_by img {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+}
+
+.o_assigned_by span {
+    font-size: 12px;
+}
+
+.o_scrum_task_list th:nth-child(8),
+.o_scrum_task_list td:nth-child(8) {
+    text-align: center !important;
+}
+.o_scrum_task_list th:nth-child(9),
+.o_scrum_task_list td:nth-child(9) {
+    text-align: center !important;
+}
+
+.o_scrum_task_list th:last-child,
+.o_scrum_task_list td:last-child {
+    width: 70px !important;
+    min-width: 70px !important;
+    max-width: 70px !important;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.o_user_avatar img {
+    width: 26px !important;
+    height: 26px !important;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid #ddd;
+}
+
+.o_assignees {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.badge {
+    font-size: 11px;
+    padding: 3px 6px;
+}
+
+.o_scrum_task_list .o_data_cell:has(> button > .fa-chevron-right),
+.o_scrum_task_list .o_data_cell:has(> button > .fa-chevron-down),
+.o_scrum_task_list .o_data_cell:has(> button > .fa-plus),
+.o_scrum_task_list .o_data_cell:has(> button > .fa-spinner) {
+    width: 32px !important;
+    min-width: 32px !important;
+    max-width: 32px !important;
+    padding: 0 4px !important;
+    text-align: center;
+}
+
+tr.o_scrum_subtask_row {
+    background-color: #f7f9ff;
+}
+tr.o_scrum_subtask_loading td {
+    background-color: #f7f9ff;
+}
+
+tr.o_scrum_subtask_row:not(.o_scrum_subtask_add):hover {
+    background-color: #e8eeff !important;
+    transition: background-color 0.15s ease;
+}
+tr.o_scrum_subtask_row:not(.o_scrum_subtask_add):not(.o_scrum_subtask_empty) {
+    cursor: pointer;
+}
+
+tr.o_scrum_subtask_row td.o_scrum_subtask_indent {
+    width: 32px !important;
+    min-width: 32px !important;
+    max-width: 32px !important;
+    padding: 0 4px !important;
+    text-align: center;
+    vertical-align: middle;
+}
+
+tr.o_scrum_subtask_row td.o_scrum_subtask_name {
+    padding-left: 12px !important;
+}
+
+tr.o_scrum_subtask_row td {
+    font-size: 12.5px !important;
+    color: #444;
+    vertical-align: middle !important;
+    padding-top: 5px !important;
+    padding-bottom: 5px !important;
+    border-top: none !important;
+}
+
+tr.o_scrum_subtask_add {
+    background-color: #f0f4ff !important;
+    border-top: 1px dashed #c7d7ff !important;
+}
+tr.o_scrum_subtask_add td {
+    padding: 4px 0 4px 8px !important;
+}
+
+.o_scrum_task_list tbody tr.o_data_row:hover {
+    background-color: #eef3ff;
+    transition: 0.2s ease;
+}
+
+tr.o_scrum_subtask_row .btn-link {
+    font-size: 12px;
+    padding: 2px 6px;
+    white-space: nowrap;
+}
+tr.o_scrum_subtask_row .btn-outline-primary {
+    font-size: 11px;
+    padding: 2px 8px;
+    line-height: 1.4;
+}
+
+
+
+
+
+
+
+
+/* ============================================== */
+/* === SPRINT ROW-CLICK OVERLAY               === */
+/* ============================================== */
+
+/* Row becomes the positioning anchor + shows pointer cursor */
+.o_sprint_clickable_rows tbody tr {
+    position: relative;
+    cursor: pointer;
+}
+.o_sprint_clickable_rows tbody tr:hover {
+    background-color: #f1f5f9 !important;
+}
+
+/* Hide the button's column header completely */
+.o_sprint_clickable_rows thead th:last-child {
+    display: none !important;
+    width: 0 !important;
+    padding: 0 !important;
+}
+
+/* Collapse the button's cell so it takes no space,
+   but keep position: static so the absolute child escapes it */
+.o_sprint_clickable_rows tbody td:last-child {
+    position: static !important;
+    padding: 0 !important;
+    width: 0 !important;
+    min-width: 0 !important;
+    border: none !important;
+    overflow: visible !important;
+}
+
+/* The invisible button stretches over the entire <tr> */
+.o_sprint_row_click_trigger {
+    position: absolute !important;
+    inset: 0 !important;
+    z-index: 5 !important;
+    opacity: 0 !important;
+    cursor: pointer !important;
+    border: none !important;
+    background: transparent !important;
+    width: 100% !important;
+    height: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: block !important;
+}
+/*.modal .o_scrum_task_list .o_list_record_selector {*/
+/*    display: none !important;*/
+/*}*/
+.modal .o_scrum_task_list .o_scrum_th_checkbox,
+.modal .o_scrum_task_list .o_list_record_selector {
+    display: none !important;
+
+}
+
+/* Prevent the responsive wrapper from enabling horizontal scroll */
+.modal .o_scrum_task_list .o_list_renderer {
+    overflow-x: hidden !important;
+}
+
+/* Force table to stay within modal width */
+.modal .o_scrum_task_list .o_list_table {
+    table-layout: auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+/* Reset all fixed column min/max widths inside modal */
+.modal .o_scrum_task_list th,
+.modal .o_scrum_task_list td {
+    min-width: 0 !important;
+    max-width: none !important;
+    width: auto !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Let the Title column wrap so it absorbs remaining space */
+.modal .o_scrum_task_list th:nth-child(3),
+.modal .o_scrum_task_list td:nth-child(3) {
+    white-space: normal !important;
+    word-break: break-word;
+}
+
+/* Keep compact columns tight */
+.modal .o_scrum_task_list th:nth-child(1),
+.modal .o_scrum_task_list td:nth-child(1) {
+    width: 28px !important;
+}
+.modal .o_scrum_task_list th:nth-child(2),
+.modal .o_scrum_task_list td:nth-child(2) {
+    width: 30px !important;
+}

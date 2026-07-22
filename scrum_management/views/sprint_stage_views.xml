@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_project_scrum_sprint_stage_tree" model="ir.ui.view">
+        <field name="name">project.scrum.sprint.stage.tree</field>
+        <field name="model">project.scrum.sprint.stage</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="category"/>
+                <field name="fold"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_scrum_sprint_stages" model="ir.actions.act_window">
+        <field name="name">Sprint Stages</field>
+        <field name="res_model">project.scrum.sprint.stage</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="view_project_scrum_sprint_search_forced" model="ir.ui.view">
+        <field name="name">project.scrum.sprint.search.forced</field>
+        <field name="model">project.scrum.sprint</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="project_id"/>
+                <group expand="1" string="Group By">
+                    <filter string="Stage" name="group_by_stage_forced" context="{'group_by': 'stage_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_project_scrum_sprint_stage_kanban" model="ir.ui.view">
+        <field name="name">project.scrum.sprint.kanban</field>
+        <field name="model">project.scrum.sprint</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="stage_id" on_create="quick_create" quick_create="true" records_draggable="true" class="o_kanban_small_column o_kanban_dashboard" sample="1">
+                <field name="name"/>
+                <field name="start_date"/>
+                <field name="end_date"/>
+                <field name="progress"/>
+                <field name="stage_id"/>
+                <field name="state"/>
+
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_global_click border-0 shadow-sm rounded-3 mb-3" style="background-color: #ffffff; transition: transform 0.2s, box-shadow 0.2s;">
+                            <div class="card-body p-3">
+
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <strong class="o_kanban_record_title fs-5 text-truncate fw-bold text-dark" style="max-width: 75%;">
+                                        <field name="name"/>
+                                    </strong>
+                                    <span t-attf-class="badge rounded-pill #{record.state.raw_value == 'active' ? 'text-bg-success' : record.state.raw_value == 'completed' ? 'text-bg-primary' : 'text-bg-secondary'}">
+                                        <field name="state"/>
+                                    </span>
+                                </div>
+
+                                <div class="text-muted small mb-3 d-flex align-items-center">
+                                    <i class="fa fa-calendar text-primary me-2 opacity-75"/>
+                                    <t t-if="record.start_date.raw_value">
+                                        <field name="start_date"/> <i class="fa fa-long-arrow-right mx-2 opacity-50"/> <field name="end_date"/>
+                                    </t>
+                                    <t t-else="">
+                                        <span class="fst-italic">No dates scheduled</span>
+                                    </t>
+                                </div>
+
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between align-items-center small mb-1">
+                                        <span class="text-muted fw-bold" style="font-size: 0.8em; text-transform: uppercase; letter-spacing: 0.5px;">Progress</span>
+                                        <strong class="text-dark"><field name="progress"/>%</strong>
+                                    </div>
+                                    <field name="progress" widget="progressbar"/>
+                                </div>
+
+                                <div class="sprint_card_footer d-flex justify-content-between align-items-center mt-2 pt-2 border-top">
+
+                                    <div class="sprint_dod_hook d-flex align-items-center">
+                                        </div>
+
+                                    <div class="oe_kanban_bottom_left d-none"></div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+</odoo>

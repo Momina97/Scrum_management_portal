@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+      The 'noupdate' flag is set to 1 so that if a user manually deactivates
+      this scheduled action from the UI, it will not be reactivated on the next
+      module update.
+    -->
+    <data>
+        <record id="ir_cron_calculate_sprint_velocity" model="ir.cron">
+            <field name="name">Scrum: Calculate End Date Velocity</field>
+            <field name="model_id" ref="scrum_management.model_project_velocity_snapshot"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_calculate_end_date_velocity()</field>
+            <field name="user_id" ref="base.user_root"/>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="active" eval="True"/>
+            <field name="nextcall" eval="(DateTime.now().replace(hour=23, minute=59, second=0)).strftime('%Y-%m-%d %H:%M:%S')"/>
+        </record>
+
+        <record id="ir_cron_update_scrum_burndown_snapshots" model="ir.cron">
+            <field name="name">Scrum: Daily Burndown Snapshot Tracker</field>
+            <field name="model_id" ref="scrum_management.model_project_sprint_burndown_snapshot"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_update_burndown_snapshots()</field>
+            <field name="user_id" ref="base.user_root"/>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="active" eval="True"/>
+            <field name="nextcall" eval="(DateTime.now() + timedelta(days=1)).strftime('%Y-%m-%d 00:00:00')"/>
+        </record>
+
+        <record id="cron_scrum_meeting_reminder" model="ir.cron">
+            <field name="name">Scrum: Daily Meeting Reminders</field>
+            <field name="model_id" ref="scrum_management.model_project_scrum_meeting"/>
+            <field name="state">code</field>
+            <field name="code">model._send_meeting_reminders()</field>
+            <field name="user_id" ref="base.user_root"/>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="active" eval="True"/>
+        </record>
+    </data>
+
+</odoo>

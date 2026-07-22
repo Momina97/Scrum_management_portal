@@ -1,0 +1,649 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="scrum_management.ScrumClientAction">
+        <div t-att-class="'o_scrum_app h-100 w-100 overflow-hidden d-flex position-relative ' +
+                          (state.isSidebarCollapsed ? 'sidebar-collapsed ' : '') +
+                          (state.isMobile ? 'is-mobile ' : '') +
+                          (state.isMobileSidebarOpen ? 'mobile-open ' : '')">
+
+            <!-- Mobile overlay backdrop -->
+            <div t-if="state.isMobile and state.isMobileSidebarOpen"
+                 class="o_scrum_sidebar_backdrop"
+                 t-on-click="() => this.closeMobileSidebar()"/>
+
+            <div class="o_scrum_sidebar d-flex flex-column">
+
+                <!-- Sidebar header with brand + toggle -->
+                <div class="o_scrum_sidebar_toggle_wrapper d-flex align-items-center justify-content-between">
+                    <span class="o_scrum_sidebar_brand text-truncate">
+                        Scrum
+                    </span>
+                    <button type="button"
+                            class="o_scrum_sidebar_toggle"
+                            t-on-click="() => this.toggleSidebar()"
+                            title="Toggle sidebar">
+                        <i class="fa fa-bars"></i>
+                    </button>
+                </div>
+
+                <div class="flex-grow-1 overflow-auto o_scrum_sidebar_scroll">
+                    <div class="mt-2"></div>
+
+                    <t t-call="scrum_management.SidebarItem">
+                        <t t-set="key" t-value="'dashboard'"/>
+                        <t t-set="label" t-value="'Dashboard'"/>
+                        <t t-set="icon" t-value="'fa-pie-chart'"/>
+                    </t>
+
+                    <div class="o_scrum_sidebar_header">Projects</div>
+
+                    <t t-call="scrum_management.SidebarItem">
+                        <t t-set="key" t-value="'projects_kanban'"/>
+                        <t t-set="label" t-value="'Projects Kanban'"/>
+                        <t t-set="icon" t-value="'fa-th-large'"/>
+                    </t>
+
+                    <a href="#"
+                       t-on-click.prevent="() => this.selectItem('projects')"
+                       t-att-data-label="'All Projects'"
+                       t-att-class="'o_scrum_sidebar_link justify-content-between ' + (state.activeKey.includes('projects_sidebar_tree') ? 'scrum-active' : '')">
+                        <div class="d-flex align-items-center o_scrum_link_inner">
+                            <i class="fa fa-folder"></i>
+                            <span>All Projects</span>
+                        </div>
+                        <i t-att-class="'fa fa-chevron-right transition-transform o_scrum_chevron ' + (state.isProjectsExpanded ? 'fa-rotate-90' : '')"
+                           style="font-size: 10px; width: auto; margin: 0; opacity: 0.5;"></i>
+                    </a>
+
+                    <div t-if="state.isProjectsExpanded" class="o_scrum_sub_menu mb-2">
+                        <!-- 🔍 SEARCH INPUT -->
+                        <div class="px-4 mb-2 o_scrum_search_wrapper">
+                            <input type="text"
+                                   class="form-control"
+                                   placeholder="Search Projects..."
+                                   t-on-input="onSearchProject"/>
+                        </div>
+
+                        <!-- PROJECT LIST -->
+                        <t t-foreach="state.filteredProjects.length ? state.filteredProjects : state.projects"
+                           t-as="project" t-key="project.id">
+
+                            <a href="#"
+                               t-on-click.prevent="() => this.toggleProject(project.id)"
+                               t-att-class="'o_scrum_sub_link justify-content-between d-flex align-items-center ' + (state.activeProjectId === project.id &amp;&amp; !state.activeSprintId ? 'sub-active' : '')">
+                                <span class="text-truncate flex-grow-1">
+                                    <t t-esc="project.name"/>
+                                </span>
+                                <i t-att-class="'fa fa-caret-right transition-transform me-0 ' + (state.expandedProjectId === project.id ? 'fa-rotate-90' : '')"
+                                   style="font-size: 10px; opacity: 0.4;"></i>
+                            </a>
+
+                            <div t-if="state.expandedProjectId === project.id" class="d-flex flex-column">
+                                <t t-if="state.sprintsByProject[project.id]">
+                                    <t t-foreach="state.sprintsByProject[project.id]" t-as="sprint" t-key="sprint.id">
+                                        <a href="#"
+                                            t-on-click.prevent="() => this.selectSprint(sprint.id)"
+                                            t-att-class="'o_scrum_sprint_link ' + (state.activeSprintId === sprint.id ? 'sprint-active' : '')">
+                                            <i t-att-class="'fa fa-circle text-' + (sprint.state === 'active' ? 'success' : 'muted')"
+                                               style="font-size: 6px; margin-right: 6px;"></i>
+                                            <span class="text-truncate">
+                                                <t t-esc="sprint.name"/>
+                                            </span>
+                                        </a>
+                                    </t>
+                                </t>
+                            </div>
+                        </t>
+                    </div>
+
+                    <t t-call="scrum_management.SidebarItem">
+                        <t t-set="key" t-value="'releases'"/>
+                        <t t-set="label" t-value="'Releases'"/>
+                        <t t-set="icon" t-value="'fa-flag'"/>
+                    </t>
+
+                    <div class="o_scrum_sidebar_header">Work</div>
+                    <t t-call="scrum_management.SidebarItem">
+                        <t t-set="key" t-value="'sprints'"/>
+                        <t t-set="label" t-value="'Sprints'"/>
+                        <t t-set="icon" t-value="'fa-retweet'"/>
+                    </t>
+                    <t t-call="scrum_management.SidebarItem">
+                        <t t-set="key" t-value="'active_tasks'"/>
+                        <t t-set="label" t-value="'Active Tasks'"/>
+                        <t t-set="icon" t-value="'fa-check-square-o'"/>
+                    </t>
+                    <t t-call="scrum_management.SidebarItem">
+                        <t t-set="key" t-value="'backlog'"/>
+                        <t t-set="label" t-value="'Backlog'"/>
+                        <t t-set="icon" t-value="'fa-list'"/>
+                    </t>
+
+                    <div class="mt-3"></div>
+
+                    <div class="o_scrum_sidebar_header">Configuration</div>
+                    <a href="#"
+                       t-on-click.prevent="() => this.selectItem('config_menu')"
+                       t-att-data-label="'Settings Menu'"
+                       t-att-class="'o_scrum_sidebar_link justify-content-between ' + (state.activeKey.includes('config_') ? 'scrum-active' : '')">
+                        <div class="d-flex align-items-center o_scrum_link_inner">
+                            <i class="fa fa-cogs"></i>
+                            <span>Settings Menu</span>
+                        </div>
+                        <i t-att-class="'fa fa-chevron-right transition-transform o_scrum_chevron ' + (state.isConfigExpanded ? 'fa-rotate-90' : '')"
+                           style="font-size: 10px; width: auto; margin: 0; opacity: 0.5;"></i>
+                    </a>
+
+                    <div t-if="state.isConfigExpanded" class="o_scrum_sub_menu mb-2">
+                        <t t-call="scrum_management.SidebarSubItem">
+                            <t t-set="key" t-value="'config_settings'"/>
+                            <t t-set="label" t-value="'Settings'"/>
+                            <t t-set="icon" t-value="'fa-cog'"/>
+                        </t>
+                        <t t-call="scrum_management.SidebarSubItem">
+                            <t t-set="key" t-value="'config_projects'"/>
+                            <t t-set="label" t-value="'Projects'"/>
+                            <t t-set="icon" t-value="'fa-folder-open-o'"/>
+                        </t>
+                        <t t-call="scrum_management.SidebarSubItem">
+                            <t t-set="key" t-value="'config_task_stages'"/>
+                            <t t-set="label" t-value="'Task Stages'"/>
+                            <t t-set="icon" t-value="'fa-tasks'"/>
+                        </t>
+                        <t t-call="scrum_management.SidebarSubItem">
+                            <t t-set="key" t-value="'config_stages'"/>
+                            <t t-set="label" t-value="'Project Stages'"/>
+                            <t t-set="icon" t-value="'fa-columns'"/>
+                        </t>
+                        <t t-call="scrum_management.SidebarSubItem">
+                            <t t-set="key" t-value="'config_sprint_stages'"/>
+                            <t t-set="label" t-value="'Sprint Stages'"/>
+                            <t t-set="icon" t-value="'fa-trello'"/>
+                        </t>
+                        <t t-call="scrum_management.SidebarSubItem">
+                            <t t-set="key" t-value="'config_dod_templates'"/>
+                            <t t-set="label" t-value="'DoD Templates'"/>
+                            <t t-set="icon" t-value="'fa-check-square-o'"/>
+                        </t>
+                        <t t-call="scrum_management.SidebarSubItem">
+                            <t t-set="key" t-value="'config_story_points'"/>
+                            <t t-set="label" t-value="'Story Points'"/>
+                            <t t-set="icon" t-value="'fa-sort-numeric-asc'"/>
+                        </t>
+                        <t t-call="scrum_management.SidebarSubItem">
+                            <t t-set="key" t-value="'config_activity_types'"/>
+                            <t t-set="label" t-value="'Activity Types'"/>
+                            <t t-set="icon" t-value="'fa-clock-o'"/>
+                        </t>
+                        <t t-call="scrum_management.SidebarSubItem">
+                            <t t-set="key" t-value="'config_activity_plans'"/>
+                            <t t-set="label" t-value="'Activity Plans'"/>
+                            <t t-set="icon" t-value="'fa-calendar'"/>
+                        </t>
+                        <t t-call="scrum_management.SidebarSubItem">
+                            <t t-set="key" t-value="'config_tags'"/>
+                            <t t-set="label" t-value="'Tags'"/>
+                            <t t-set="icon" t-value="'fa-tags'"/>
+                        </t>
+                    </div>
+                </div>
+            </div>
+
+            <div class="o_scrum_content flex-grow-1 d-flex flex-column overflow-hidden" style="background-color: #f8f9fa !important;">
+
+                <!-- Mobile top bar with hamburger -->
+                <div t-if="state.isMobile" class="o_scrum_mobile_topbar d-flex align-items-center px-3 py-2 border-bottom bg-white">
+                    <button type="button"
+                            class="o_scrum_mobile_toggle"
+                            t-on-click="() => this.toggleSidebar()"
+                            title="Open menu">
+                        <i class="fa fa-bars"></i>
+                    </button>
+                    <span class="fw-bold ms-2">Scrum</span>
+                </div>
+
+                <!--
+                =============================================================
+                  BREADCRUMB CONTROL PANEL
+                  Always visible. "Scrum" is a permanent root entry rendered
+                  from the template (not from navHistory). navHistory entries
+                  follow after it.
+                =============================================================
+                -->
+                <div class="o_control_panel d-flex flex-column gap-3 px-3 pt-3 pb-2 border-bottom bg-white">
+                    <div class="o_cp_top d-flex align-items-baseline">
+                        <ol class="breadcrumb fs-4 mb-0 fw-bold">
+
+                            <!-- 1. PERMANENT ROOT: "Scrum" — always visible, always clickable -->
+                            <li t-att-class="'breadcrumb-item d-inline-flex align-items-center ' +
+                                             (state.navHistory.length === 0 ? 'active text-dark' : '')">
+                                <a t-if="state.navHistory.length > 0"
+                                   href="#"
+                                   t-on-click.prevent="() => this.goToScrumRoot()"
+                                   class="text-truncate text-decoration-none"
+                                   title="Back to Dashboard">
+                                    Scrum
+                                </a>
+                                <span t-else="" class="text-truncate">Scrum</span>
+                            </li>
+
+                            <!-- 2. DYNAMIC ENTRIES from navHistory -->
+                            <t t-foreach="state.navHistory" t-as="step" t-key="step.activeKey">
+                                <li class="breadcrumb-item d-inline-flex align-items-center"
+                                    t-att-class="step_last ? 'active text-dark' : ''">
+                                    <a t-if="!step_last"
+                                       href="#"
+                                       t-on-click.prevent="() => this.goToHistoryIndex(step_index)"
+                                       class="text-truncate text-decoration-none"
+                                       style="max-width: 220px;"
+                                       t-att-title="step.title">
+                                        <t t-esc="step.title"/>
+                                    </a>
+                                    <span t-if="step_last"
+                                          class="text-truncate"
+                                          style="max-width: 400px;"
+                                          t-att-title="step.title">
+                                        <t t-esc="step.title"/>
+                                    </span>
+                                </li>
+                            </t>
+
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- DASHBOARD MODE -->
+                <t t-if="state.viewProps.resModel === 'scrum.project.dashboard' or state.viewProps.resModel === 'scrum.dashboard'">
+                    <style>
+                        .scrum-dashboard-mode .o_view_controller,
+                        .scrum-dashboard-mode .o_content,
+                        .scrum-dashboard-mode .o_form_view {
+                            height: auto !important;
+                            min-height: 0 !important;
+                            flex: none !important;
+                            overflow: visible !important;
+                        }
+                        .scrum-dashboard-mode .o_form_sheet_bg {
+                            min-height: 0 !important;
+                            padding-bottom: 0 !important;
+                            margin-bottom: 0 !important;
+                            border-bottom: none !important;
+                            background-color: transparent !important;
+                        }
+                    </style>
+                    <div class="scrum-dashboard-mode flex-grow-1 overflow-auto p-3">
+                        <div class="mb-4">
+                            <View t-props="state.viewProps" t-key="state.activeKey" />
+                        </div>
+                        <t t-if="state.activeProjectId">
+                            <div class="d-flex flex-column gap-3">
+                                <VelocityChart projectId="state.activeProjectId"/>
+                                <BurndownChart projectId="state.activeProjectId"/>
+                            </div>
+                        </t>
+                    </div>
+                </t>
+
+                <!-- ALL OTHER VIEWS -->
+                <t t-else="">
+                    <div class="flex-grow-1 overflow-auto position-relative h-100 w-100">
+                        <View t-props="state.viewProps" t-key="state.activeKey" />
+                    </div>
+                </t>
+
+            </div>
+        </div>
+    </t>
+
+    <t t-name="scrum_management.SidebarItem">
+        <a href="#"
+           t-on-click.prevent="() => this.selectItem(key)"
+           t-att-data-label="label"
+           t-att-class="'o_scrum_sidebar_link ' + (state.activeKey.includes(key) ? 'scrum-active' : '')">
+            <i t-attf-class="fa {{icon}}"></i>
+            <span><t t-esc="label"/></span>
+        </a>
+    </t>
+
+    <t t-name="scrum_management.SidebarSubItem">
+        <a href="#"
+           t-on-click.prevent="() => this.selectItem(key)"
+           t-att-data-label="label"
+           t-att-class="'o_scrum_sub_link d-flex align-items-center ' + (state.activeKey.includes(key) ? 'sub-active' : '')">
+            <i t-attf-class="fa {{icon}} me-2" style="font-size: 11px; opacity: 0.7; width: 14px; text-align: center;"></i>
+            <span class="text-truncate flex-grow-1"><t t-esc="label"/></span>
+        </a>
+    </t>
+</templates>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!--<?xml version="1.0" encoding="UTF-8"?>-->
+<!--<templates xml:space="preserve">-->
+<!--    <t t-name="scrum_management.ScrumClientAction">-->
+<!--        <div t-att-class="'o_scrum_app h-100 w-100 overflow-hidden d-flex position-relative ' +-->
+<!--                          (state.isSidebarCollapsed ? 'sidebar-collapsed ' : '') +-->
+<!--                          (state.isMobile ? 'is-mobile ' : '') +-->
+<!--                          (state.isMobileSidebarOpen ? 'mobile-open ' : '')">-->
+
+<!--            &lt;!&ndash; Mobile overlay backdrop &ndash;&gt;-->
+<!--            <div t-if="state.isMobile and state.isMobileSidebarOpen"-->
+<!--                 class="o_scrum_sidebar_backdrop"-->
+<!--                 t-on-click="() => this.closeMobileSidebar()"/>-->
+
+<!--            <div class="o_scrum_sidebar d-flex flex-column">-->
+
+<!--                &lt;!&ndash; Sidebar header with brand + toggle &ndash;&gt;-->
+<!--                <div class="o_scrum_sidebar_toggle_wrapper d-flex align-items-center justify-content-between">-->
+<!--                    <span class="o_scrum_sidebar_brand text-truncate">-->
+<!--                        Scrum-->
+<!--                    </span>-->
+<!--                    <button type="button"-->
+<!--                            class="o_scrum_sidebar_toggle"-->
+<!--                            t-on-click="() => this.toggleSidebar()"-->
+<!--                            title="Toggle sidebar">-->
+<!--                        <i class="fa fa-bars"></i>-->
+<!--                    </button>-->
+<!--                </div>-->
+
+<!--                <div class="flex-grow-1 overflow-auto o_scrum_sidebar_scroll">-->
+<!--                    <div class="mt-2"></div>-->
+
+<!--                    <t t-call="scrum_management.SidebarItem">-->
+<!--                        <t t-set="key" t-value="'dashboard'"/>-->
+<!--                        <t t-set="label" t-value="'Dashboard'"/>-->
+<!--                        <t t-set="icon" t-value="'fa-pie-chart'"/>-->
+<!--                    </t>-->
+
+<!--                    <div class="o_scrum_sidebar_header">Projects</div>-->
+
+<!--                    <t t-call="scrum_management.SidebarItem">-->
+<!--                        <t t-set="key" t-value="'projects_kanban'"/>-->
+<!--                        <t t-set="label" t-value="'Projects Kanban'"/>-->
+<!--                        <t t-set="icon" t-value="'fa-th-large'"/>-->
+<!--                    </t>-->
+
+<!--                    <a href="#"-->
+<!--                       t-on-click.prevent="() => this.selectItem('projects')"-->
+<!--                       t-att-data-label="'All Projects'"-->
+<!--                       t-att-class="'o_scrum_sidebar_link justify-content-between ' + (state.activeKey.includes('projects_sidebar_tree') ? 'scrum-active' : '')">-->
+<!--                        <div class="d-flex align-items-center o_scrum_link_inner">-->
+<!--                            <i class="fa fa-folder"></i>-->
+<!--                            <span>All Projects</span>-->
+<!--                        </div>-->
+<!--                        <i t-att-class="'fa fa-chevron-right transition-transform o_scrum_chevron ' + (state.isProjectsExpanded ? 'fa-rotate-90' : '')"-->
+<!--                           style="font-size: 10px; width: auto; margin: 0; opacity: 0.5;"></i>-->
+<!--                    </a>-->
+
+<!--                    <div t-if="state.isProjectsExpanded" class="o_scrum_sub_menu mb-2">-->
+<!--                        &lt;!&ndash; 🔍 SEARCH INPUT &ndash;&gt;-->
+<!--                        <div class="px-4 mb-2 o_scrum_search_wrapper">-->
+<!--                            <input type="text"-->
+<!--                                   class="form-control"-->
+<!--                                   placeholder="Search Projects..."-->
+<!--                                   t-on-input="onSearchProject"/>-->
+<!--                        </div>-->
+
+<!--                        &lt;!&ndash; PROJECT LIST &ndash;&gt;-->
+<!--                        <t t-foreach="state.filteredProjects.length ? state.filteredProjects : state.projects"-->
+<!--                           t-as="project" t-key="project.id">-->
+
+<!--                            <a href="#"-->
+<!--                               t-on-click.prevent="() => this.toggleProject(project.id)"-->
+<!--                               t-att-class="'o_scrum_sub_link justify-content-between d-flex align-items-center ' + (state.activeProjectId === project.id &amp;&amp; !state.activeSprintId ? 'sub-active' : '')">-->
+<!--                                <span class="text-truncate flex-grow-1">-->
+<!--                                    <t t-esc="project.name"/>-->
+<!--                                </span>-->
+<!--                                <i t-att-class="'fa fa-caret-right transition-transform me-0 ' + (state.expandedProjectId === project.id ? 'fa-rotate-90' : '')"-->
+<!--                                   style="font-size: 10px; opacity: 0.4;"></i>-->
+<!--                            </a>-->
+
+<!--                            <div t-if="state.expandedProjectId === project.id" class="d-flex flex-column">-->
+<!--                                <t t-if="state.sprintsByProject[project.id]">-->
+<!--                                    <t t-foreach="state.sprintsByProject[project.id]" t-as="sprint" t-key="sprint.id">-->
+<!--                                        <a href="#"-->
+<!--                                            t-on-click.prevent="() => this.selectSprint(sprint.id)"-->
+<!--                                            t-att-class="'o_scrum_sprint_link ' + (state.activeSprintId === sprint.id ? 'sprint-active' : '')">-->
+<!--                                            <i t-att-class="'fa fa-circle text-' + (sprint.state === 'active' ? 'success' : 'muted')"-->
+<!--                                               style="font-size: 6px; margin-right: 6px;"></i>-->
+<!--                                            <span class="text-truncate">-->
+<!--                                                <t t-esc="sprint.name"/>-->
+<!--                                            </span>-->
+<!--                                        </a>-->
+<!--                                    </t>-->
+<!--                                </t>-->
+<!--                            </div>-->
+<!--                        </t>-->
+<!--                    </div>-->
+
+<!--                    <t t-call="scrum_management.SidebarItem">-->
+<!--                        <t t-set="key" t-value="'releases'"/>-->
+<!--                        <t t-set="label" t-value="'Releases'"/>-->
+<!--                        <t t-set="icon" t-value="'fa-flag'"/>-->
+<!--                    </t>-->
+
+<!--                    <div class="o_scrum_sidebar_header">Work</div>-->
+<!--                    <t t-call="scrum_management.SidebarItem">-->
+<!--                        <t t-set="key" t-value="'sprints'"/>-->
+<!--                        <t t-set="label" t-value="'Sprints'"/>-->
+<!--                        <t t-set="icon" t-value="'fa-retweet'"/>-->
+<!--                    </t>-->
+<!--                    <t t-call="scrum_management.SidebarItem">-->
+<!--                        <t t-set="key" t-value="'active_tasks'"/>-->
+<!--                        <t t-set="label" t-value="'Active Tasks'"/>-->
+<!--                        <t t-set="icon" t-value="'fa-check-square-o'"/>-->
+<!--                    </t>-->
+<!--                    <t t-call="scrum_management.SidebarItem">-->
+<!--                        <t t-set="key" t-value="'backlog'"/>-->
+<!--                        <t t-set="label" t-value="'Backlog'"/>-->
+<!--                        <t t-set="icon" t-value="'fa-list'"/>-->
+<!--                    </t>-->
+
+<!--                    <div class="mt-3"></div>-->
+
+<!--                    <div class="o_scrum_sidebar_header">Configuration</div>-->
+<!--                    <a href="#"-->
+<!--                       t-on-click.prevent="() => this.selectItem('config_menu')"-->
+<!--                       t-att-data-label="'Settings Menu'"-->
+<!--                       t-att-class="'o_scrum_sidebar_link justify-content-between ' + (state.activeKey.includes('config_') ? 'scrum-active' : '')">-->
+<!--                        <div class="d-flex align-items-center o_scrum_link_inner">-->
+<!--                            <i class="fa fa-cogs"></i>-->
+<!--                            <span>Settings Menu</span>-->
+<!--                        </div>-->
+<!--                        <i t-att-class="'fa fa-chevron-right transition-transform o_scrum_chevron ' + (state.isConfigExpanded ? 'fa-rotate-90' : '')"-->
+<!--                           style="font-size: 10px; width: auto; margin: 0; opacity: 0.5;"></i>-->
+<!--                    </a>-->
+
+<!--                    <div t-if="state.isConfigExpanded" class="o_scrum_sub_menu mb-2">-->
+<!--                        <t t-call="scrum_management.SidebarSubItem">-->
+<!--                            <t t-set="key" t-value="'config_settings'"/>-->
+<!--                            <t t-set="label" t-value="'Settings'"/>-->
+<!--                            <t t-set="icon" t-value="'fa-cog'"/>-->
+<!--                        </t>-->
+<!--                        <t t-call="scrum_management.SidebarSubItem">-->
+<!--                            <t t-set="key" t-value="'config_projects'"/>-->
+<!--                            <t t-set="label" t-value="'Projects'"/>-->
+<!--                            <t t-set="icon" t-value="'fa-folder-open-o'"/>-->
+<!--                        </t>-->
+<!--                        <t t-call="scrum_management.SidebarSubItem">-->
+<!--                            <t t-set="key" t-value="'config_task_stages'"/>-->
+<!--                            <t t-set="label" t-value="'Task Stages'"/>-->
+<!--                            <t t-set="icon" t-value="'fa-tasks'"/>-->
+<!--                        </t>-->
+<!--                        <t t-call="scrum_management.SidebarSubItem">-->
+<!--                            <t t-set="key" t-value="'config_stages'"/>-->
+<!--                            <t t-set="label" t-value="'Project Stages'"/>-->
+<!--                            <t t-set="icon" t-value="'fa-columns'"/>-->
+<!--                        </t>-->
+<!--                        <t t-call="scrum_management.SidebarSubItem">-->
+<!--                            <t t-set="key" t-value="'config_sprint_stages'"/>-->
+<!--                            <t t-set="label" t-value="'Sprint Stages'"/>-->
+<!--                            <t t-set="icon" t-value="'fa-trello'"/>-->
+<!--                        </t>-->
+<!--                        <t t-call="scrum_management.SidebarSubItem">-->
+<!--                            <t t-set="key" t-value="'config_dod_templates'"/>-->
+<!--                            <t t-set="label" t-value="'DoD Templates'"/>-->
+<!--                            <t t-set="icon" t-value="'fa-check-square-o'"/>-->
+<!--                        </t>-->
+<!--                        <t t-call="scrum_management.SidebarSubItem">-->
+<!--                            <t t-set="key" t-value="'config_story_points'"/>-->
+<!--                            <t t-set="label" t-value="'Story Points'"/>-->
+<!--                            <t t-set="icon" t-value="'fa-sort-numeric-asc'"/>-->
+<!--                        </t>-->
+<!--                        <t t-call="scrum_management.SidebarSubItem">-->
+<!--                            <t t-set="key" t-value="'config_activity_types'"/>-->
+<!--                            <t t-set="label" t-value="'Activity Types'"/>-->
+<!--                            <t t-set="icon" t-value="'fa-clock-o'"/>-->
+<!--                        </t>-->
+<!--                        <t t-call="scrum_management.SidebarSubItem">-->
+<!--                            <t t-set="key" t-value="'config_activity_plans'"/>-->
+<!--                            <t t-set="label" t-value="'Activity Plans'"/>-->
+<!--                            <t t-set="icon" t-value="'fa-calendar'"/>-->
+<!--                        </t>-->
+<!--                        <t t-call="scrum_management.SidebarSubItem">-->
+<!--                            <t t-set="key" t-value="'config_tags'"/>-->
+<!--                            <t t-set="label" t-value="'Tags'"/>-->
+<!--                            <t t-set="icon" t-value="'fa-tags'"/>-->
+<!--                        </t>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+
+<!--            <div class="o_scrum_content flex-grow-1 d-flex flex-column overflow-hidden" style="background-color: #f8f9fa !important;">-->
+
+<!--                &lt;!&ndash; Mobile top bar with hamburger &ndash;&gt;-->
+<!--                <div t-if="state.isMobile" class="o_scrum_mobile_topbar d-flex align-items-center px-3 py-2 border-bottom bg-white">-->
+<!--                    <button type="button"-->
+<!--                            class="o_scrum_mobile_toggle"-->
+<!--                            t-on-click="() => this.toggleSidebar()"-->
+<!--                            title="Open menu">-->
+<!--                        <i class="fa fa-bars"></i>-->
+<!--                    </button>-->
+<!--                    <span class="fw-bold ms-2">Scrum</span>-->
+<!--                </div>-->
+
+<!--                &lt;!&ndash; CONTROL PANEL &ndash;&gt;-->
+<!--                <div class="o_control_panel d-flex flex-column gap-3 px-3 pt-3 pb-2 border-bottom bg-white" t-if="state.navHistory and state.navHistory.length > 0">-->
+<!--                    <div class="o_cp_top d-flex align-items-baseline">-->
+<!--                        <ol class="breadcrumb fs-4 mb-0 fw-bold">-->
+<!--                            <t t-foreach="state.navHistory" t-as="step" t-key="step.activeKey">-->
+<!--                                <li class="breadcrumb-item d-inline-flex align-items-center" t-att-class="step_last ? 'active text-dark' : ''">-->
+<!--                                    <a t-if="!step_last" href="#" t-on-click.prevent="() => this.goToHistoryIndex(step_index)" class="text-truncate text-decoration-none">-->
+<!--                                        <t t-esc="step.title"/>-->
+<!--                                    </a>-->
+<!--                                    <span t-if="step_last" class="text-truncate" style="max-width: 400px;" t-att-title="step.title">-->
+<!--                                        <t t-esc="step.title"/>-->
+<!--                                    </span>-->
+<!--                                </li>-->
+<!--                            </t>-->
+<!--                        </ol>-->
+<!--                    </div>-->
+<!--                </div>-->
+
+<!--                &lt;!&ndash; DASHBOARD MODE &ndash;&gt;-->
+<!--                <t t-if="state.viewProps.resModel === 'scrum.project.dashboard' or state.viewProps.resModel === 'scrum.dashboard'">-->
+<!--                    <style>-->
+<!--                        .scrum-dashboard-mode .o_view_controller,-->
+<!--                        .scrum-dashboard-mode .o_content,-->
+<!--                        .scrum-dashboard-mode .o_form_view {-->
+<!--                            height: auto !important;-->
+<!--                            min-height: 0 !important;-->
+<!--                            flex: none !important;-->
+<!--                            overflow: visible !important;-->
+<!--                        }-->
+<!--                        .scrum-dashboard-mode .o_form_sheet_bg {-->
+<!--                            min-height: 0 !important;-->
+<!--                            padding-bottom: 0 !important;-->
+<!--                            margin-bottom: 0 !important;-->
+<!--                            border-bottom: none !important;-->
+<!--                            background-color: transparent !important;-->
+<!--                        }-->
+<!--                    </style>-->
+<!--                    <div class="scrum-dashboard-mode flex-grow-1 overflow-auto p-3">-->
+<!--                        <div class="mb-4">-->
+<!--                            <View t-props="state.viewProps" t-key="state.activeKey" />-->
+<!--                        </div>-->
+<!--                        <t t-if="state.activeProjectId">-->
+<!--                            <div class="d-flex flex-column gap-3">-->
+<!--                                <VelocityChart projectId="state.activeProjectId"/>-->
+<!--                                <BurndownChart projectId="state.activeProjectId"/>-->
+<!--                            </div>-->
+<!--                        </t>-->
+<!--                    </div>-->
+<!--                </t>-->
+
+<!--                &lt;!&ndash; ALL OTHER VIEWS &ndash;&gt;-->
+<!--                <t t-else="">-->
+<!--                    <div class="flex-grow-1 overflow-auto position-relative h-100 w-100">-->
+<!--                        <View t-props="state.viewProps" t-key="state.activeKey" />-->
+<!--                    </div>-->
+<!--                </t>-->
+
+<!--            </div>-->
+<!--        </div>-->
+<!--    </t>-->
+
+<!--    <t t-name="scrum_management.SidebarItem">-->
+<!--        <a href="#"-->
+<!--           t-on-click.prevent="() => this.selectItem(key)"-->
+<!--           t-att-data-label="label"-->
+<!--           t-att-class="'o_scrum_sidebar_link ' + (state.activeKey.includes(key) ? 'scrum-active' : '')">-->
+<!--            <i t-attf-class="fa {{icon}}"></i>-->
+<!--            <span><t t-esc="label"/></span>-->
+<!--        </a>-->
+<!--    </t>-->
+
+<!--    <t t-name="scrum_management.SidebarSubItem">-->
+<!--        <a href="#"-->
+<!--           t-on-click.prevent="() => this.selectItem(key)"-->
+<!--           t-att-data-label="label"-->
+<!--           t-att-class="'o_scrum_sub_link d-flex align-items-center ' + (state.activeKey.includes(key) ? 'sub-active' : '')">-->
+<!--            <i t-attf-class="fa {{icon}} me-2" style="font-size: 11px; opacity: 0.7; width: 14px; text-align: center;"></i>-->
+<!--            <span class="text-truncate flex-grow-1"><t t-esc="label"/></span>-->
+<!--        </a>-->
+<!--    </t>-->
+<!--</templates>-->

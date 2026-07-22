@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="portal_timeoff_error" name="Time Off Error">
+        <t t-call="portal.portal_layout">
+
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title">Time Off</t>
+            </t>
+
+            <div class="cymax_timeoff_page">
+
+                <div class="ct_page_header">
+                    <div class="ct_header_left">
+                        <h1 class="ct_page_title">Unable to Process Request</h1>
+                        <p class="ct_page_subtitle">Please review the message below.</p>
+                    </div>
+                    <div class="ct_header_right">
+                        <a href="/my/timeoff" class="ct_secondary_btn">← Back to Time Off</a>
+                    </div>
+                </div>
+
+                <div class="ct_error_card">
+                    <div class="ct_error_icon">!</div>
+                    <h3 class="ct_error_title"><t t-esc="error_title"/></h3>
+                    <p class="ct_error_text"><t t-esc="error_message"/></p>
+                    <div class="ct_error_actions">
+                        <a t-attf-href="#{back_url or '/my/timeoff'}" class="ct_primary_btn">
+                            <t t-esc="back_label or 'Go Back'"/>
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+
+        </t>
+    </template>
+
+</odoo>

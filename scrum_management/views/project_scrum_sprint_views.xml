@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_project_scrum_sprint_list" model="ir.ui.view">
+        <field name="name">project.scrum.sprint.list</field>
+        <field name="model">project.scrum.sprint</field>
+        <field name="arch" type="xml">
+            <list string="Sprints" default_order="start_date desc" create="true" edit="true" delete="true">
+                <field name="name"/>
+                <field name="project_id"/>
+                <field name="progress" widget="progressbar"/>
+                <field name="start_date"/>
+                <field name="end_date"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'draft'"
+                       decoration-warning="state == 'active'"
+                       decoration-success="state == 'completed'"/>
+                <button name="action_activate_sprint" string="Start" type="object"
+                        icon="fa-play" class="text-success" invisible="state != 'draft'"/>
+                <button name="action_complete_sprint" string="Close" type="object"
+                        icon="fa-check-square" class="text-primary" invisible="state != 'active'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_project_scrum_sprint_form" model="ir.ui.view">
+        <field name="name">project.scrum.sprint.form</field>
+        <field name="model">project.scrum.sprint</field>
+        <field name="arch" type="xml">
+            <form string="Sprint">
+                <header>
+                    <button name="action_activate_sprint"
+                            string="Start Sprint"
+                            type="object"
+                            class="oe_highlight"
+                            invisible="state != 'draft'"/>
+
+                    <button name="action_complete_sprint"
+                            string="Complete Sprint"
+                            type="object"
+                            class="oe_highlight"
+                            invisible="state != 'active'"/>
+
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,active,completed"
+                           options="{'clickable': '1'}"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" string="Sprint Name"/>
+                        <h1><field name="name" placeholder="e.g., September Sprint Week 1-2" readonly="state == 'completed'"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="project_id" readonly="state == 'completed'" options="{'no_create': True}"/>
+                            <field name="start_date" readonly="state == 'completed'"/>
+                            <field name="end_date" readonly="state == 'completed'"/>
+                        </group>
+                        <group>
+                            <field name="committed_story_points" readonly="state == 'completed'"/>
+                            <field name="velocity" invisible="state != 'completed'"/>
+                            <field name="allocated_time" readonly="1"/>
+                            <field name="spent_time"/>
+                            <field name="efficiency_hours"
+                               decoration-success="efficiency_status == 'good'"
+                               decoration-danger="efficiency_status == 'over'"
+                               decoration-info="efficiency_status == 'exact'"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Description">
+                             <field name="description" placeholder="Write description for sprint..."/>
+                        </page>
+                            <page string="Tasks" name="sprint_tasks">
+                                <field name="task_ids"
+                                       widget="scrum_tasks_x2many"
+                                       context="{'default_project_id': project_id, 'default_sprint_id': id, 'is_scrum_app': True}"
+                                       readonly="state == 'completed'"
+                                       domain="[('sprint_id', '=', id)]">
+                                        <list string="Tasks"
+                                              class="o_scrum_task_list"
+                                              default_order="id desc">
+                                            <widget name="scrum_expand"/>
+                                            <field name="row_number" string="#" readonly="1" width="40"/>
+<!--                                            <field name="id" invisible="1"/>-->
+                                            <field name="name"/>
+                                            <field name="stage_id"/>
+                                            <field name="user_ids" string="Owners" widget="many2many_avatar_user"/>
+                                            <field name="assigned_by_id" string="Assigned By"/>
+                                            <field name="subtask_count" string="Subtasks"/>
+                                            <field name="allocated_hours"/>
+                                            <field name="state" widget="badge"
+                                                   decoration-success="state == '1_done'"
+                                                   decoration-info="state == '01_in_progress'"/>
+
+                                        </list>
+                                <kanban default_group_by="stage_id">
+                                    <field name="name"/>
+                                    <field name="user_ids"/>
+                                    <field name="story_points"/>
+                                    <templates>
+                                        <t t-name="kanban-box">
+                                            <div class="oe_kanban_global_click">
+                                                <strong><field name="name"/></strong>
+                                                <div class="d-flex justify-content-between">
+                                                    <span><field name="story_points"/> SP</span>
+                                                    <field name="user_ids" string="Owners" widget="many2many_avatar_user"/>
+                                                    <field name="assigned_by_id" string="Assigned By"/>
+                                                </div>
+                                            </div>
+                                        </t>
+                                    </templates>
+                                </kanban>
+                            </field>
+                        </page>
+
+                        <page string="Progress Stats" name="progress_stats">
+                            <group>
+                                <group string="Burndown Metrics">
+                                    <field name="total_story_points"/>
+                                    <field name="completed_story_points"/>
+                                    <field name="progress" widget="progressbar"/>
+                                </group>
+                                <group string="Schedule Metrics">
+                                    <field name="time_progress" widget="progressbar"/>
+                                    <field name="on_track_status" widget="badge"
+                                           decoration-success="on_track_status == 'ahead'"
+                                           decoration-info="on_track_status == 'on_track'"
+                                           decoration-danger="on_track_status == 'behind'"/>
+                                    <field name="days_remaining"/>
+                                </group>
+                            </group>
+                        </page>
+
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_project_scrum_sprint_kanban" model="ir.ui.view">
+        <field name="name">project.scrum.sprint.kanban.cards</field>
+        <field name="model">project.scrum.sprint</field>
+        <field name="arch" type="xml">
+            <kanban class="o_kanban_mobile" default_group_by="project_id" create="true">
+                <field name="name"/>
+                <field name="project_id"/>
+                <field name="on_track_status"/>
+                <field name="completed_story_points"/>
+                <field name="total_story_points"/>
+                <field name="progress"/>
+                <field name="days_remaining"/>
+                <field name="time_progress"/>
+                <field name="start_date"/>
+                <field name="end_date"/>
+                <field name="state"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div t-attf-class="oe_kanban_global_click card shadow-sm h-100">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <h5 class="card-title"><t t-esc="record.name.value"/></h5>
+                                    <field name="state" widget="badge" decoration-success="state == 'completed'" decoration-info="state == 'active'"/>
+                                </div>
+                                <h6 class="card-subtitle mb-2 text-muted" t-esc="record.project_id.value"/>
+                                <div class="text-muted small mb-2">
+                                    <i class="fa fa-calendar me-1"/>
+                                    <t t-esc="record.start_date.value"/> to <t t-esc="record.end_date.value"/>
+                                </div>
+                                <div class="mt-3">
+                                    <strong>Work Progress: <t t-esc="record.completed_story_points.value"/> / <t t-esc="record.total_story_points.value"/> SP</strong>
+                                    <div class="progress" style="height: 20px;">
+                                        <div class="progress-bar bg-success" role="progressbar" t-att-style="'width: ' + record.progress.value + '%;'">
+                                            <t t-esc="record.progress.value"/>%
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mt-3">
+                                    <strong>Time Elapsed: <t t-esc="record.days_remaining.value"/> days remaining</strong>
+                                    <div class="progress" style="height: 20px;">
+                                        <div class="progress-bar bg-secondary" role="progressbar" t-att-style="'width: ' + record.time_progress.value + '%;'">
+                                            <t t-esc="record.time_progress.value"/>%
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="view_project_scrum_sprint_search" model="ir.ui.view">
+        <field name="name">project.scrum.sprint.search</field>
+        <field name="model">project.scrum.sprint</field>
+        <field name="arch" type="xml">
+            <search string="Search Sprints">
+                <field name="name"/>
+                <field name="project_id"/>
+                <filter string="Draft" name="draft" domain="[('state', '=', 'draft')]"/>
+                <filter string="Active" name="active" domain="[('state', '=', 'active')]"/>
+                <filter string="Completed" name="completed" domain="[('state', '=', 'completed')]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Project" name="group_by_project" context="{'group_by': 'project_id'}"/>
+                    <filter string="State" name="group_by_state" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+</odoo>

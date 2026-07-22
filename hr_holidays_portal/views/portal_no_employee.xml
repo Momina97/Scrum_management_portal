@@ -3,22 +3,13 @@
 
     <template id="portal_no_employee" name="No Employee Record Found">
         <t t-call="portal.portal_layout">
-
-            <div class="container mt-4">
-                <div class="alert alert-warning">
-                    <h4 class="alert-heading">No Employee Record Found</h4>
-                    <p>
-                        Your account is not linked to an employee record.
-                        Please contact HR to get this set up before you can
-                        submit or view leave requests.
-                    </p>
-                    <hr/>
-                    <a href="/my/home" class="btn btn-secondary">
-                        Back to Home
-                    </a>
+            <div class="cymax_timeoff_page">
+                <div class="ct_empty_state">
+                    <h4>No Employee Record Found</h4>
+                    <p>Your account is not linked to an employee record. Please contact HR.</p>
+                    <a href="/my" class="ct_secondary_btn">← Back to Home</a>
                 </div>
             </div>
-
         </t>
     </template>
 

@@ -1,35 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- Add Payslips counter on /my/home -->
+    <!-- Home tile -->
     <template id="portal_my_home_payslips" name="Payslips on Portal Home"
-              inherit_id="portal.portal_my_home" customize_show="True" priority="40">
-        <xpath expr="//div[hasclass('o_portal_docs')]" position="before">
-            <t t-set="portal_service_category_enable" t-value="True"/>
+              inherit_id="cymax_portal_theme.portal_my_home_inherit"
+              customize_show="True" priority="40">
+        <xpath expr="//div[@id='cymax_portal_cards']" position="inside">
+            <a href="/my/payslips" class="cymax_tile">
+                <div class="cymax_tile_icon">
+                    <img src="/hr_payroll/static/description/icon.png" alt="Pay Roll"/>
+                </div>
+                <span class="cymax_tile_name">My Payslips</span>
+            </a>
         </xpath>
-        <div id="portal_service_category" position="inside">
-            <t t-call="portal.portal_docs_entry">
-                <t t-set="title">My Payslips</t>
-                <t t-set="url" t-value="'/my/payslips'"/>
-                <t t-set="text">View and download your payslips</t>
-                <t t-set="placeholder_count" t-value="'payslip_count'"/>
-                <t t-set="config_card" t-value="True"/>
-            </t>
-        </div>
     </template>
 
-    <!-- Breadcrumbs for Payslip portal pages -->
+    <!-- Breadcrumbs -->
     <template id="portal_breadcrumbs_payslips" name="Portal Breadcrumbs: Payslips"
               inherit_id="portal.portal_breadcrumbs" priority="100">
         <xpath expr="." position="inside">
-            <t t-if="page_name in ['payslips', 'payslip_detail']">
-                <li t-attf-class="breadcrumb-item #{'active' if page_name == 'payslips' else ''}">
-                    <a t-if="page_name != 'payslips'" href="/my/payslips">Payslips</a>
-                    <t t-if="page_name == 'payslips'">Payslips</t>
+            <t t-if="page_name in ['payslip_dashboard', 'payslips', 'payslip_detail']">
+
+                <li t-attf-class="breadcrumb-item #{'active' if page_name == 'payslip_dashboard' else ''}">
+                    <a t-if="page_name != 'payslip_dashboard'" href="/my/payslips">Payslips</a>
+                    <t t-if="page_name == 'payslip_dashboard'">Payslips</t>
                 </li>
-                <li t-if="page_name == 'payslip_detail'" class="breadcrumb-item active">
-                    Payslip Detail
+
+                <li t-if="page_name == 'payslips'" class="breadcrumb-item active">
+                    Records
                 </li>
+
+                <t t-if="page_name == 'payslip_detail'">
+                    <li class="breadcrumb-item">
+                        <a href="/my/payslips/list">Records</a>
+                    </li>
+                    <li class="breadcrumb-item active">
+                        <t t-esc="payslip.name"/>
+                    </li>
+                </t>
+
             </t>
         </xpath>
     </template>

@@ -7,127 +7,104 @@
             <t t-set="breadcrumbs_searchbar" t-value="True"/>
 
             <t t-call="portal.portal_searchbar">
-                <t t-set="title">My Payslips</t>
+                <t t-set="title">Payslips</t>
             </t>
 
-            <!-- Filters -->
-            <div class="container mt-3">
-                <form method="GET" action="/my/payslips" class="d-flex gap-2 flex-wrap" id="payslip_filter_form">
-                    <select name="filter_year" class="form-select w-auto"
-                            onchange="document.getElementById('payslip_filter_form').submit()">
-                        <option value="">All Years</option>
-                        <t t-foreach="years" t-as="year">
-                            <option t-att-value="year"
-                                    t-att-selected="str(year) == filter_year">
-                                <t t-esc="year"/>
-                            </option>
-                        </t>
-                    </select>
-                    <select name="filter_month" class="form-select w-auto"
-                        onchange="document.getElementById('payslip_filter_form').submit()">
-                        <option value="">All Months</option>
-                        <t t-foreach="months" t-as="month">
-                            <option t-att-value="month[0]"
-                                    t-att-selected="month[0] == filter_month">
-                                <t t-esc="month[1]"/>
-                            </option>
-                        </t>
-                    </select>
-                    <a href="/my/payslips" class="btn btn-secondary">Reset</a>
-                </form>
-            </div>
+            <div class="cymax_payslips_page">
 
-            <!-- Year to Date Summary -->
-            <div class="container mt-4">
-                <h4>
-                    <t t-esc="ytd_year"/> Year-to-Date Summary
-                </h4>
-                <div class="row">
-                    <div class="col-md-4 col-sm-6 mb-3">
-                        <div class="card text-center shadow-sm">
-                            <div class="card-body">
-                                <h6 class="card-title text-muted">Total Gross</h6>
-                                <h3 class="text-primary">
-                                    <t t-esc="ytd_gross"/>
-                                </h3>
-                            </div>
-                        </div>
+                <!-- PAGE HEADER -->
+                <div class="cp_page_header">
+                    <div class="cp_header_left">
+                        <h1 class="cp_page_title">My Payslips</h1>
+                        <p class="cp_page_subtitle">View your salary history and download payslips</p>
                     </div>
-                    <div class="col-md-4 col-sm-6 mb-3">
-                        <div class="card text-center shadow-sm">
-                            <div class="card-body">
-                                <h6 class="card-title text-muted">Total Deductions</h6>
-                                <h3 class="text-danger">
-                                    <t t-esc="ytd_deductions"/>
-                                </h3>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4 col-sm-6 mb-3">
-                        <div class="card text-center shadow-sm">
-                            <div class="card-body">
-                                <h6 class="card-title text-muted">Total Net</h6>
-                                <h3 class="text-success">
-                                    <t t-esc="ytd_net"/>
-                                </h3>
-                            </div>
-                        </div>
+                    <div class="cp_header_right">
+                        <a href="/my/payslips" class="cp_reset_btn">Back to Dashboard</a>
+                        <form method="GET" action="/my/payslips"
+                            class="cp_filter_form"
+                            id="payslip_filter_form">
+                            <select name="filter_year" class="cp_select"
+                                    onchange="document.getElementById('payslip_filter_form').submit()">
+                                <option value="">All Years</option>
+                                <t t-foreach="years" t-as="year">
+                                    <option t-att-value="year"
+                                            t-att-selected="str(year) == filter_year">
+                                        <t t-esc="year"/>
+                                    </option>
+                                </t>
+                            </select>
+                            <select name="filter_month" class="cp_select"
+                                    onchange="document.getElementById('payslip_filter_form').submit()">
+                                <option value="">All Months</option>
+                                <t t-foreach="months" t-as="month">
+                                    <option t-att-value="month[0]"
+                                            t-att-selected="month[0] == filter_month">
+                                        <t t-esc="month[1]"/>
+                                    </option>
+                                </t>
+                            </select>
+                            <a href="/my/payslips/list" class="cp_reset_btn">Reset</a>
+                        </form>
                     </div>
                 </div>
-            </div>
 
-            <!-- Payslips Table -->
-            <div class="container mt-3">
-                <h4>Payslip History</h4>
-                <t t-if="payslips">
-                    <table class="table table-hover o_portal_my_doc_table">
-                        <thead>
-                            <tr>
-                                <th>Reference</th>
-                                <th>Period</th>
-                                <th>Gross</th>
-                                <th>Net</th>
-                                <th>Download</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <t t-foreach="payslips" t-as="payslip">
+                <!-- PAYSLIPS TABLE -->
+                <div class="cp_table_wrapper">
+                    <t t-if="payslips">
+                        <table class="cp_table">
+                            <thead>
                                 <tr>
-                                    <td>
-                                        <a t-attf-href="/my/payslips/#{payslip.id}">
-                                            <t t-esc="payslip.name"/>
-                                        </a>
-                                    </td>
-                                    <td>
-                                        <span t-field="payslip.date_from"
-                                              t-options='{"widget": "date"}'/>
-                                        —
-                                        <span t-field="payslip.date_to"
-                                              t-options='{"widget": "date"}'/>
-                                    </td>
-                                    <td>
-                                        <t t-esc="payslip.gross_wage"/>
-                                    </td>
-                                    <td>
-                                        <t t-esc="payslip.net_wage"/>
-                                    </td>
-                                    <td>
-                                        <a t-attf-href="/my/payslips/#{payslip.id}/download"
-                                           class="btn btn-sm btn-outline-primary">
-                                            Download PDF
-                                        </a>
-                                    </td>
+                                    <th>Reference</th>
+                                    <th>Period</th>
+                                    <th>Gross</th>
+                                    <th>Net</th>
+                                    <th class="text-center">Download</th>
                                 </tr>
-                            </t>
-                        </tbody>
-                    </table>
-                    <div t-if="pager" class="o_portal_pager text-center">
-                        <t t-call="portal.pager"/>
-                    </div>
-                </t>
-                <t t-else="">
-                    <p class="text-muted">No payslips found.</p>
-                </t>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="payslips" t-as="payslip">
+                                    <tr>
+                                        <td>
+                                            <a t-attf-href="/my/payslips/#{payslip.id}"
+                                               class="cp_link">
+                                                <t t-esc="payslip.name"/>
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <span t-field="payslip.date_from"
+                                                  t-options='{"widget": "date"}'/>
+                                            —
+                                            <span t-field="payslip.date_to"
+                                                  t-options='{"widget": "date"}'/>
+                                        </td>
+                                        <td><t t-esc="payslip.gross_wage"/></td>
+                                        <td><t t-esc="payslip.net_wage"/></td>
+                                        <td class="text-center">
+                                            <a t-attf-href="/my/payslips/#{payslip.id}/download"
+                                               class="cp_download_icon"
+                                               title="Download PDF">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                                    <polyline points="7 10 12 15 17 10"/>
+                                                    <line x1="12" y1="15" x2="12" y2="3"/>
+                                                </svg>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                        <div t-if="pager" class="o_portal_pager text-center mt-3">
+                            <t t-call="portal.pager"/>
+                        </div>
+                    </t>
+                    <t t-else="">
+                        <div class="cp_empty_state">
+                            <p>No payslips found.</p>
+                        </div>
+                    </t>
+                </div>
+
             </div>
 
         </t>

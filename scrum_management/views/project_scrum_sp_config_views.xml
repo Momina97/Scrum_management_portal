@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_scrum_sp_config_form" model="ir.ui.view">
+        <field name="name">project.scrum.story.point.config.form</field>
+        <field name="model">project.scrum.story.point.config</field>
+        <field name="arch" type="xml">
+            <form string="Story Point Configuration" create="false" delete="false">
+                <sheet class="bg-light p-5">
+
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="rounded p-3 bg-white shadow-sm border d-flex align-items-center justify-content-center me-3" style="width: 64px; height: 64px;">
+                            <i class="fa fa-tachometer fa-2x text-primary"/>
+                        </div>
+                        <div>
+                            <h1 class="fw-bold text-dark mb-1" style="font-size: 2rem;">Velocity Calibration</h1>
+                            <div class="text-muted" style="font-size: 1rem;">
+                                Map Agile complexity (Story Points) to specific time boundaries (Allocated Hours).
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info d-flex align-items-center mb-5 shadow-sm" role="alert" style="border-left: 5px solid #0dcaf0; border-radius: 8px;">
+                        <i class="fa fa-lightbulb-o fa-2x me-3 text-info"/>
+                        <div>
+                            <strong>How do custom ranges work?</strong><br/>
+                            Explicitly set the <strong>Min</strong> and <strong>Max</strong> bounds for each Story Point in <strong>HH:MM</strong> format (e.g. <code>1:50</code> means 1 hour 50 minutes). When a developer types hours within these boundaries, the task snaps to the matching Story Point without altering their exact typed hours. If they manually select a Story Point from a dropdown, it will automatically apply the <strong>maximum</strong> value of your defined range. <br/>*(Note: Setting 'Max' to 0 on Epic/13 treats it as infinity).*
+                        </div>
+                    </div>
+
+                    <div class="row gx-4 gy-4">
+
+                        <div class="col-12 col-md-6 col-xl-4">
+                            <div class="p-3 rounded-4 shadow-sm bg-white d-flex flex-column" style="border: 1px solid #e2e8f0; transition: transform 0.2s; cursor: default;">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold fs-4 shadow-sm" style="width: 50px; height: 50px; background: linear-gradient(135deg, #10b981, #059669);">
+                                        1
+                                    </div>
+                                    <div class="ms-3">
+                                        <div class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem; letter-spacing: 1px;">Story Point</div>
+                                        <div class="fs-6 fw-bold text-dark">Trivial</div>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="d-flex align-items-center bg-light rounded px-2 py-1 border flex-grow-1" title="Min Hours">
+                                        <span class="text-muted fw-bold me-2" style="font-size: 0.75rem;">MIN</span>
+                                        <field name="sp_1_min" nolabel="1" widget="float_time" class="oe_inline fw-bolder text-primary text-end m-0 w-100" style="background: transparent; border: none;"/>
+                                    </div>
+                                    <div class="d-flex align-items-center bg-light rounded px-2 py-1 border flex-grow-1" title="Max Hours">
+                                        <span class="text-muted fw-bold me-2" style="font-size: 0.75rem;">MAX</span>
+                                        <field name="sp_1_max" nolabel="1" widget="float_time" class="oe_inline fw-bolder text-primary text-end m-0 w-100" style="background: transparent; border: none;"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-6 col-xl-4">
+                            <div class="p-3 rounded-4 shadow-sm bg-white d-flex flex-column" style="border: 1px solid #e2e8f0;">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold fs-4 shadow-sm" style="width: 50px; height: 50px; background: linear-gradient(135deg, #3b82f6, #2563eb);">
+                                        2
+                                    </div>
+                                    <div class="ms-3">
+                                        <div class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem; letter-spacing: 1px;">Story Points</div>
+                                        <div class="fs-6 fw-bold text-dark">Simple</div>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="d-flex align-items-center bg-light rounded px-2 py-1 border flex-grow-1" title="Min Hours">
+                                        <span class="text-muted fw-bold me-2" style="font-size: 0.75rem;">MIN</span>
+                                        <field name="sp_2_min" nolabel="1" widget="float_time" class="oe_inline fw-bolder text-primary text-end m-0 w-100" style="background: transparent; border: none;"/>
+                                    </div>
+                                    <div class="d-flex align-items-center bg-light rounded px-2 py-1 border flex-grow-1" title="Max Hours">
+                                        <span class="text-muted fw-bold me-2" style="font-size: 0.75rem;">MAX</span>
+                                        <field name="sp_2_max" nolabel="1" widget="float_time" class="oe_inline fw-bolder text-primary text-end m-0 w-100" style="background: transparent; border: none;"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-6 col-xl-4">
+                            <div class="p-3 rounded-4 shadow-sm bg-white d-flex flex-column" style="border: 1px solid #e2e8f0;">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold fs-4 shadow-sm" style="width: 50px; height: 50px; background: linear-gradient(135deg, #6366f1, #4f46e5);">
+                                        3
+                                    </div>
+                                    <div class="ms-3">
+                                        <div class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem; letter-spacing: 1px;">Story Points</div>
+                                        <div class="fs-6 fw-bold text-dark">Moderate</div>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="d-flex align-items-center bg-light rounded px-2 py-1 border flex-grow-1" title="Min Hours">
+                                        <span class="text-muted fw-bold me-2" style="font-size: 0.75rem;">MIN</span>
+                                        <field name="sp_3_min" nolabel="1" widget="float_time" class="oe_inline fw-bolder text-primary text-end m-0 w-100" style="background: transparent; border: none;"/>
+                                    </div>
+                                    <div class="d-flex align-items-center bg-light rounded px-2 py-1 border flex-grow-1" title="Max Hours">
+                                        <span class="text-muted fw-bold me-2" style="font-size: 0.75rem;">MAX</span>
+                                        <field name="sp_3_max" nolabel="1" widget="float_time" class="oe_inline fw-bolder text-primary text-end m-0 w-100" style="background: transparent; border: none;"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-6 col-xl-4">
+                            <div class="p-3 rounded-4 shadow-sm bg-white d-flex flex-column" style="border: 1px solid #e2e8f0;">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold fs-4 shadow-sm" style="width: 50px; height: 50px; background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
+                                        5
+                                    </div>
+                                    <div class="ms-3">
+                                        <div class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem; letter-spacing: 1px;">Story Points</div>
+                                        <div class="fs-6 fw-bold text-dark">Complex</div>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="d-flex align-items-center bg-light rounded px-2 py-1 border flex-grow-1" title="Min Hours">
+                                        <span class="text-muted fw-bold me-2" style="font-size: 0.75rem;">MIN</span>
+                                        <field name="sp_5_min" nolabel="1" widget="float_time" class="oe_inline fw-bolder text-primary text-end m-0 w-100" style="background: transparent; border: none;"/>
+                                    </div>
+                                    <div class="d-flex align-items-center bg-light rounded px-2 py-1 border flex-grow-1" title="Max Hours">
+                                        <span class="text-muted fw-bold me-2" style="font-size: 0.75rem;">MAX</span>
+                                        <field name="sp_5_max" nolabel="1" widget="float_time" class="oe_inline fw-bolder text-primary text-end m-0 w-100" style="background: transparent; border: none;"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-6 col-xl-4">
+                            <div class="p-3 rounded-4 shadow-sm bg-white d-flex flex-column" style="border: 1px solid #e2e8f0;">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold fs-4 shadow-sm" style="width: 50px; height: 50px; background: linear-gradient(135deg, #f59e0b, #d97706);">
+                                        8
+                                    </div>
+                                    <div class="ms-3">
+                                        <div class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem; letter-spacing: 1px;">Story Points</div>
+                                        <div class="fs-6 fw-bold text-dark">Very Complex</div>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="d-flex align-items-center bg-light rounded px-2 py-1 border flex-grow-1" title="Min Hours">
+                                        <span class="text-muted fw-bold me-2" style="font-size: 0.75rem;">MIN</span>
+                                        <field name="sp_8_min" nolabel="1" widget="float_time" class="oe_inline fw-bolder text-primary text-end m-0 w-100" style="background: transparent; border: none;"/>
+                                    </div>
+                                    <div class="d-flex align-items-center bg-light rounded px-2 py-1 border flex-grow-1" title="Max Hours">
+                                        <span class="text-muted fw-bold me-2" style="font-size: 0.75rem;">MAX</span>
+                                        <field name="sp_8_max" nolabel="1" widget="float_time" class="oe_inline fw-bolder text-primary text-end m-0 w-100" style="background: transparent; border: none;"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-6 col-xl-4">
+                            <div class="p-3 rounded-4 shadow-sm bg-white d-flex flex-column" style="border: 1px solid #e2e8f0;">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold fs-4 shadow-sm" style="width: 50px; height: 50px; background: linear-gradient(135deg, #ef4444, #dc2626);">
+                                        13
+                                    </div>
+                                    <div class="ms-3">
+                                        <div class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem; letter-spacing: 1px;">Story Points</div>
+                                        <div class="fs-6 fw-bold text-dark">Epic / Max</div>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="d-flex align-items-center bg-light rounded px-2 py-1 border flex-grow-1" title="Min Hours">
+                                        <span class="text-muted fw-bold me-2" style="font-size: 0.75rem;">MIN</span>
+                                        <field name="sp_13_min" nolabel="1" widget="float_time" class="oe_inline fw-bolder text-primary text-end m-0 w-100" style="background: transparent; border: none;"/>
+                                    </div>
+                                    <div class="d-flex align-items-center bg-light rounded px-2 py-1 border flex-grow-1" title="Max Hours">
+                                        <span class="text-muted fw-bold me-2" style="font-size: 0.75rem;">MAX</span>
+                                        <field name="sp_13_max" nolabel="1" widget="float_time" class="oe_inline fw-bolder text-primary text-end m-0 w-100" style="background: transparent; border: none;" placeholder="∞"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

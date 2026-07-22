@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_employee_form_inherit_hikcentral" model="ir.ui.view">
+        <field name="name">hr.employee.form.inherit.hikcentral</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="arch" type="xml">
+            <!-- Add the field below the Work Information group -->
+            <xpath expr="//page[@name='hr_settings']//group[1]" position="after">
+                <group string="Attendance Settings" name="attendance_settings">
+                    <field name="allow_odoo_attendance"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

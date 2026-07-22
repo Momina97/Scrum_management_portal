@@ -4,113 +4,106 @@
     <template id="portal_timeoff_new" name="Apply for Leave">
         <t t-call="portal.portal_layout">
 
-            <t t-set="breadcrumbs_searchbar" t-value="False"/>
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title">Time Off</t>
+            </t>
 
-            <div class="container mt-4">
+            <div class="cymax_timeoff_page">
 
-                <!-- Breadcrumb -->
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item">
-                            <a href="/my/timeoff">Time Off</a>
-                        </li>
-                        <li class="breadcrumb-item active">New Request</li>
-                    </ol>
-                </nav>
+                <!-- PAGE HEADER -->
+                <div class="ct_page_header">
+                    <div class="ct_header_left">
+                        <h1 class="ct_page_title">Apply for Leave</h1>
+                        <p class="ct_page_subtitle">Fill in the details below to submit a leave request.</p>
+                    </div>
+                    <div class="ct_header_right">
+                        <a href="/my/timeoff" class="ct_secondary_btn">← Back</a>
+                    </div>
+                </div>
 
-                <h4>Apply for Leave</h4>
-
-                <!-- General error -->
+                <!-- GENERAL ERROR -->
                 <t t-if="errors.get('general')">
-                    <div class="alert alert-danger">
+                    <div class="ct_alert ct_alert_danger">
                         <t t-esc="errors['general']"/>
                     </div>
                 </t>
 
-                <form action="/my/timeoff/new" method="POST">
-                    <input type="hidden" name="csrf_token"
-                           t-att-value="request.csrf_token()"/>
+                <!-- FORM -->
+                <div class="ct_form_card">
+                    <form action="/my/timeoff/new" method="POST">
+                        <input type="hidden" name="csrf_token"
+                               t-att-value="request.csrf_token()"/>
 
-                    <!-- Leave Type -->
-                    <div class="mb-3">
-                        <label for="leave_type_id" class="form-label fw-bold">
-                            Leave Type <span class="text-danger">*</span>
-                        </label>
-                        <select name="leave_type_id" id="leave_type_id"
-                                t-attf-class="form-select #{'is-invalid' if errors.get('leave_type_id') else ''}">
-                            <option value="">-- Select a leave type --</option>
-                            <t t-foreach="leave_types" t-as="lt">
-                                <option t-att-value="lt.id"
-                                        t-att-selected="str(lt.id) == str(post.get('leave_type_id', ''))">
-                                    <t t-esc="lt.name"/>
-                                </option>
+                        <!-- Leave Type -->
+                        <div class="ct_form_group">
+                            <label class="ct_form_label">
+                                Leave Type <span class="ct_required">*</span>
+                            </label>
+                            <select name="leave_type_id"
+                                    t-attf-class="ct_form_select #{'ct_input_error' if errors.get('leave_type_id') else ''}">
+                                <option value="">-- Select a leave type --</option>
+                                <t t-foreach="leave_types" t-as="lt">
+                                    <option t-att-value="lt.id"
+                                            t-att-selected="str(lt.id) == str(post.get('leave_type_id', ''))">
+                                        <t t-esc="lt.name"/>
+                                    </option>
+                                </t>
+                            </select>
+                            <t t-if="errors.get('leave_type_id')">
+                                <span class="ct_error_msg"><t t-esc="errors['leave_type_id']"/></span>
                             </t>
-                        </select>
-                        <t t-if="errors.get('leave_type_id')">
-                            <div class="invalid-feedback">
-                                <t t-esc="errors['leave_type_id']"/>
+                        </div>
+
+                        <!-- Date Row -->
+                        <div class="ct_form_row">
+                            <div class="ct_form_group">
+                                <label class="ct_form_label">
+                                    From <span class="ct_required">*</span>
+                                </label>
+                                <input type="date" name="date_from"
+                                       t-att-value="post.get('date_from', '')"
+                                       t-attf-class="ct_form_input #{'ct_input_error' if errors.get('date_from') else ''}"/>
+                                <t t-if="errors.get('date_from')">
+                                    <span class="ct_error_msg"><t t-esc="errors['date_from']"/></span>
+                                </t>
                             </div>
-                        </t>
-                    </div>
-
-                    <!-- Date From -->
-                    <div class="mb-3">
-                        <label for="date_from" class="form-label fw-bold">
-                            From <span class="text-danger">*</span>
-                        </label>
-                        <input type="date" name="date_from" id="date_from"
-                               t-att-value="post.get('date_from', '')"
-                               t-attf-class="form-control #{'is-invalid' if errors.get('date_from') else ''}"/>
-                        <t t-if="errors.get('date_from')">
-                            <div class="invalid-feedback">
-                                <t t-esc="errors['date_from']"/>
+                            <div class="ct_form_group">
+                                <label class="ct_form_label">
+                                    To <span class="ct_required">*</span>
+                                </label>
+                                <input type="date" name="date_to"
+                                       t-att-value="post.get('date_to', '')"
+                                       t-attf-class="ct_form_input #{'ct_input_error' if errors.get('date_to') else ''}"/>
+                                <t t-if="errors.get('date_to')">
+                                    <span class="ct_error_msg"><t t-esc="errors['date_to']"/></span>
+                                </t>
                             </div>
-                        </t>
-                    </div>
+                        </div>
 
-                    <!-- Date To -->
-                    <div class="mb-3">
-                        <label for="date_to" class="form-label fw-bold">
-                            To <span class="text-danger">*</span>
-                        </label>
-                        <input type="date" name="date_to" id="date_to"
-                               t-att-value="post.get('date_to', '')"
-                               t-attf-class="form-control #{'is-invalid' if errors.get('date_to') else ''}"/>
-                        <t t-if="errors.get('date_to')">
-                            <div class="invalid-feedback">
-                                <t t-esc="errors['date_to']"/>
-                            </div>
-                        </t>
-                    </div>
+                        <!-- Reason -->
+                        <div class="ct_form_group">
+                            <label class="ct_form_label">
+                                Reason <span class="ct_required">*</span>
+                            </label>
+                            <textarea name="description" rows="4"
+                                      t-attf-class="ct_form_input #{'ct_input_error' if errors.get('description') else ''}">
+                                <t t-esc="post.get('description', '')"/>
+                            </textarea>
+                            <t t-if="errors.get('description')">
+                                <span class="ct_error_msg"><t t-esc="errors['description']"/></span>
+                            </t>
+                        </div>
 
-                    <!-- Description -->
-                    <div class="mb-3">
-                        <label for="description" class="form-label fw-bold">
-                            Reason <span class="text-danger">*</span>
-                        </label>
-                        <textarea name="description" id="description"
-                                t-attf-class="form-control #{'is-invalid' if errors.get('description') else ''}"
-                                rows="3" required="">
-                            <t t-esc="post.get('description', '')"/>
-                        </textarea>
-                        <t t-if="errors.get('description')">
-                            <div class="invalid-feedback">
-                                <t t-esc="errors['description']"/>
-                            </div>
-                        </t>
-                    </div>
+                        <!-- Buttons -->
+                        <div class="ct_form_actions">
+                            <button type="submit" class="ct_primary_btn">Submit Request</button>
+                            <a href="/my/timeoff" class="ct_secondary_btn">Cancel</a>
+                        </div>
 
-                    <!-- Buttons -->
-                    <div class="d-flex gap-2">
-                        <button type="submit" class="btn btn-primary">
-                            Submit Request
-                        </button>
-                        <a href="/my/timeoff" class="btn btn-secondary">
-                            Cancel
-                        </a>
-                    </div>
+                    </form>
+                </div>
 
-                </form>
             </div>
 
         </t>

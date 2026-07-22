@@ -1,0 +1,36 @@
+/* Make Odoo loader fullscreen overlay */
+.o_loading_indicator {
+    position: fixed !important;
+    inset: 0 !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    background: rgba(0,0,0,0.35) !important;
+    backdrop-filter: blur(4px);
+
+    z-index: 99999 !important;
+        /* hide text */
+    font-size: 0 !important;
+    color: transparent !important;
+}
+
+/* Hide default Odoo spinner + text */
+.o_loading_indicator span,
+.o_loading_indicator svg,
+.o_loading_indicator i,
+.o_loading_indicator .fa,
+.o_loading_indicator .spinner-border {
+    display: none !important;
+}
+
+/* Show GIF in center */
+.o_loading_indicator::after {
+    content: "";
+    width: 210px;
+    height: 210px;
+
+    background: url("/scrum_management/static/src/img/loader.svg") center no-repeat;
+    background-size: contain;
+}

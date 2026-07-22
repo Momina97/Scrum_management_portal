@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- 1. Define the Client Action (The Backend Sidebar App) -->
+    <record id="action_scrum_client_root" model="ir.actions.client">
+        <field name="name">Scrum Manager</field>
+        <field name="tag">scrum_management.scrum_client_action</field>
+        <field name="target">main</field>
+        <!--
+            SEPARATION CONTEXT:
+            - default_project_type: Ensures new projects created here default to Software flow.
+            - default_is_scrum_project: Helper for task/project domains.
+            - is_scrum_app: CRITICAL FLAG. This is used by the project.project model's
+              _search override to filter the database to Software projects only while
+              you are inside this application.
+        -->
+        <field name="context">{
+            'default_project_type': 'scrum',
+            'default_is_scrum_project': True,
+            'is_scrum_app': True
+        }</field>
+    </record>
+
+    <!--
+        2. Top-Level Root Menu
+        FIXED: Groups changed to base.group_user so all internal employees
+        can see and launch the application.
+    -->
+    <menuitem
+        id="scrum_root_menu"
+        name="Scrum Manager"
+        web_icon="project,static/description/icon.png"
+        action="action_scrum_client_root"
+        groups="base.group_user"
+        sequence="15"/>
+
+    <!--
+        3. Optional: Sub-menu for Configuration
+        STAY SECURE: This remains restricted to Project Managers only
+        to prevent normal users from modifying system-wide settings.
+    -->
+    <menuitem
+        id="menu_scrum_config"
+        name="Configuration"
+        parent="scrum_root_menu"
+        sequence="100"
+        groups="project.group_project_manager"/>
+
+</odoo>

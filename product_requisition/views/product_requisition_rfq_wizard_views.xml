@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_product_requisition_rfq_wizard_form" model="ir.ui.view">
+        <field name="name">product.requisition.rfq.wizard.form</field>
+        <field name="model">product.requisition.rfq.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Create Request for Quotation(s)">
+
+                <!-- ── Context Summary Card ─────────────────────────────── -->
+                <div class="o_form_view" style="background:transparent;">
+                    <div class="card mb-3 border-0"
+                         style="background:#f0f4ff; border-radius:10px;">
+                        <div class="card-body py-2 px-3">
+                            <div class="row align-items-center">
+                                <div class="col-auto">
+                                    <i class="fa fa-file-text-o fa-2x text-primary"/>
+                                </div>
+                                <div class="col">
+                                    <div class="fw-bold text-primary" style="font-size:1rem;">
+                                        <field name="requisition_name" readonly="1"
+                                               class="oe_inline"/>
+                                    </div>
+                                    <div class="d-flex gap-3 mt-1" style="font-size:0.85rem;">
+                                        <span>
+                                            <span class="text-muted">Mode: </span>
+                                            <field name="purchase_mode" readonly="1"
+                                                   widget="badge"
+                                                   decoration-warning="purchase_mode == 'foreign'"
+                                                   decoration-success="purchase_mode == 'local'"
+                                                   class="oe_inline"/>
+                                        </span>
+                                        <span>
+                                            <span class="text-muted">Option: </span>
+                                            <field name="purchase_option" readonly="1"
+                                                   class="oe_inline"/>
+                                        </span>
+                                        <span>
+                                            <span class="text-muted">Type: </span>
+                                            <field name="purchase_type" readonly="1"
+                                                   class="oe_inline"/>
+                                        </span>
+                                        <span>
+                                            <span class="text-muted">Dept: </span>
+                                            <field name="department_name" readonly="1"
+                                                   class="oe_inline"/>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Foreign purchase guidance -->
+                    <div class="alert alert-warning d-flex align-items-start gap-2"
+                         invisible="purchase_mode != 'foreign'">
+                        <i class="fa fa-globe fa-lg mt-1"/>
+                        <div>
+                            <strong>Foreign Purchase</strong><br/>
+                            Set the correct <strong>foreign currency</strong> and <strong>incoterm</strong> below.
+                            Select multiple vendors to generate parallel RFQs for CST (Comparative Statement) analysis.
+                        </div>
+                    </div>
+
+                    <!-- ── Vendor Selection ─────────────────────────────── -->
+                    <div class="o_horizontal_separator mb-2">
+                        <span class="text-muted"
+                              style="font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em;">
+                            <i class="fa fa-users me-1"/>Vendor Selection
+                        </span>
+                    </div>
+                    <div class="mb-3">
+                        <field name="vendor_ids"
+                               widget="many2many_tags"
+                               options="{'no_create': True}"
+                               nolabel="1"
+                               placeholder="Select one or more vendors — one RFQ will be created per vendor for comparison…"/>
+                        <small class="text-muted">
+                            Leave empty to create an RFQ without a vendor (to fill in later).
+                        </small>
+                    </div>
+
+                    <!-- ── RFQ Settings ─────────────────────────────────── -->
+                    <div class="o_horizontal_separator mb-2 mt-3">
+                        <span class="text-muted"
+                              style="font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em;">
+                            <i class="fa fa-sliders me-1"/>RFQ Settings
+                        </span>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <group>
+                                <field name="currency_id" options="{'no_create': True}"
+                                       required="1"/>
+                                <field name="payment_term_id"
+                                       options="{'no_create': True}"/>
+                            </group>
+                        </div>
+                        <div class="col-lg-6">
+                            <group>
+                                <field name="incoterm_id"
+                                       options="{'no_create': True}"/>
+                                <field name="date_order"/>
+                            </group>
+                        </div>
+                    </div>
+
+                    <!-- ── Notes ───────────────────────────────────────── -->
+                    <div class="o_horizontal_separator mb-2 mt-2">
+                        <span class="text-muted"
+                              style="font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em;">
+                            <i class="fa fa-sticky-note-o me-1"/>Notes for Vendor
+                        </span>
+                    </div>
+                    <field name="rfq_notes" nolabel="1"
+                           placeholder="Delivery requirements, technical specifications, packaging instructions…"/>
+                </div>
+
+                <footer>
+                    <button name="action_create_rfqs"
+                            string="&#128203;  Generate RFQ(s)"
+                            type="object"
+                            class="btn-primary"/>
+                    <button string="Discard" special="cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="portal_timeoff_requests" name="Time Off Requests">
+        <t t-call="portal.portal_layout">
+
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title">Time Off</t>
+            </t>
+
+            <div class="cymax_timeoff_page">
+
+                <!-- PAGE HEADER -->
+                <div class="ct_page_header">
+                    <div class="ct_header_left">
+                        <h1 class="ct_page_title">My Requests</h1>
+                        <p class="ct_page_subtitle">View and manage your leave requests.</p>
+                    </div>
+                    <div class="ct_header_right">
+                        <a href="/my/timeoff" class="ct_secondary_btn">← Balance</a>
+                        <a href="/my/timeoff/new" class="ct_primary_btn">+ Apply for Leave</a>
+                    </div>
+                </div>
+
+                <!-- NOTEBOOK TABS -->
+                <div class="ct_notebook">
+                    <ul class="ct_tabs" id="timeoffTabs">
+                        <li class="ct_tab_item">
+                                <a class="ct_tab_link active" id="my-requests-tab"
+                                   data-ct-tab="#my-requests" href="#my-requests">
+                                My Requests
+                            </a>
+                        </li>
+                        <t t-if="is_approver">
+                            <li class="ct_tab_item">
+                                <a class="ct_tab_link" id="team-requests-tab"
+                                   data-ct-tab="#team-requests" href="#team-requests">
+                                    Team Requests
+                                </a>
+                            </li>
+                        </t>
+                    </ul>
+
+                    <div class="tab-content ct_tab_content">
+
+                        <!-- TAB 1: MY REQUESTS -->
+                        <div class="tab-pane fade show active" id="my-requests">
+                            <t t-if="leaves">
+                                <table class="ct_table">
+                                    <thead>
+                                        <tr>
+                                            <th>Type</th>
+                                            <th>From</th>
+                                            <th>To</th>
+                                            <th>Days</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="leaves" t-as="leave">
+                                            <tr>
+                                                <td>
+                                                    <a t-attf-href="/my/timeoff/#{leave.id}"
+                                                       class="ct_link">
+                                                        <t t-esc="leave.holiday_status_id.name"/>
+                                                    </a>
+                                                </td>
+                                                <td>
+                                                    <span t-field="leave.date_from"
+                                                          t-options='{"widget": "date"}'/>
+                                                </td>
+                                                <td>
+                                                    <span t-field="leave.date_to"
+                                                          t-options='{"widget": "date"}'/>
+                                                </td>
+                                                <td>
+                                                    <t t-esc="leave.number_of_days"/>
+                                                </td>
+                                                <td>
+                                                    <t t-if="leave.state == 'draft'">
+                                                        <span class="ct_badge ct_badge_secondary">Draft</span>
+                                                    </t>
+                                                    <t t-elif="leave.state == 'confirm'">
+                                                        <span class="ct_badge ct_badge_warning">Waiting for Team Lead</span>
+                                                    </t>
+                                                    <t t-elif="leave.state == 'validate1'">
+                                                        <span class="ct_badge ct_badge_info">Waiting for Admin</span>
+                                                    </t>
+                                                    <t t-elif="leave.state == 'validate'">
+                                                        <span class="ct_badge ct_badge_success">Approved</span>
+                                                    </t>
+                                                    <t t-elif="leave.state == 'refuse'">
+                                                            <span class="ct_badge ct_badge_danger">
+                                                                Refused
+                                                                <t t-if="leave.second_approver_id">
+                                                                    by <t t-esc="leave.second_approver_id.name"/>
+                                                                </t>
+                                                                <t t-elif="leave.first_approver_id">
+                                                                    by <t t-esc="leave.first_approver_id.name"/>
+                                                                </t>
+                                                            </span>
+                                                    </t>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                                <div t-if="pager" class="o_portal_pager text-center mt-3">
+                                    <t t-call="portal.pager"/>
+                                </div>
+                            </t>
+                            <t t-else="">
+                                <div class="ct_empty_state">
+                                    <p>You have no leave requests yet.</p>
+                                    <a href="/my/timeoff/new" class="ct_primary_btn">+ Apply for Leave</a>
+                                </div>
+                            </t>
+                        </div>
+
+                        <!-- TAB 2: TEAM REQUESTS -->
+                        <t t-if="is_approver">
+                            <div class="tab-pane fade" id="team-requests">
+                                <t t-if="team_leaves">
+                                    <table class="ct_table">
+                                        <thead>
+                                            <tr>
+                                                <th>Employee</th>
+                                                <th>Type</th>
+                                                <th>From</th>
+                                                <th>To</th>
+                                                <th>Reason</th>
+                                                <th>Status</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <t t-foreach="team_leaves" t-as="tl">
+                                                <tr>
+                                                    <td><t t-esc="tl.employee_id.name"/></td>
+                                                    <td><t t-esc="tl.holiday_status_id.name"/></td>
+                                                    <td>
+                                                        <span t-field="tl.date_from"
+                                                              t-options='{"widget": "date"}'/>
+                                                    </td>
+                                                    <td>
+                                                        <span t-field="tl.date_to"
+                                                              t-options='{"widget": "date"}'/>
+                                                    </td>
+                                                    <td><t t-esc="tl.name"/></td>
+                                                    <td>
+                                                        <t t-if="tl.state == 'draft'">
+                                                            <span class="ct_badge ct_badge_secondary">Draft</span>
+                                                        </t>
+                                                        <t t-elif="tl.state == 'confirm'">
+                                                            <span class="ct_badge ct_badge_warning">Waiting for Team Lead</span>
+                                                        </t>
+                                                        <t t-elif="tl.state == 'validate1'">
+                                                            <span class="ct_badge ct_badge_info">Waiting for Admin</span>
+                                                        </t>
+                                                        <t t-elif="tl.state == 'validate'">
+                                                            <span class="ct_badge ct_badge_success">Approved</span>
+                                                        </t>
+                                                        <t t-elif="tl.state == 'refuse'">
+                                                            <span class="ct_badge ct_badge_danger">
+                                                                Refused
+                                                                <t t-if="tl.second_approver_id">
+                                                                    by <t t-esc="tl.second_approver_id.name"/>
+                                                                </t>
+                                                                <t t-elif="tl.first_approver_id">
+                                                                    by <t t-esc="tl.first_approver_id.name"/>
+                                                                </t>
+                                                            </span>
+                                                        </t>
+                                                    </td>
+                                                    <td>
+                                                        <t t-if="tl.state == 'confirm'">
+                                                            <form t-attf-action="/my/timeoff/#{tl.id}/approve"
+                                                                  method="POST" class="d-inline">
+                                                                <input type="hidden" name="csrf_token"
+                                                                       t-att-value="request.csrf_token()"/>
+                                                                <button type="submit" class="ct_action_btn ct_btn_approve">
+                                                                    Approve
+                                                                </button>
+                                                            </form>
+                                                            <form t-attf-action="/my/timeoff/#{tl.id}/refuse"
+                                                                  method="POST" class="d-inline ms-1">
+                                                                <input type="hidden" name="csrf_token"
+                                                                       t-att-value="request.csrf_token()"/>
+                                                                <button type="submit" class="ct_action_btn ct_btn_refuse"
+                                                                        onclick="return confirm('Refuse this request?')">
+                                                                    Refuse
+                                                                </button>
+                                                            </form>
+                                                        </t>
+                                                        <t t-else="">
+                                                            <span class="text-muted">—</span>
+                                                        </t>
+                                                    </td>
+                                                </tr>
+                                            </t>
+                                        </tbody>
+                                    </table>
+                                </t>
+                                <t t-else="">
+                                    <div class="ct_empty_state">
+                                        <p>No leave requests from your team yet.</p>
+                                    </div>
+                                </t>
+                            </div>
+                        </t>
+
+                    </div>
+                </div>
+
+            </div>
+
+            <script>
+                (function () {
+                    var links = document.querySelectorAll('.ct_tab_link');
+                    function activate(link) {
+                        var target = link.getAttribute('data-ct-tab');
+                        links.forEach(function (l) { l.classList.remove('active'); });
+                        link.classList.add('active');
+                        document.querySelectorAll('.ct_tab_content .tab-pane').forEach(function (p) {
+                            p.classList.remove('show', 'active');
+                        });
+                        var pane = document.querySelector(target);
+                        if (pane) { pane.classList.add('show', 'active'); }
+                    }
+                    links.forEach(function (link) {
+                        link.addEventListener('click', function (e) {
+                            e.preventDefault();
+                            activate(link);
+                        });
+                    });
+                    var hash = window.location.hash;
+                    if (hash) {
+                        var target = document.querySelector('.ct_tab_link[data-ct-tab="' + hash + '"]');
+                        if (target) { activate(target); }
+                    }
+                })();
+            </script>
+
+        </t>
+    </template>
+
+</odoo>

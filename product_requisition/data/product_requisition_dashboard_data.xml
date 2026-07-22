@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Singleton dashboard record — created once on install -->
+        <record id="product_requisition_dashboard_main" model="product.requisition.dashboard">
+            <field name="name">Product Requisition Dashboard</field>
+        </record>
+    </data>
+</odoo>

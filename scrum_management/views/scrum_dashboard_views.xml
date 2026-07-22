@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+================================================================================
+  scrum_dashboard_views.xml  (UPDATED)
+
+  WHAT CHANGED FROM THE ORIGINAL:
+    1. Added class="o_scrum_dashboard_scope" on the form root so the
+       height-fix CSS rules bind.
+    2. Marked Project Status panel as o_scrum_panel short  (usually 2 to 5
+       rows  so equal-height with neighbours wastes space).
+    3. Marked Upcoming Meetings as o_scrum_panel tall  (users want to see
+       more rows at once).
+================================================================================
+-->
+<odoo>
+    <data noupdate="1">
+        <record id="scrum_dashboard_main" model="scrum.dashboard">
+            <field name="name">Scrum Dashboard Data</field>
+        </record>
+    </data>
+
+    <record id="action_scrum_task_analysis_stable" model="ir.actions.act_window">
+        <field name="name">Task Analysis</field>
+        <field name="res_model">project.task</field>
+        <field name="view_mode">graph,pivot,kanban,list</field>
+        <field name="domain">[('is_scrum_project', '=', True)]</field>
+        <field name="context">{'search_default_group_by_project': 1}</field>
+    </record>
+
+    <record id="action_scrum_sprint_analysis" model="ir.actions.act_window">
+        <field name="name">Sprint Analysis</field>
+        <field name="res_model">project.scrum.sprint</field>
+        <field name="view_mode">graph,pivot,list,form</field>
+        <field name="context">{'search_default_group_by_project': 1}</field>
+    </record>
+
+    <record id="view_scrum_dashboard_form" model="ir.ui.view">
+        <field name="name">scrum.dashboard.form</field>
+        <field name="model">scrum.dashboard</field>
+        <field name="arch" type="xml">
+            <!-- KEY CHANGE: class="o_scrum_dashboard_scope" required for the
+                 height-fix CSS to apply. Without it the cards stretch. -->
+            <form string="Scrum Dashboard"
+                  create="false" edit="false" delete="false"
+                  class="o_scrum_dashboard_scope">
+                <sheet style="background-color: transparent !important;">
+
+                    <!-- TOOLBAR -->
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <button name="action_refresh_dashboard" string="Refresh" type="object"
+                                class="btn btn-dark d-flex align-items-center shadow-sm rounded-pill px-4 py-2">
+                            <i class="fa fa-refresh me-2"/> Refresh
+                        </button>
+                        <div class="d-flex gap-2">
+                            <button name="%(scrum_management.action_scrum_task_analysis_stable)d" type="action"
+                                    class="btn btn-white bg-white text-muted shadow-sm d-flex align-items-center px-3 rounded-pill border-0">
+                                <i class="fa fa-tasks me-2"/> Tasks
+                            </button>
+                            <button name="%(scrum_management.action_scrum_sprint_analysis)d" type="action"
+                                    class="btn btn-white bg-white text-muted shadow-sm d-flex align-items-center px-3 rounded-pill border-0">
+                                <i class="fa fa-retweet me-2"/> Sprints
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="o_scrum_dashboard container-fluid p-0">
+
+                        <!-- ROW 1: TOP GRADIENT CARDS -->
+                        <div class="row mb-4">
+                            <div class="col-lg-3">
+                                <div class="o_scrum_gradient_box grad-blue">
+                                    <div class="o_scrum_grad_val"><field name="active_sprint_count"/></div>
+                                    <div class="o_scrum_grad_label">Active Sprints</div>
+                                    <div class="o_scrum_grad_sub">Current Focus</div>
+                                    <i class="fa fa-rocket o_scrum_grad_icon"/>
+                                </div>
+                            </div>
+                            <div class="col-lg-3">
+                                <div class="o_scrum_gradient_box grad-cyan">
+                                    <div class="o_scrum_grad_val"><field name="tasks_in_sprints"/></div>
+                                    <div class="o_scrum_grad_label">Active Tasks</div>
+                                    <div class="o_scrum_grad_sub">Assigned to Team</div>
+                                    <i class="fa fa-tasks o_scrum_grad_icon"/>
+                                </div>
+                            </div>
+                            <div class="col-lg-3">
+                                <div class="o_scrum_gradient_box grad-purple">
+                                    <div class="o_scrum_grad_val"><field name="total_sp_in_sprints"/></div>
+                                    <div class="o_scrum_grad_label">Story Points</div>
+                                    <div class="o_scrum_grad_sub">Total Complexity</div>
+                                    <i class="fa fa-cubes o_scrum_grad_icon"/>
+                                </div>
+                            </div>
+                            <div class="col-lg-3">
+                                <div class="o_scrum_gradient_box grad-pink">
+                                    <div class="o_scrum_grad_val"><field name="burn_rate_per_day"/></div>
+                                    <div class="o_scrum_grad_label">Burn Rate</div>
+                                    <div class="o_scrum_grad_sub">Stories / Day</div>
+                                    <i class="fa fa-fire o_scrum_grad_icon"/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ROW 2: OVERVIEW TILES -->
+                        <div class="o_scrum_dash_title"><i class="fa fa-history"/> Overview &amp; Backlog</div>
+                        <div class="row mb-4">
+                            <div class="col-lg-3">
+                                <div class="o_scrum_tile">
+                                    <div class="o_scrum_tile_icon tile-icon-orange"><i class="fa fa-list"/></div>
+                                    <div class="o_scrum_tile_content">
+                                        <div class="o_scrum_tile_val"><field name="backlog_task_count"/></div>
+                                        <div class="o_scrum_tile_label">Backlog Tasks</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-3">
+                                <div class="o_scrum_tile">
+                                    <div class="o_scrum_tile_icon tile-icon-purple"><i class="fa fa-hourglass-start"/></div>
+                                    <div class="o_scrum_tile_content">
+                                        <div class="o_scrum_tile_val"><field name="backlog_sp_count"/></div>
+                                        <div class="o_scrum_tile_label">Backlog Points</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-3">
+                                <div class="o_scrum_tile">
+                                    <div class="o_scrum_tile_icon tile-icon-green"><i class="fa fa-check"/></div>
+                                    <div class="o_scrum_tile_content">
+                                        <div class="o_scrum_tile_val text-success"><field name="completed_tasks_month"/></div>
+                                        <div class="o_scrum_tile_label">Tasks Done (Month)</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-3">
+                                <div class="o_scrum_tile">
+                                    <div class="o_scrum_tile_icon tile-icon-yellow"><i class="fa fa-trophy"/></div>
+                                    <div class="o_scrum_tile_content">
+                                        <div class="o_scrum_tile_val text-warning"><field name="completed_sp_month"/></div>
+                                        <div class="o_scrum_tile_label">Points Done (Month)</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ROW 3: TASK DISTRIBUTION + TOP PERFORMERS -->
+                        <div class="row ">
+                            <div class="col-lg-6 ">
+                                <!-- o_scrum_panel now has bounded height; the
+                                     embedded field becomes the scroll body. -->
+                                <div class="o_scrum_panel">
+                                    <div class="o_scrum_panel_header panel-header-blue">Task Distribution</div>
+                                    <field name="project_breakdown_ids" nolabel="1" readonly="1">
+                                        <list create="0" delete="0" edit="0" open="0">
+                                            <field name="name" string="Project" class="fw-bold"/>
+                                            <field name="percentage" string="Project Size" widget="progressbar" decoration-info="True"/>
+                                            <field name="value" string="Tasks" class="text-end"/>
+                                        </list>
+                                    </field>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 ">
+                                <div class="o_scrum_panel">
+                                    <div class="o_scrum_panel_header panel-header-orange">Top Performers</div>
+                                    <field name="top_performer_ids" nolabel="1" readonly="1">
+                                        <list create="0" delete="0" edit="0" open="0">
+                                            <field name="user_id" widget="many2one_avatar_user" string="User"/>
+                                            <field name="value" string="Story Points" class="text-end fw-bold" decoration-bf="1"/>
+                                        </list>
+                                    </field>
+                                </div>
+                            </div>
+
+                            <!-- Upcoming meetings: taller because users want to see more rows -->
+                        </div>
+
+                        <!-- ROW 4: PROJECTS & TEAMS -->
+                        <div class="o_scrum_dash_title"><i class="fa fa-folder-open"/> Projects &amp; Teams</div>
+                        <div class="row mb-4">
+                            <div class="col-lg-3">
+                                <div class="o_scrum_tile h-100 justify-content-center flex-column text-center"
+                                     style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border: none; min-height: 320px; max-height: 420px;">
+                                    <div class="o_scrum_grad_val mb-2"><field name="total_project_count"/></div>
+                                    <div class="o_scrum_tile_label" style="color: rgba(255,255,255,0.7) !important;">Total Projects</div>
+                                </div>
+                            </div>
+
+                            <!-- Project Status: short, usually 2 to 5 rows -->
+                            <div class="col-lg-4">
+                                <div class="o_scrum_panel o_scrum_panel--short">
+                                    <div class="o_scrum_panel_header panel-header-green">Project Status</div>
+                                    <field name="project_status_ids" readonly="1" nolabel="1">
+                                        <list create="0" delete="0" edit="0" open="0">
+                                            <field name="status_label" class="fw-bold"/>
+                                            <field name="count" widget="badge" decoration-info="True" class="text-end"/>
+                                        </list>
+                                    </field>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-5">
+                                <div class="o_scrum_panel">
+                                    <div class="o_scrum_panel_header panel-header-blue">Active Teams</div>
+                                    <field name="team_allocation_ids" readonly="1" nolabel="1">
+                                        <list create="0" delete="0" edit="0" open="0">
+                                            <field name="project_id" class="fw-bold"/>
+                                            <field name="sprint_id"/>
+                                            <field name="member_ids" widget="many2many_avatar_user" string="Team"/>
+                                        </list>
+                                    </field>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>
+

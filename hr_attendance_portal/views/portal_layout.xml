@@ -3,30 +3,227 @@
 
     <!-- Add Attendance counter on /my/home -->
     <template id="portal_my_home_attendance" name="Attendance on Portal Home"
-              inherit_id="portal.portal_my_home" customize_show="True" priority="40">
-        <xpath expr="//div[hasclass('o_portal_docs')]" position="before">
-            <t t-set="portal_service_category_enable" t-value="True"/>
+              inherit_id="cymax_portal_theme.portal_my_home_inherit" customize_show="True" priority="40">
+        <xpath expr="//div[@id='cymax_portal_cards']" position="inside">
+            <a href="/my/attendance" class="cymax_tile">
+                <div class="cymax_tile_icon">
+                    <img src="/hr_attendance/static/description/icon.png" alt="Attendance"/>
+                </div>
+                <h3 class="cymax_tile_name">My Attendance</h3>
+            </a>
         </xpath>
-        <div id="portal_service_category" position="inside">
-            <t t-call="portal.portal_docs_entry">
-                <t t-set="title">My Attendance</t>
-                <t t-set="url" t-value="'/my/attendance'"/>
-                <t t-set="text">View your attendance records and check in/out</t>
-                <t t-set="placeholder_count" t-value="'attendance_count'"/>
-                <t t-set="config_card" t-value="True"/>
-            </t>
-        </div>
     </template>
 
     <!-- Breadcrumbs for Attendance portal pages -->
     <template id="portal_breadcrumbs_attendance" name="Portal Breadcrumbs: Attendance"
               inherit_id="portal.portal_breadcrumbs" priority="100">
         <xpath expr="." position="inside">
-            <t t-if="page_name == 'attendance'">
-                <li class="breadcrumb-item active">
-                    Attendance
+            <t t-if="page_name in ['attendance', 'attendance_dashboard', 'attendance_list']">
+                <li class="breadcrumb-item">
+                    <a href="/my/attendance">Attendance</a>
+                </li>
+                <li t-if="page_name == 'attendance_dashboard'" class="breadcrumb-item active">
+                    Dashboard
+                </li>
+                <li t-if="page_name == 'attendance_list'" class="breadcrumb-item active">
+                    Records
                 </li>
             </t>
+        </xpath>
+    </template>
+
+    <!-- Attendance systray button on portal navbar -->
+    <template id="portal_attendance_systray" name="Attendance Systray"
+            inherit_id="portal.frontend_layout">
+        <xpath expr="//t[@t-call='portal.user_dropdown']" position="before">
+            <t t-if="request.env.user and not request.env.user._is_public()">
+                <li class="nav-item dropdown me-2" id="attendance_systray">
+                    <a href="#" class="nav-link dropdown-toggle"
+                    data-bs-toggle="dropdown" id="attendance_dropdown">
+                        <i class="fa fa-circle" id="attendance_status_icon"
+                        style="color: gray;"/>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-end p-3"
+                        data-bs-auto-close="outside"
+                        style="min-width: 220px;">
+                        <div id="attendance_dropdown_content">
+                            <p class="text-muted text-center">Loading...</p>
+                        </div>
+                    </div>
+                </li>
+            </t>
+        </xpath>
+    </template>
+
+    <!-- Attendance systray script -->
+    <template id="portal_attendance_systray_script" name="Attendance Systray Script"
+            inherit_id="portal.frontend_layout">
+        <xpath expr="//head" position="inside">
+            <script>
+            //<![CDATA[
+            document.addEventListener('DOMContentLoaded', function() {
+
+                var icon = document.getElementById('attendance_status_icon');
+                var content = document.getElementById('attendance_dropdown_content');
+                if (!icon || !content) return;
+
+                var checkedIn = false;
+                var lastCheckIn = null;
+                var timerInterval = null;
+
+                function formatTime(totalSeconds) {
+                    var h = Math.floor(totalSeconds / 3600);
+                    var m = Math.floor((totalSeconds % 3600) / 60);
+                    var s = totalSeconds % 60;
+                    return String(h).padStart(2,'0') + ':' +
+                        String(m).padStart(2,'0') + ':' +
+                        String(s).padStart(2,'0');
+                }
+
+                function escapeHtml(unsafe) {
+                    return String(unsafe)
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/"/g, '&quot;')
+                        .replace(/'/g, '&#39;');
+                }
+
+                function clearGlobalAlert() {
+                    var existing = document.getElementById('attendance_error_alert');
+                    if (existing) {
+                        existing.remove();
+                    }
+                }
+
+                function showGlobalAlert(message) {
+                    clearGlobalAlert();
+                    var safeMessage = escapeHtml(message);
+                    document.body.insertAdjacentHTML('beforeend',
+                        '<div id="attendance_error_alert" class="alert alert-danger shadow-sm position-fixed" role="alert"' +
+                        ' style="top: 80px; right: 20px; z-index: 2000; width: 320px; max-width: calc(100vw - 40px);">' +
+                        '<strong>Attendance error:</strong> ' + safeMessage +
+                        '</div>');
+                }
+
+                function startTimer(checkInTime) {
+                    if (timerInterval) clearInterval(timerInterval);
+                    timerInterval = setInterval(function() {
+                        var elapsed = Math.floor((Date.now() - checkInTime) / 1000);
+                        var el = document.getElementById('att_elapsed');
+                        if (el) el.textContent = formatTime(elapsed);
+                    }, 1000);
+                }
+
+                function renderContent() {
+                    if (!checkedIn) {
+                        icon.style.color = 'gray';
+                        content.innerHTML =
+                            '<p class="text-muted mb-2">You are checked out</p>' +
+                            '<button class="btn btn-success w-100" id="att_action_btn">' +
+                            '<i class="fa fa-sign-in me-1"></i> Check In' +
+                            '</button>';
+                    } else {
+                        icon.style.color = 'green';
+                        var checkInStr = lastCheckIn ?
+                            new Date(lastCheckIn + 'Z').toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})
+                            : '--:--';
+                        content.innerHTML =
+                            '<small class="text-muted d-block mb-1">Since ' + checkInStr + '</small>' +
+                            '<div class="fs-4 fw-bold text-info mb-3" id="att_elapsed">00:00:00</div>' +
+                            '<button class="btn btn-warning w-100" id="att_action_btn">' +
+                            '<i class="fa fa-sign-out me-1"></i> Check Out' +
+                            '</button>';
+                        if (lastCheckIn) {
+                            startTimer(new Date(lastCheckIn + 'Z').getTime());
+                        }
+                    }
+
+                    var actionBtn = document.getElementById('att_action_btn');
+                    if (actionBtn) {
+                        actionBtn.addEventListener('click', function() {
+                            signInOut();
+                        });
+                    }
+                }
+
+                function loadData() {
+                    fetch('/hr_attendance/attendance_user_data', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({jsonrpc: '2.0', method: 'call', params: {}})
+                    })
+                    .then(function(r) { return r.json(); })
+                    .then(function(data) {
+                        if (data && data.error) {
+                            var err = data.error;
+                            var message = (err.data && err.data.message) || err.message || 'Unable to load attendance status.';
+                            icon.style.color = 'gray';
+                            showGlobalAlert(message);
+                            checkedIn = false;
+                            lastCheckIn = null;
+                            renderContent();
+                            return;
+                        }
+                        var result = data.result;
+                        if (!result || !result.id) {
+                            checkedIn = false;
+                            lastCheckIn = null;
+                            renderContent();
+                            return;
+                        }
+                        checkedIn = result.attendance_state === 'checked_in';
+                        lastCheckIn = result.last_check_in || null;
+                        renderContent();
+                    })
+                    .catch(function() {
+                        showGlobalAlert('Unable to load attendance.');
+                        checkedIn = false;
+                        lastCheckIn = null;
+                        renderContent();
+                    });
+                }
+
+                function signInOut() {
+                    fetch('/hr_attendance/systray_check_in_out', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({jsonrpc: '2.0', method: 'call', params: {}})
+                    })
+                    .then(function(r) {
+                        return r.json().then(function(data) {
+                            if (data && data.error) {
+                                var err = data.error;
+                                var message = (err.data && err.data.message) || err.message || 'Error processing request.';
+                                throw new Error(message);
+                            }
+                            return data.result;
+                        });
+                    })
+                    .then(function() {
+                        if (timerInterval) clearInterval(timerInterval);
+                        loadData();
+                    })
+                    .catch(function(err) {
+                        showGlobalAlert(err.message || 'Error processing request.');
+                        renderContent();
+                    });
+                }
+
+                // Load on dropdown open
+                document.getElementById('attendance_dropdown').addEventListener('show.bs.dropdown', function() {
+                    loadData();
+                });
+
+                // Initial icon color load
+                loadData();
+            });
+            //]]>
+            </script>
         </xpath>
     </template>
 

@@ -1,0 +1,281 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ══════════════════════════════════════════════════════════════════════
+         DASHBOARD FORM VIEW
+         ══════════════════════════════════════════════════════════════════════ -->
+    <record id="view_product_requisition_dashboard" model="ir.ui.view">
+        <field name="name">product.requisition.dashboard.form</field>
+        <field name="model">product.requisition.dashboard</field>
+        <field name="arch" type="xml">
+            <form string="Requisition Dashboard"
+                  create="false" edit="false" delete="false">
+                <sheet style="background:#f0f2f5; padding:0; max-width:none;">
+
+                    <div class="o_pr_dashboard">
+
+                        <!-- ════════════════════════════════════════════════
+                             TOP BAR
+                             ════════════════════════════════════════════════ -->
+                        <div class="o_pr_topbar">
+                            <div>
+                                <h2>
+                                    <i class="fa fa-clipboard me-2" style="opacity:0.9;"/>
+                                    Requisitions Insights
+                                </h2>
+                                <!-- <div class="o_pr_topbar_sub">
+                                    Real-time overview — data refreshes automatically on every visit
+                                </div> -->
+                            </div>
+                            <div class="o_pr_topbar_actions">
+                                <button name="%(product_requisition.action_product_requisition)d"
+                                        type="action"
+                                        class="btn o_pr_btn_new">
+                                    <i class="fa fa-plus me-1"/> New Requisition
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- ════════════════════════════════════════════════
+                             SECTION 1: STATUS CHART + KPI NUMBERS
+                             ════════════════════════════════════════════════ -->
+                        <div class="o_pr_section">
+                            <div class="o_pr_section_title">
+                                <i class="fa fa-bar-chart me-1"/> Status Overview
+                            </div>
+                            <div class="o_pr_status_row">
+
+                                <!-- Donut chart (wider) -->
+                                <div class="o_pr_panel o_pr_status_chart_panel" style="flex:3; min-width:0;">
+                                    <div class="o_pr_panel_header">
+                                        <span class="ph_icon blue"><i class="fa fa-pie-chart"/></span>
+                                        <div>
+                                            <div class="ph_title">By Status</div>
+                                            <div class="ph_sub">Distribution of all requisitions</div>
+                                        </div>
+                                    </div>
+                                    <field name="status_chart_data"
+                                           widget="pr_status_donut"
+                                           nolabel="1"/>
+                                </div>
+
+                                <!-- KPI number grid -->
+                                <div class="o_pr_panel" style="flex:2; min-width:0;">
+                                    <div class="o_pr_panel_header">
+                                        <span class="ph_icon green"><i class="fa fa-tachometer"/></span>
+                                        <div>
+                                            <div class="ph_title">Quick Stats</div>
+                                            <div class="ph_sub">Click any tile to drill down</div>
+                                        </div>
+                                    </div>
+                                    <div class="o_pr_kpi_mini_grid">
+
+                                        <div class="o_pr_kpi_mini kpi_total" style="position:relative;">
+                                            <button name="action_open_all" type="object"
+                                                    style="all:unset;position:absolute;inset:0;cursor:pointer;"/>
+                                            <span class="kpi_mini_value"><field name="total_count" readonly="1" nolabel="1"/></span>
+                                            <span class="kpi_mini_label">Total</span>
+                                        </div>
+
+                                        <div class="o_pr_kpi_mini kpi_in_approval" style="position:relative;">
+                                            <button name="action_open_in_approval" type="object"
+                                                    style="all:unset;position:absolute;inset:0;cursor:pointer;"/>
+                                            <span class="kpi_mini_value"><field name="in_approval_count" readonly="1" nolabel="1"/></span>
+                                            <span class="kpi_mini_label">In Approval</span>
+                                        </div>
+
+                                        <div class="o_pr_kpi_mini kpi_approved" style="position:relative;">
+                                            <button name="action_open_approved" type="object"
+                                                    style="all:unset;position:absolute;inset:0;cursor:pointer;"/>
+                                            <span class="kpi_mini_value"><field name="approved_count" readonly="1" nolabel="1"/></span>
+                                            <span class="kpi_mini_label">Approved</span>
+                                        </div>
+
+                                        <div class="o_pr_kpi_mini kpi_rejected" style="position:relative;">
+                                            <button name="action_open_rejected" type="object"
+                                                    style="all:unset;position:absolute;inset:0;cursor:pointer;"/>
+                                            <span class="kpi_mini_value"><field name="rejected_count" readonly="1" nolabel="1"/></span>
+                                            <span class="kpi_mini_label">Rejected</span>
+                                        </div>
+
+                                        <div class="o_pr_kpi_mini kpi_rfq" style="position:relative;">
+                                            <button name="action_open_rfq_created" type="object"
+                                                    style="all:unset;position:absolute;inset:0;cursor:pointer;"/>
+                                            <span class="kpi_mini_value"><field name="rfq_created_count" readonly="1" nolabel="1"/></span>
+                                            <span class="kpi_mini_label">RFQ Created</span>
+                                        </div>
+
+                                        <div class="o_pr_kpi_mini kpi_done" style="position:relative;">
+                                            <button name="action_open_done" type="object"
+                                                    style="all:unset;position:absolute;inset:0;cursor:pointer;"/>
+                                            <span class="kpi_mini_value"><field name="done_count" readonly="1" nolabel="1"/></span>
+                                            <span class="kpi_mini_label">Done</span>
+                                        </div>
+
+                                        <div class="o_pr_kpi_mini kpi_pending_mine" style="position:relative;">
+                                            <button name="action_open_pending_mine" type="object"
+                                                    style="all:unset;position:absolute;inset:0;cursor:pointer;"/>
+                                            <span class="kpi_mini_value"><field name="pending_my_approval" readonly="1" nolabel="1"/></span>
+                                            <span class="kpi_mini_label">Pending Mine</span>
+                                        </div>
+
+                                        <div class="o_pr_kpi_mini kpi_draft" style="position:relative;">
+                                            <button name="action_open_draft" type="object"
+                                                    style="all:unset;position:absolute;inset:0;cursor:pointer;"/>
+                                            <span class="kpi_mini_value"><field name="draft_count" readonly="1" nolabel="1"/></span>
+                                            <span class="kpi_mini_label">Draft</span>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!-- ════════════════════════════════════════════════
+                             SECTION 2: FINANCIAL SUMMARY BANNER
+                             ════════════════════════════════════════════════ -->
+                        <div class="o_pr_section">
+                            <div class="o_pr_section_title">
+                                <i class="fa fa-usd me-1"/> Financial &amp; Activity Summary
+                            </div>
+                            <div class="o_pr_stat_banner">
+
+                                <div class="o_pr_stat_box">
+                                    <span class="stat_label">Total Estimated Value</span>
+                                    <span class="stat_value">
+                                        <field name="total_estimated_cost"
+                                               widget="float" readonly="1" nolabel="1"
+                                               options="{'precision': 2}"/>
+                                    </span>
+                                    <span class="stat_sub">Across all requisitions</span>
+                                </div>
+
+                                <div class="o_pr_stat_box alt1">
+                                    <span class="stat_label">Approved Value</span>
+                                    <span class="stat_value">
+                                        <field name="approved_estimated_cost"
+                                               widget="float" readonly="1" nolabel="1"
+                                               options="{'precision': 2}"/>
+                                    </span>
+                                    <span class="stat_sub">Approved + RFQ + Done</span>
+                                </div>
+
+                                <div class="o_pr_stat_box alt2">
+                                    <span class="stat_label">This Month</span>
+                                    <span class="stat_value">
+                                        <field name="this_month_count" readonly="1" nolabel="1"/>
+                                    </span>
+                                    <span class="stat_sub">New requisitions</span>
+                                </div>
+
+                                <div class="o_pr_stat_box alt3">
+                                    <span class="stat_label">Month Approved / Rejected</span>
+                                    <span class="stat_value">
+                                        <field name="this_month_approved" readonly="1" nolabel="1"/>
+                                        <span style="font-size:1rem; opacity:0.6; margin:0 6px;">/</span>
+                                        <field name="this_month_rejected" readonly="1" nolabel="1"/>
+                                    </span>
+                                    <span class="stat_sub">Approved vs Rejected this month</span>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!-- ════════════════════════════════════════════════
+                             SECTION 3: MONTHLY TREND CHART
+                             ════════════════════════════════════════════════ -->
+                        <div class="o_pr_section">
+                            <div class="o_pr_section_title">
+                                <i class="fa fa-line-chart me-1"/> 6-Month Activity Trend
+                            </div>
+                            <div class="o_pr_panel o_pr_trend_panel" style="padding:16px;">
+                                <field name="monthly_chart_data"
+                                       widget="pr_monthly_line"
+                                       nolabel="1"/>
+                            </div>
+                        </div>
+
+                        <!-- ════════════════════════════════════════════════
+                             SECTION 4: BREAKDOWN TABLES
+                             ════════════════════════════════════════════════ -->
+                        <div class="o_pr_section">
+                            <div class="o_pr_section_title">
+                                <i class="fa fa-table me-1"/> Breakdown Analysis
+                            </div>
+                            <div class="o_pr_two_col">
+
+                                <!-- Department Breakdown -->
+                                <div class="o_pr_panel">
+                                    <div class="o_pr_panel_header">
+                                        <span class="ph_icon blue"><i class="fa fa-building"/></span>
+                                        <div>
+                                            <div class="ph_title">By Department</div>
+                                            <div class="ph_sub">Requisitions per department</div>
+                                        </div>
+                                    </div>
+                                    <field name="department_table_data"
+                                           widget="pr_dept_table"
+                                           nolabel="1"/>
+                                </div>
+
+                                <!-- Type Breakdown -->
+                                <div class="o_pr_panel">
+                                    <div class="o_pr_panel_header">
+                                        <span class="ph_icon purple"><i class="fa fa-tags"/></span>
+                                        <div>
+                                            <div class="ph_title">By Purchase Type</div>
+                                            <div class="ph_sub">Goods vs Service</div>
+                                        </div>
+                                    </div>
+                                    <field name="type_table_data"
+                                           widget="pr_type_table"
+                                           nolabel="1"/>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!-- ════════════════════════════════════════════════
+                             SECTION 5: RECENT REQUISITIONS
+                             ════════════════════════════════════════════════ -->
+                        <div class="o_pr_section">
+                            <div class="o_pr_section_title">
+                                <i class="fa fa-clock-o me-1"/> Recent Requisitions
+                            </div>
+                            <div class="o_pr_panel">
+                                <div class="o_pr_panel_header">
+                                    <span class="ph_icon green"><i class="fa fa-history"/></span>
+                                    <div>
+                                        <div class="ph_title">Latest 10 Requisitions</div>
+                                        <div class="ph_sub">Most recently created</div>
+                                    </div>
+                                </div>
+                                <field name="recent_table_data"
+                                       widget="pr_recent_table"
+                                       nolabel="1"/>
+                            </div>
+                        </div>
+
+                        <!-- bottom padding -->
+                        <div style="height:40px;"/>
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- ══════════════════════════════════════════════════════════════════════
+         SERVER ACTION — opens the singleton dashboard
+         ══════════════════════════════════════════════════════════════════════ -->
+    <record id="action_product_requisition_dashboard_server" model="ir.actions.server">
+        <field name="name">Requisition Dashboard</field>
+        <field name="model_id" ref="model_product_requisition_dashboard"/>
+        <field name="state">code</field>
+        <field name="code">
+dash = env.ref('product_requisition.product_requisition_dashboard_main')
+action = dash.action_open_dashboard()
+        </field>
+    </record>
+
+</odoo>

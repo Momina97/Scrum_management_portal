@@ -1,0 +1,366 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="project.project_project_stage_configure" model="ir.actions.act_window">
+        <field name="domain">[('project_type', '=', 'standard')]</field>
+        <field name="context">{'default_project_type': 'standard', 'is_standard_project_app': True}</field>
+    </record>
+
+    <record id="project.open_view_project_all_group_stage" model="ir.actions.act_window">
+        <field name="domain">[('project_type', '=', 'standard')]</field>
+        <field name="context">{'is_standard_project_app': True, 'default_project_type': 'standard'}</field>
+    </record>
+
+    <record id="project.open_view_project_all" model="ir.actions.act_window">
+        <field name="domain">[('project_type', '=', 'standard')]</field>
+        <field name="context">{'is_standard_project_app': True, 'default_project_type': 'standard'}</field>
+    </record>
+
+    <record id="project.action_view_all_task" model="ir.actions.act_window">
+        <field name="domain">[('project_id.project_type', '=', 'standard')]</field>
+        <field name="context">{'is_standard_project_app': True, 'default_project_type': 'standard'}</field>
+    </record>
+
+    <record id="action_view_project_backlog" model="ir.actions.act_window">
+        <field name="name">Backlog</field>
+        <field name="res_model">project.task</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="domain">[('project_id', '=', active_id), ('sprint_id', '=', False), ('parent_id', '=', False)]</field>
+        <field name="context">{'default_project_id': active_id, 'default_is_scrum_project': True, 'is_scrum_app': True}</field>
+    </record>
+
+    <record id="view_project_project_filter_inherit_scrum" model="ir.ui.view">
+        <field name="name">project.project.select.inherit.scrum</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="project.view_project_project_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//search" position="inside">
+                <separator/>
+                <filter string="Standard Workflow" name="standard_p" domain="[('project_type', '=', 'standard')]"/>
+                <filter string="Software Workflow" name="scrum_p" domain="[('project_type', '=', 'scrum')]"/>
+            </xpath>
+            <xpath expr="//group" position="inside">
+                <filter string="Workflow Type" name="group_by_type" context="{'group_by': 'project_type'}"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_project_project_stage_form_inherit_category" model="ir.ui.view">
+        <field name="name">project.project.stage.form.inherit.category</field>
+        <field name="model">project.project.stage</field>
+        <field name="inherit_id" ref="project.project_project_stage_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group" position="inside">
+                <field name="project_type" invisible="1"/>
+                <group string="Agile Workflow Settings" invisible="project_type != 'scrum'" class="mt-3">
+                    <field name="category" widget="radio" class="oe_inline"/>
+                    <div colspan="2" class="text-muted mt-2" style="font-size: 0.85rem;">
+                        <i class="fa fa-info-circle me-1"/>
+                        Assigning a category enforces strict transition rules (e.g., stopping a project from moving to 'Active' without a Sprint).
+                    </div>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_project_project_stage_list_inherit_category" model="ir.ui.view">
+        <field name="name">project.project.stage.list.inherit.category</field>
+        <field name="model">project.project.stage</field>
+        <field name="inherit_id" ref="project.project_project_stage_view_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//list" position="attributes">
+                <attribute name="editable">bottom</attribute>
+            </xpath>
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="project_type"/>
+                <field name="category"
+                       column_invisible="context.get('default_project_type') != 'scrum'"
+                       decoration-info="category == 'backlog'"
+                       decoration-warning="category == 'active'"
+                       decoration-success="category == 'completed'"
+                       decoration-muted="category == 'finalized'"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_scrum_project_stages" model="ir.actions.act_window">
+        <field name="name">Scrum Project Stages</field>
+        <field name="res_model" >project.project.stage</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('project_type', '=', 'scrum')]</field>
+        <field name="context">{'default_project_type': 'scrum'}</field>
+    </record>
+
+    <record id="project_kanban_view_inherit_scrum_details_main" model="ir.ui.view">
+        <field name="name">project.project.kanban.inherit.scrum.details.main</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="project.view_project_kanban"/>
+        <field name="arch" type="xml">
+            <xpath expr="//kanban" position="inside">
+                <field name="project_type"/>
+            </xpath>
+
+            <xpath expr="//templates//field[@name='user_id']" position="before">
+                <div t-if="record.project_type.raw_value == 'scrum'" class="me-2 d-inline-flex align-items-center">
+                    <button name="action_open_sprint_wizard" type="object" class="btn btn-link p-0 text-info" title="Sprint Statistics">
+                        <i class="fa fa-line-chart fa-lg"/>
+                    </button>
+                </div>
+            </xpath>
+
+        </field>
+    </record>
+
+    <record id="project_scrum_project_form_view" model="ir.ui.view">
+        <field name="name">project.project.scrum.form</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="project.edit_project"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//form" position="attributes">
+                <attribute name="edit">1</attribute>
+                <attribute name="create">1</attribute>
+            </xpath>
+
+            <xpath expr="//field[@name='stage_id']" position="attributes">
+                <attribute name="domain">[('project_type', '=', project_type)]</attribute>
+                <attribute name="options">{'clickable': '1'}</attribute>
+            </xpath>
+
+            <xpath expr="//header" position="inside">
+                <div class="btn-group bg-light rounded-pill p-1 ms-2 my-1 border shadow-sm" invisible="project_type != 'scrum'">
+                    <button name="action_open_scrum_dashboard" string="Dashboard" type="object" class="btn btn-sm rounded-pill border-0 px-3 text-muted fw-bold"/>
+                    <button string="Project Details" class="btn btn-sm rounded-pill bg-white text-primary fw-bold border-0 shadow-sm" disabled="1"/>
+                </div>
+            </xpath>
+
+            <xpath expr="//div[hasclass('oe_button_box')]" position="inside">
+                <button name="action_view_sprints" type="object" class="oe_stat_button" icon="fa-retweet" invisible="project_type != 'scrum'">
+                    <field string="Sprints" name="sprint_count" widget="statinfo"/>
+                </button>
+                <button class="oe_stat_button" type="action" name="%(action_view_project_backlog)d" icon="fa-list-ul" invisible="project_type != 'scrum'">
+                     <div class="o_field_widget o_stat_info"><span class="o_stat_text">Backlog</span></div>
+                </button>
+            </xpath>
+
+            <xpath expr="//field[@name='user_id']" position="attributes">
+                <attribute name="groups"></attribute>
+            </xpath>
+            <xpath expr="//field[@name='partner_id']" position="attributes">
+                <attribute name="groups"></attribute>
+            </xpath>
+
+            <xpath expr="//field[@name='user_id']" position="before">
+                <div class="alert alert-warning p-2 mb-3" role="alert"
+                     invisible="not id or project_type != 'standard' or not is_scrum_project">
+                    <i class="fa fa-exclamation-triangle me-2"/>
+                    <strong>Warning:</strong> You are switching this project to <b>Standard Mode</b>.
+                </div>
+                <field name="is_scrum_project" invisible="1"/>
+                <field name="project_type" widget="radio" options="{'horizontal': true}"
+                       string="Workflow Mode" class="mb-3"/>
+            </xpath>
+
+            <xpath expr="//notebook" position="inside">
+                <page string="Scrum Details" name="scrum_dashboard_summary" invisible="project_type != 'scrum'">
+                    <div class="oe_form_sheet_bg p-0 m-0">
+                        <div class="container-fluid py-4">
+                            <div class="row g-3 mb-4">
+                                <div class="col-lg-3">
+                                    <div class="card shadow-sm border-0" style="background: linear-gradient(135deg, #714Baf 0%, #5b3a8c 100%); color: white; border-radius: 12px;">
+                                        <div class="card-body text-center">
+                                            <i class="fa fa-fire mb-2" style="font-size: 1.5rem; opacity: 0.8;"/>
+                                            <h6 class="text-uppercase small fw-bold opacity-75">Burn Rate (SP/Day)</h6>
+                                            <h2 class="fw-bold mb-0"><field name="project_burn_rate_per_day"/></h2>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3">
+                                    <div class="card shadow-sm border-0" style="background: linear-gradient(135deg, #00A09D 0%, #007d7a 100%); color: white; border-radius: 12px;">
+                                        <div class="card-body text-center">
+                                            <i class="fa fa-bolt mb-2" style="font-size: 1.5rem; opacity: 0.8;"/>
+                                            <h6 class="text-uppercase small fw-bold opacity-75">Avg Velocity</h6>
+                                            <h2 class="fw-bold mb-0"><field name="average_velocity"/></h2>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3">
+                                    <div class="card shadow-sm border-0 bg-white" style="border-radius: 12px; border: 1px solid #e2e8f0 !important;">
+                                        <div class="card-body text-center">
+                                            <i class="fa fa-list-ol text-primary mb-2" style="font-size: 1.5rem;"/>
+                                            <h6 class="text-uppercase text-muted small fw-bold">Backlog Points</h6>
+                                            <h2 class="fw-bold mb-0 text-dark"><field name="total_backlog_sp"/></h2>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3">
+                                    <div class="card shadow-sm border-0 bg-white" style="border-radius: 12px; border: 1px solid #e2e8f0 !important;">
+                                        <div class="card-body text-center">
+                                            <i class="fa fa-calendar-check-o text-success mb-2" style="font-size: 1.5rem;"/>
+                                            <h6 class="text-uppercase text-muted small fw-bold">Forecast (Sprints)</h6>
+                                            <h2 class="fw-bold mb-0 text-success"><field name="estimated_sprints_remaining"/></h2>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card border-0 shadow-sm bg-white p-3" style="border-radius: 12px;">
+                                <div class="card-header bg-transparent border-0 ps-0">
+                                    <h5 class="fw-bold text-dark mb-0"><i class="fa fa-users me-2 text-primary"/>Agile Roles</h5>
+                                </div>
+                                <group>
+                                    <group>
+                                        <field name="user_id" string="Scrum Master" widget="many2one_avatar_user"/>
+                                        <field name="partner_id" string="Product Owner"/>
+                                    </group>
+                                    <group>
+                                        <field name="date_start" string="Kickoff Date"/>
+                                        <field name="date" string="Release Target"/>
+                                    </group>
+                                </group>
+                            </div>
+                        </div>
+                    </div>
+                </page>
+
+                <page string="Backlog" name="scrum_backlog" invisible="project_type != 'scrum'">
+                    <field name="backlog_task_ids"
+                           widget="scrum_tasks_x2many"
+                           context="{'default_project_id': id, 'default_is_scrum_project': True, 'is_scrum_app': True}"
+                           domain="[('is_scrum_project', '=', True), ('sprint_id', '=', False), ('parent_id', '=', False)]">
+                        <list class="o_scrum_task_list" default_order="id desc">
+                            <widget name="scrum_expand"/>
+                            <field name="row_number" string="#" readonly="1" width="40"/>
+                            <field name="id"/>
+                            <field name="name"/>
+                            <field name="stage_id"/>
+                            <field name="user_ids" string="Owners" widget="many2many_avatar_user"/>
+                            <field name="assigned_by_id" string="Assigned By"/>
+                            <field name="subtask_count" string="Subtasks"/>
+                            <field name="story_points" sum="Total SP"/>
+                            <field name="state" widget="badge"
+                                   decoration-success="state == '1_done'"
+                                   decoration-info="state == '01_in_progress'"/>
+                        </list>
+                    </field>
+                </page>
+
+                <page string="Active Scope" name="scrum_active_tasks" invisible="project_type != 'scrum'">
+                    <field name="active_task_ids"
+                           widget="scrum_tasks_x2many"
+                           context="{'is_scrum_app': True}"
+                           domain="[('is_scrum_project', '=', True), ('sprint_id', '!=', False), ('parent_id', '=', False), ('state', '=', '01_in_progress')]">
+                        <list class="o_scrum_task_list" create="0" default_order="id desc">
+                            <widget name="scrum_expand"/>
+                            <field name="row_number" string="#" readonly="1" width="40"/>
+                            <field name="id"/>
+                            <field name="name"/>
+                            <field name="stage_id"/>
+                            <field name="user_ids" string="Owners" widget="many2many_avatar_user"/>
+                            <field name="assigned_by_id" string="Assigned By"/>
+                            <field name="subtask_count" string="Subtasks"/>
+                            <field name="story_points" sum="Total SP"/>
+                            <field name="state" widget="badge"
+                                   decoration-success="state == '1_done'"
+                                   decoration-info="state == '01_in_progress'"/>
+                        </list>
+                    </field>
+                </page>
+
+                <page string="Sprints" name="scrum_sprints" invisible="project_type != 'scrum'">
+                    <field name="sprint_ids" context="{'default_project_id': id}">
+                        <list create="1" edit="1">
+                            <field name="row_number" string="#" readonly="1" width="40"/>
+                            <field name="name" class="fw-bold"/>
+                            <field name="state" widget="badge"
+                                   decoration-success="state == 'completed'"
+                                   decoration-warning="state == 'active'"
+                                   decoration-info="state == 'draft'"/>
+
+                            <button name="action_activate_sprint" string="Start" type="object"
+                                    icon="fa-play" class="text-success"
+                                    invisible="state != 'draft'" title="Start Sprint"/>
+                            <button name="action_complete_sprint" string="Close" type="object"
+                                    icon="fa-check-square" class="text-primary"
+                                    invisible="state != 'active'" title="Mark as Completed"/>
+
+                            <field name="start_date"/>
+                            <field name="end_date"/>
+                            <field name="committed_story_points" string="Committed"/>
+                            <field name="completed_story_points" string="Delivered" readonly="1"/>
+                            <field name="progress" widget="progressbar"/>
+                        </list>
+                    </field>
+                </page>
+
+                <page string="Team Members" name="scrum_team" invisible="project_type != 'scrum'">
+                    <field name="team_member_ids" readonly="1">
+                        <list>
+                            <field name="name"/>
+                            <field name="login" string="Email"/>
+                        </list>
+                    </field>
+                </page>
+
+                <page string="Releases" name="scrum_releases" invisible="project_type != 'scrum'">
+                    <field name="release_ids"/>
+                </page>
+
+                <page string="Agile Meetings" name="scrum_meetings" invisible="project_type != 'scrum'">
+                    <field name="meeting_ids"/>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_project_kanban_unlocked" model="ir.ui.view">
+        <field name="name">project.project.kanban.unlocked</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="project.view_project_kanban"/>
+        <field name="mode">primary</field>
+        <field name="arch" type="xml">
+
+            <xpath expr="//kanban" position="attributes">
+                <attribute name="default_group_by">stage_id</attribute>
+                <attribute name="class">o_kanban_dashboard o_project_kanban o_emphasize_colors</attribute>
+                <attribute name="on_create">quick_create</attribute>
+                <attribute name="quick_create_view">scrum_management.project_project_stage_view_form_quick_create</attribute>
+                <attribute name="sample">1</attribute>
+
+                <attribute name="action"></attribute>
+                <attribute name="type"></attribute>
+
+                <attribute name="js_class"></attribute>
+            </xpath>
+
+            <xpath expr="//kanban" position="inside">
+                <field name="stage_id"/>
+                <field name="project_type"/>
+            </xpath>
+
+            <xpath expr="//templates/t[@t-name='card']" position="inside">
+                 <div t-if="record.project_type.raw_value == 'scrum'" class="mt-2">
+                    <span class="badge rounded-pill bg-info text-dark border-0" style="font-size: 0.75rem;">Scrum Project</span>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="project_project_stage_view_form_quick_create" model="ir.ui.view">
+        <field name="name">project.project.stage.view.form.quick_create</field>
+        <field name="model">project.project.stage</field>
+        <field name="arch" type="xml">
+            <form>
+                <group>
+                    <field name="name"/>
+                    <field name="project_type" invisible="1"/>
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <record id="project.open_task_type_form" model="ir.actions.act_window">
+        <field name="domain">[('project_type', '=', 'standard')]</field>
+        <field name="context">{'default_project_type': 'standard'}</field>
+    </record>
+
+</odoo>

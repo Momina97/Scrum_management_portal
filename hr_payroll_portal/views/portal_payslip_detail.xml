@@ -4,133 +4,79 @@
     <template id="portal_payslip_detail" name="Payslip Detail">
         <t t-call="portal.portal_layout">
 
-            <div class="container mt-4">
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title">Payslips</t>
+            </t>
 
-                <!-- Payslip Header Info -->
-                <div class="card shadow-sm mb-4">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">
+            <div class="cymax_payslips_page">
+
+                <!-- PAGE HEADER -->
+                <div class="cp_page_header">
+                    <div class="cp_header_left">
+                        <h1 class="cp_page_title">
                             <t t-esc="payslip.name"/>
-                        </h5>
+                        </h1>
+                        <!-- Inline metadata -->
+                        <div class="cp_detail_meta">
+                            <span>
+                                <span t-field="payslip.date_from" t-options='{"widget": "date"}'/>
+                                —
+                                <span t-field="payslip.date_to" t-options='{"widget": "date"}'/>
+                            </span>
+                            <span class="cp_meta_divider">·</span>
+                            <span><t t-esc="payslip.employee_id.name"/></span>
+                            <span class="cp_meta_divider">·</span>
+                            <span><t t-esc="payslip.contract_id.name"/></span>
+                        </div>
+                    </div>
+                    <div class="cp_header_right">
                         <a t-attf-href="/my/payslips/#{payslip.id}/download"
-                           class="btn btn-sm btn-primary">
+                           class="cp_download_btn">
                             Download PDF
                         </a>
-                    </div>
-                    <div class="card-body">
-                        <div class="row mb-2">
-                            <div class="col-sm-4 fw-bold">Employee</div>
-                            <div class="col-sm-8">
-                                <t t-esc="payslip.employee_id.name"/>
-                            </div>
-                        </div>
-                        <div class="row mb-2">
-                            <div class="col-sm-4 fw-bold">Period</div>
-                            <div class="col-sm-8">
-                                <span t-field="payslip.date_from"
-                                      t-options='{"widget": "date"}'/>
-                                —
-                                <span t-field="payslip.date_to"
-                                      t-options='{"widget": "date"}'/>
-                            </div>
-                        </div>
-                        <div class="row mb-2">
-                            <div class="col-sm-4 fw-bold">Contract</div>
-                            <div class="col-sm-8">
-                                <t t-esc="payslip.contract_id.name"/>
-                            </div>
-                        </div>
-                        <div class="row mb-2">
-                            <div class="col-sm-4 fw-bold">Structure</div>
-                            <div class="col-sm-8">
-                                <t t-esc="payslip.struct_id.name"/>
-                            </div>
-                        </div>
+                        <a href="/my/payslips/list" class="cp_back_btn">
+                            ← Back
+                        </a>
                     </div>
                 </div>
 
-                <!-- Earnings -->
-                <div class="card shadow-sm mb-4">
-                    <div class="card-header">
-                        <h6 class="mb-0">Earnings</h6>
-                    </div>
-                    <div class="card-body p-0">
-                        <table class="table table-sm mb-0">
-                            <thead class="table-light">
+                <!-- EARNINGS TABLE -->
+                <div class="cp_section_title">Earnings</div>
+                <div class="cp_table_wrapper mb-24">
+                    <table class="cp_table">
+                        <thead>
+                            <tr>
+                                <th>Description</th>
+                                <th class="text-end">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="earnings" t-as="line">
                                 <tr>
-                                    <th>Description</th>
-                                    <th class="text-end">Amount</th>
+                                    <td><t t-esc="line.name"/></td>
+                                    <td class="text-end"><t t-esc="line.total"/></td>
                                 </tr>
-                            </thead>
-                            <tbody>
-                                <t t-foreach="earnings" t-as="line">
-                                    <tr>
-                                        <td><t t-esc="line.name"/></td>
-                                        <td class="text-end">
-                                            <t t-esc="line.total"/>
-                                        </td>
-                                    </tr>
-                                </t>
-                            </tbody>
-                            <tfoot class="table-light">
-                                <tr>
-                                    <td class="fw-bold">Gross</td>
-                                    <td class="text-end fw-bold">
-                                        <t t-esc="payslip.gross_wage"/>
-                                    </td>
-                                </tr>
-                            </tfoot>
-                        </table>
-                    </div>
+                            </t>
+                        </tbody>
+                        <tfoot>
+                            <tr class="cp_tfoot_row">
+                                <td>Gross</td>
+                                <td class="text-end"><t t-esc="payslip.gross_wage"/></td>
+                            </tr>
+                        </tfoot>
+                    </table>
                 </div>
 
-                <!-- Deductions -->
-                <div class="card shadow-sm mb-4">
-                    <div class="card-header">
-                        <h6 class="mb-0">Deductions</h6>
-                    </div>
-                    <div class="card-body p-0">
-                        <table class="table table-sm mb-0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Description</th>
-                                    <th class="text-end">Amount</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <t t-foreach="deductions" t-as="line">
-                                    <tr>
-                                        <td><t t-esc="line.name"/></td>
-                                        <td class="text-end">
-                                            <t t-esc="line.total"/>
-                                        </td>
-                                    </tr>
-                                </t>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- Net Pay -->
-                <div class="card shadow-sm mb-4">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0">Net Pay</h5>
-                            <h4 class="mb-0 text-success">
-                                <t t-esc="payslip.net_wage"/>
-                            </h4>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mt-3">
-                    <a href="/my/payslips" class="btn btn-secondary">
-                        Back to Payslips
-                    </a>
+                <!-- NET PAY SUMMARY -->
+                <div class="cp_net_pay_row">
+                    <span class="cp_net_pay_label">Net Pay</span>
+                    <span class="cp_net_pay_value">
+                        <t t-esc="payslip.net_wage"/>
+                    </span>
                 </div>
 
             </div>
-
         </t>
     </template>
 

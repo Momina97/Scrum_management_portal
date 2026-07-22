@@ -1,0 +1,36 @@
+{
+    "name": "Product / Inventory Requisition",
+    "version": "1.1.0",
+    "author": "Cymax",
+    "category": "Inventory",
+    "summary": "Dynamic approval workflow and RFQ generation for product requisitions.",
+    "depends": ["base", "portal", "stock", "mail", "hr", "purchase", "analytic"],
+    "data": [
+        "security/product_requisition_security.xml",
+        "security/ir.model.access.csv",
+        "data/product_requisition_sequence.xml",
+        "data/product_requisition_dashboard_data.xml",
+        "views/product_requisition_workflow_views.xml",
+        "views/product_requisition_reject_wizard_views.xml",
+        "views/product_requisition_rfq_wizard_views.xml",
+        "views/product_requisition_views.xml",
+        "views/product_requisition_report.xml",
+        "views/product_requisition_dashboard_views.xml",
+        "views/product_requisition_menus.xml",
+        "views/portal_requisition_templates.xml",
+        "views/product_requisition_portal_report.xml",
+    ],
+    "assets": {
+        "web.assets_backend": [
+            "product_requisition/static/src/css/dashboard.css",
+            "product_requisition/static/src/js/pr_dashboard_charts.js",
+            "product_requisition/static/src/xml/pr_dashboard_charts.xml",
+        ],
+        "web.assets_frontend": [
+            "product_requisition/static/src/css/portal.css",
+        ],
+    },
+    "application": True,
+    "installable": True,
+    "license": "LGPL-3",
+}

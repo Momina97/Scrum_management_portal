@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_project_scrum_meeting_list" model="ir.ui.view">
+        <field name="name">project.scrum.meeting.list</field>
+        <field name="model">project.scrum.meeting</field>
+        <field name="arch" type="xml">
+            <list string="Meetings" default_order="date desc">
+                <field name="subject"/>
+                <field name="project_id"/>
+                <field name="sprint_id"/>
+                <field name="date"/>
+                <field name="state" widget="badge" decoration-success="state == 'held'" decoration-danger="state == 'cancelled'" decoration-info="state == 'draft'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Meeting Form View -->
+    <record id="view_project_scrum_meeting_form" model="ir.ui.view">
+        <field name="name">project.scrum.meeting.form</field>
+        <field name="model">project.scrum.meeting</field>
+        <field name="arch" type="xml">
+            <form string="Meeting">
+                <header>
+                    <button name="action_mark_as_held" string="Mark as Held" type="object" class="oe_highlight" invisible="state != 'draft'"/>
+                    <button name="action_cancel_meeting" string="Cancel Meeting" type="object" invisible="state != 'draft'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,held,cancelled"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="subject" placeholder="e.g., Sprint Planning Meeting"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="project_id"/>
+                            <field name="sprint_id" domain="[('project_id', '=', project_id)]"/>
+                        </group>
+                        <group>
+                            <field name="date"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Attendees" name="attendees">
+                            <field name="attendee_ids" widget="many2many_tags"/>
+                        </page>
+                        <page string="Agenda / Description" name="description">
+                            <field name="description" placeholder="Add the meeting agenda, goals, or notes here."/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Meeting Search View -->
+    <record id="view_project_scrum_meeting_search" model="ir.ui.view">
+        <field name="name">project.scrum.meeting.search</field>
+        <field name="model">project.scrum.meeting</field>
+        <field name="arch" type="xml">
+            <search string="Search Meetings">
+                <field name="subject"/>
+                <field name="project_id"/>
+                <field name="sprint_id"/>
+                <group expand="0" string="Group By">
+                    <filter string="Project" name="group_by_project" context="{'group_by': 'project_id'}"/>
+                    <filter string="Sprint" name="group_by_sprint" context="{'group_by': 'sprint_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+</odoo>

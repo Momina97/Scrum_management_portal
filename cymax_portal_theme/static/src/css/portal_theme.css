@@ -1,0 +1,173 @@
+/* =============================================
+   CYMAX PORTAL THEME
+   Main color: #6b4e76
+   ============================================= */
+
+/* ── Reset ── */
+body {
+    background-image: none !important;
+    background-color: #f0eef8 !important;
+}
+
+/* ── Background only on homepage ── */
+body:has(.cymax_home_page) {
+    background-image: url('/web_enterprise/static/img/background-light.svg') !important;
+    background-size: cover !important;
+    background-attachment: fixed !important;
+    background-repeat: no-repeat !important;
+    background-position: center center !important;
+}
+
+/* ── Hide default Odoo portal elements ── */
+.o_portal_docs {
+    display: none !important;
+}
+
+.d-none.d-lg-flex.justify-content-end.col-lg-4 {
+    display: none !important;
+}
+
+.o_portal_my_details {
+    display: none !important;
+}
+
+.wrapper.col-12.d-flex.flex-wrap.justify-content-between.align-items-center {
+    display: none !important;
+}
+
+footer.o_footer,
+#bottom {
+    display: none !important;
+}
+
+
+/* ── Navbar ── */
+header#top .navbar {
+    background-color: transparent !important;
+    border-bottom: 1px solid rgba(107, 78, 118, 0.15) !important;
+    box-shadow: none !important;
+    padding: 12px 24px !important;
+}
+
+/* =============================================
+   PORTAL HOME PAGE
+   ============================================= */
+.cymax_portal_home {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 56px 24px 48px;
+    min-height: 80vh;
+    width: 100%;
+}
+
+/* ── Hero ── */
+.cymax_hero {
+    text-align: center;
+    margin-bottom: 48px;
+}
+
+.cymax_hero_title {
+    font-size: 2.4rem;
+    font-weight: 700;
+    color: #6b4e76;
+    margin-bottom: 8px;
+    letter-spacing: -0.3px;
+}
+
+.cymax_hero_subtitle {
+    font-size: 1rem;
+    color: #9ca3af;
+    margin: 0;
+}
+
+/* ── These only apply on the homepage ── */
+body:has(.cymax_home_page) .o_portal_content {
+    width: 100% !important;
+    max-width: 100% !important;
+    flex: 0 0 100% !important;
+    padding: 0 !important;
+}
+
+body:has(.cymax_home_page) .container.pt-3.pb-5 {
+    max-width: 100% !important;
+    width: 100% !important;
+}
+
+body:has(.cymax_home_page) .row.justify-content-between {
+    width: 100% !important;
+    margin: 0 !important;
+}
+
+/* =============================================
+   ICON GRID
+   6 per row, auto-flow, any number of tiles
+   ============================================= */
+.cymax_icon_grid {
+    display: grid;
+    grid-template-columns: repeat(6, 96px);
+    gap: 28px 20px;
+    justify-content: center;
+    margin: 0 auto;
+    width: 100%;
+}
+
+@media (max-width: 992px) {
+    .cymax_icon_grid {
+        grid-template-columns: repeat(4, 96px);
+    }
+}
+
+@media (max-width: 600px) {
+    .cymax_icon_grid {
+        grid-template-columns: repeat(3, 80px);
+        gap: 20px 12px;
+    }
+}
+
+/* ── Individual Tile ── */
+.cymax_tile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.cymax_tile:hover {
+    text-decoration: none;
+}
+
+/* ── Icon Box ── */
+.cymax_tile_icon {
+    width: 64px;
+    height: 64px;
+    background: #ffffff;
+    border-radius: 16px;
+    border: 0.5px solid rgba(107, 78, 118, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.cymax_tile:hover .cymax_tile_icon {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(107, 78, 118, 0.2);
+}
+
+.cymax_tile_icon img {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+}
+
+/* ── Tile Name ── */
+.cymax_tile_name {
+    font-size: 0.78rem;
+    color: #4b3a55;
+    text-align: center;
+    font-weight: 500;
+    line-height: 1.3;
+}

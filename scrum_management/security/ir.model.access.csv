@@ -1,0 +1,24 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_project_scrum_sprint,project.scrum.sprint,model_project_scrum_sprint,base.group_user,1,1,1,1
+access_project_scrum_release,project.scrum.release,model_project_scrum_release,base.group_user,1,1,1,1
+access_project_scrum_meeting,project.scrum.meeting,model_project_scrum_meeting,base.group_user,1,1,1,1
+access_scrum_dashboard,scrum.dashboard,model_scrum_dashboard,base.group_user,1,1,1,1
+access_scrum_dashboard_line,scrum.dashboard.line,model_scrum_dashboard_line,base.group_user,1,1,1,1
+access_scrum_dashboard_status_line,scrum.dashboard.status.line,model_scrum_dashboard_status_line,base.group_user,1,1,1,1
+access_scrum_dashboard_team_line,scrum.dashboard.team.line,model_scrum_dashboard_team_line,base.group_user,1,1,1,1
+access_project_sprint_details_wizard,project.sprint.details.wizard,model_project_sprint_details_wizard,base.group_user,1,1,1,1
+access_project_sprint_details_wizard_line,project.sprint.details.wizard.line,model_project_sprint_details_wizard_line,base.group_user,1,1,1,1
+access_scrum_project_dashboard,scrum.project.dashboard,model_scrum_project_dashboard,base.group_user,1,1,1,1
+access_project_project_stage_scrum,project.project.stage,project.model_project_project_stage,base.group_user,1,1,1,1
+access_project_project_stage_scrum_manager,project.project.stage,project.model_project_project_stage,project.group_project_manager,1,1,1,1
+access_project_scrum_sprint_stage,project.scrum.sprint.stage,model_project_scrum_sprint_stage,base.group_user,1,1,1,1
+access_project_scrum_dod_template,project.scrum.dod.template,model_project_scrum_dod_template,base.group_user,1,1,1,1
+access_project_scrum_dod_template_item,project.scrum.dod.template.item,model_project_scrum_dod_template_item,base.group_user,1,1,1,1
+access_project_scrum_sprint_dod,project.scrum.sprint.dod,model_project_scrum_sprint_dod,base.group_user,1,1,1,1
+access_project_scrum_dod_wizard,project.scrum.dod.wizard,model_project_scrum_dod_wizard,base.group_user,1,1,1,1
+access_project_project_global_write,project.project.global.write,project.model_project_project,base.group_user,1,1,1,1
+access_project_scrum_story_point_config,project.scrum.story.point.config,model_project_scrum_story_point_config,base.group_user,1,1,1,1
+access_scrum_bulk_task_wizard_user,scrum.bulk.task.wizard user,scrum_management.model_scrum_bulk_task_wizard,base.group_user,1,1,1,1
+access_scrum_bulk_task_wizard_manager,scrum.bulk.task.wizard manager,scrum_management.model_scrum_bulk_task_wizard,project.group_project_manager,1,1,1,1
+access_project_velocity_snapshot,project.velocity.snapshot,model_project_velocity_snapshot,base.group_user,1,1,1,1
+access_project_sprint_burndown_snapshot,project.sprint.burndown.snapshot,model_project_sprint_burndown_snapshot,base.group_user,1,1,1,1

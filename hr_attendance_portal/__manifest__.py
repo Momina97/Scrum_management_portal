@@ -13,8 +13,14 @@
         'security/ir.model.access.csv',
         'views/portal_layout.xml',
         'views/portal_attendance_list.xml',
+        'views/portal_dashboard.xml',
         'views/portal_no_employee.xml',
     ],
+    'assets': {
+    'web.assets_frontend': [
+        'hr_attendance_portal/static/src/css/portal_styles.css',
+    ],
+},
     'installable': True,
     'application': False,
     'license': 'LGPL-3',

@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="portal_attendance_dashboard" name="Attendance Dashboard">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title">Attendance</t>
+            </t>
+
+            <div class="cymax_attendance_page">
+
+                <!-- PAGE HEADER -->
+                <div class="ca_page_header">
+                    <div class="ca_header_left">
+                        <h1 class="ca_page_title">Attendance Dashboard</h1>
+                        <p class="ca_page_subtitle">Your activity, overtime and attendance overview.</p>
+                    </div>
+                    <div class="ca_header_right">
+                        <form method="GET" action="/my/attendance"
+                              class="ca_filter_form"
+                              id="dashboard_filter_form">
+                            <select name="filter_year" class="ca_select"
+                                    onchange="document.getElementById('dashboard_filter_form').submit()">
+                                <option value="">All Years</option>
+                                <t t-foreach="years" t-as="year">
+                                    <option t-att-value="year"
+                                            t-att-selected="str(year) == filter_year">
+                                        <t t-esc="year"/>
+                                    </option>
+                                </t>
+                            </select>
+                            <select name="filter_month" class="ca_select"
+                                    onchange="document.getElementById('dashboard_filter_form').submit()">
+                                <option value="">All Months</option>
+                                <t t-foreach="months" t-as="month">
+                                    <option t-att-value="month[0]"
+                                            t-att-selected="month[0] == filter_month">
+                                        <t t-esc="month[1]"/>
+                                    </option>
+                                </t>
+                            </select>
+                            <a href="/my/attendance" class="ca_reset_btn">Reset</a>
+                        </form>
+                        <a href="/my/attendance/list" class="ca_reset_btn" style="margin-left: 8px;">
+                            View Records →
+                        </a>
+                    </div>
+                </div>
+
+                <t t-if="error">
+                    <div class="alert alert-warning mb-4">
+                        <strong>Access denied:</strong> You are not allowed to manually check in or check out. Please use the biometric system.
+                        <t t-if="error != 'biometric'">
+                            (<t t-esc="error"/>)
+                        </t>
+                    </div>
+                </t>
+
+                <!-- STATS ROW -->
+                <div class="ca_stats_row">
+                    <div class="ca_stat_card">
+                        <span class="ca_stat_value"><t t-esc="total_records"/></span>
+                        <span class="ca_stat_label">Total Records</span>
+                    </div>
+                    <div class="ca_stat_card">
+                        <span class="ca_stat_value"><t t-esc="total_worked"/></span>
+                        <span class="ca_stat_label">Total Worked Hours</span>
+                    </div>
+                    <div class="ca_stat_card">
+                        <span class="ca_stat_value"><t t-esc="approved_count"/></span>
+                        <span class="ca_stat_label">Approved Overtime</span>
+                    </div>
+                    <div class="ca_stat_card">
+                        <span class="ca_stat_value"><t t-esc="today_records"/></span>
+                        <span class="ca_stat_label">Entries Today</span>
+                    </div>
+                </div>
+
+                <!-- TODAY'S TIMELINE -->
+                <div class="ca_timeline_card">
+                    <div class="ca_dashboard_card_header">
+                        <h3>Today's Activity</h3>
+                        <span class="ca_badge ca_badge_working" id="ca_current_time">--:--</span>
+                    </div>
+
+                    <!-- Hour labels -->
+                    <div class="ca_timeline_hours">
+                        <t t-foreach="range(24)" t-as="h">
+                            <span class="ca_timeline_hour_label"
+                                t-att-style="'left: ' + str(h / 24 * 100) + '%'">
+                                <t t-esc="'%02d' % h"/>
+                            </span>
+                        </t>
+                    </div>
+
+                    <!-- Timeline bar -->
+                    <div class="ca_timeline_bar" id="ca_timeline_bar">
+                        <div class="ca_timeline_now" id="ca_timeline_now"/>
+
+                        <!-- Static segments from server -->
+                        <t t-foreach="today_timeline" t-as="seg">
+                            <div t-att-class="'ca_timeline_segment' + (' ca_timeline_active' if seg['is_active'] else '')"
+                                t-att-data-checkin="seg['check_in_hour']"
+                                t-att-data-checkout="seg['check_out_hour'] or ''"
+                                t-att-data-active="'true' if seg['is_active'] else 'false'"
+                                t-att-style="'left: ' + seg['left_pct'] + '; width: ' + seg['width_pct']"
+                                t-att-title="seg['check_in_str'] + ' → ' + seg['check_out_str']"/>
+                        </t>
+                    </div>
+
+                    <!-- Hour tick marks -->
+                    <div class="ca_timeline_ticks">
+                        <t t-foreach="range(24)" t-as="h">
+                            <div class="ca_timeline_tick"
+                                t-att-style="'left: ' + str(h / 24 * 100) + '%'"/>
+                        </t>
+                    </div>
+
+                    <!-- Legend -->
+                    <div class="ca_timeline_legend">
+                        <t t-if="today_timeline">
+                            <t t-foreach="today_timeline" t-as="seg">
+                                <span class="ca_timeline_legend_item">
+                                    <span t-att-class="'ca_legend_dot' + (' ca_legend_dot_active' if seg['is_active'] else '')"/>
+                                    <t t-esc="seg['check_in_str']"/> →
+                                    <t t-esc="seg['check_out_str']"/>
+                                </span>
+                            </t>
+                        </t>
+                        <t t-else="">
+                            <span class="ca_timeline_empty">No activity recorded today.</span>
+                        </t>
+                    </div>
+                </div>
+
+                <!-- ROW 2 — Monthly Chart + Recent Activity -->
+                <div class="ca_dashboard_grid">
+
+                    <!-- MONTHLY CHART -->
+                    <div class="ca_dashboard_card">
+                        <div class="ca_dashboard_card_header">
+                            <h3>Monthly Activity</h3>
+                            <span class="ca_badge ca_badge_working">Last 6 months</span>
+                        </div>
+                        <div class="ca_chart_container">
+                            <div class="ca_chart_bars">
+                                <t t-foreach="monthly_counts" t-as="month">
+                                    <div class="ca_chart_column">
+                                        <span class="ca_chart_value">
+                                            <t t-esc="month['value']"/>
+                                        </span>
+                                        <div class="ca_chart_bar_wrap">
+                                            <div class="ca_chart_fill"
+                                                 t-att-style="month['style']"/>
+                                        </div>
+                                        <span class="ca_chart_label">
+                                            <t t-esc="month['label']"/>
+                                        </span>
+                                    </div>
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RECENT ACTIVITY -->
+                    <div class="ca_dashboard_card">
+                        <div class="ca_dashboard_card_header">
+                            <h3>Recent Activity</h3>
+                            <span class="ca_badge ca_badge_working">Last 5 records</span>
+                        </div>
+                        <ul class="ca_activity_list">
+                            <t t-foreach="recent_records" t-as="record">
+                                <li class="ca_activity_item">
+                                    <div class="ca_activity_dot"/>
+                                    <div class="ca_activity_info">
+                                        <strong>
+                                            <t t-esc="record.check_in.strftime('%d %b %Y') if record.check_in else '—'"/>
+                                        </strong>
+                                        <p>
+                                            In: <t t-esc="record.check_in.strftime('%H:%M') if record.check_in else '—'"/>
+                                            <t t-if="record.check_out">
+                                                · Out: <t t-esc="record.check_out.strftime('%H:%M')"/>
+                                                · <t t-esc="'%02d:%02d hrs' % (int(record.worked_hours or 0), int(((record.worked_hours or 0) % 1) * 60))"/>
+                                            </t>
+                                            <t t-else="">· Currently active</t>
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <span class="ca_badge ca_badge_approved"
+                                              t-if="record.overtime_hours and record.overtime_status == 'approved'">
+                                            Approved
+                                        </span>
+                                        <span class="ca_badge ca_badge_pending"
+                                              t-elif="record.overtime_hours and record.overtime_status == 'to_approve'">
+                                            Pending
+                                        </span>
+                                        <span class="ca_badge ca_badge_refused"
+                                              t-elif="record.overtime_hours and record.overtime_status == 'refused'">
+                                            Refused
+                                        </span>
+                                    </div>
+                                </li>
+                            </t>
+                        </ul>
+                    </div>
+
+                </div>
+
+                <!-- ROW 3 — Weekly Hours + Overtime Breakdown -->
+                <div class="ca_dashboard_grid" style="margin-top: 24px;">
+
+                    <!-- WEEKLY HOURS CHART -->
+                    <div class="ca_dashboard_card">
+                        <div class="ca_dashboard_card_header">
+                            <h3>This Week's Hours</h3>
+                            <span class="ca_badge ca_badge_working">Mon — Sun</span>
+                        </div>
+                        <div class="ca_chart_container">
+                            <div class="ca_chart_bars">
+                                <t t-foreach="weekly_data" t-as="day">
+                                    <div class="ca_chart_column">
+                                        <span class="ca_chart_value">
+                                            <t t-esc="day['hours_str']"/>
+                                        </span>
+                                        <div class="ca_chart_bar_wrap">
+                                            <div t-att-class="'ca_chart_fill' + (' ca_chart_fill_today' if day['is_today'] else '')"
+                                                 t-att-style="day['style'] if day['value'] else 'height: 4px'"/>
+                                        </div>
+                                        <span t-att-class="'ca_chart_label' + (' ca_chart_label_today' if day['is_today'] else '')">
+                                            <t t-esc="day['label']"/>
+                                        </span>
+                                    </div>
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- OVERTIME BREAKDOWN -->
+                    <div class="ca_dashboard_card">
+                        <div class="ca_dashboard_card_header">
+                            <h3>Overtime Breakdown</h3>
+                            <span class="ca_badge ca_badge_working">All time</span>
+                        </div>
+                        <div class="ca_ot_breakdown">
+                            <t t-foreach="overtime_breakdown" t-as="ot">
+                                <div class="ca_ot_row">
+                                    <div class="ca_ot_meta">
+                                        <span class="ca_ot_label"><t t-esc="ot['label']"/></span>
+                                        <span class="ca_ot_count"><t t-esc="ot['count']"/> records</span>
+                                    </div>
+                                    <div class="ca_ot_bar_wrap">
+                                        <div t-att-class="'ca_ot_bar ' + ot['class']"
+                                            t-att-style="ot['style']"/>
+                                    </div>
+                                    <span class="ca_ot_percent"><t t-esc="ot['percent']"/>%</span>
+                                </div>
+                            </t>
+                            <div class="ca_ot_total">
+                                <span>Total overtime records:</span>
+                                <strong><t t-esc="approved_count + pending_count + refused_count"/></strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <script type="text/javascript">
+            //<![CDATA[
+            (function() {
+                function updateTimeline() {
+                    var now = new Date();
+                    var currentHour = now.getHours() + now.getMinutes() / 60;
+                    var pct = (currentHour / 24) * 100;
+
+                    // Update needle position
+                    var needle = document.getElementById('ca_timeline_now');
+                    if (needle) {
+                        needle.style.left = pct + '%';
+                    }
+
+                    // Update current time badge
+                    var badge = document.getElementById('ca_current_time');
+                    if (badge) {
+                        var h = String(now.getHours()).padStart(2, '0');
+                        var m = String(now.getMinutes()).padStart(2, '0');
+                        badge.textContent = h + ':' + m;
+                    }
+
+                    // Update active segments
+                    var segments = document.querySelectorAll('.ca_timeline_active');
+                    segments.forEach(function(seg) {
+                        var checkIn = parseFloat(seg.dataset.checkin);
+                        var width = ((currentHour - checkIn) / 24) * 100;
+                        if (width < 0) width = 0;
+                        seg.style.width = width + '%';
+                    });
+                }
+
+                updateTimeline();
+                setInterval(updateTimeline, 60000);
+            })();
+            //]]>
+            </script>
+        </t>
+    </template>
+</odoo>

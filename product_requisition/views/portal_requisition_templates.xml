@@ -1,0 +1,832 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Home portal counter -->
+    <template id="portal_my_home_requisition" name="Product Requisitions"
+        inherit_id="cymax_portal_theme.portal_my_home_inherit" customize_show="True" priority="40">
+        <xpath expr="//div[@id='cymax_portal_cards']" position="inside">
+            <a href="/my/requisitions" class="cymax_tile">
+                <div class="cymax_tile_icon">
+                    <img src="/product_requisition/static/description/icon.png" alt="Product Requisition"/>
+                </div>
+                <h3 class="cymax_tile_name">Product Requisitions</h3>
+            </a>
+        </xpath>
+    </template>
+
+
+    <!-- List page -->
+    <template id="portal_requisition_list" name="My Requisitions">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title">My Requisitions</t>
+            </t>
+
+            <div class="pr_portal_page">
+                <t t-if="not requisitions">
+                    <div class="pr_empty_state">
+                        <h4>No requisitions yet</h4>
+                        <p class="mb-0">
+                            You have no requisitions yet.
+                            <a href="/my/requisitions/new" class="pr_link">Create one now.</a>
+                        </p>
+                    </div>
+                </t>
+
+                <t t-if="requisitions">
+                <div class="pr_card mt-3">
+                    <div class="pr_card_header">
+                        <h5>My Requisitions</h5>
+                        <a href="/my/requisitions/new"
+                           class="btn bg-transparent border-0 text-white">
+                            <i class="fa fa-plus me-1"/>
+                            New Requisition
+                        </a>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table pr_table pr_table_list mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Reference</th>
+                                    <th>Request Date</th>
+                                    <th>Required By</th>
+                                    <th class="text-center">Products</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                <t t-foreach="requisitions" t-as="req">
+                                    <tr>
+                                        <td>
+                                            <a t-attf-href="/my/requisitions/#{req.id}"
+                                               class="pr_link">
+                                                <t t-out="req.name"/>
+                                            </a>
+                                        </td>
+
+                                        <td>
+                                            <span class="text-muted">
+                                                <t t-out="req.date_request"/>
+                                            </span>
+                                        </td>
+
+                                        <td>
+                                            <span class="text-muted">
+                                                <t t-out="req.date_required or '—'"/>
+                                            </span>
+                                        </td>
+
+                                        <td class="text-center">
+                                            <span class="pr_badge pr_badge_secondary">
+                                                <t t-out="req.line_count"/>
+                                            </span>
+                                        </td>
+
+                                        <td>
+                                            <span t-attf-class="pr_badge #{
+                                                'pr_badge_secondary' if req.state == 'draft' else
+                                                'pr_badge_warning' if req.state == 'submitted' else
+                                                'pr_badge_info' if req.state in ('in_approval', 'rfq_created') else
+                                                'pr_badge_success' if req.state in ('approved','done') else
+                                                'pr_badge_danger'
+                                            }">
+                                                <t t-out="dict(req._fields['state'].selection).get(req.state)"/>
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div t-if="pager" class="o_portal_pager text-center my-3">
+                        <t t-call="portal.pager"/>
+                    </div>
+                </div>
+                </t>
+
+            </div>
+        </t>
+    </template>
+
+    <!-- New requisition form -->
+    <template id="portal_requisition_form" name="New Requisition Form">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title">New Requisition</t>
+            </t>
+
+            <div class="pr_portal_page">
+
+                <!-- Error alert -->
+                <t t-if="errors.get('lines')">
+                    <div class="pr_alert pr_alert_danger">
+                        <ul class="mb-0 ps-3">
+                            <t t-foreach="errors['lines']" t-as="err">
+                                <li><t t-out="err"/></li>
+                            </t>
+                        </ul>
+                    </div>
+                </t>
+
+                <!-- workflow / creation error -->
+                <t t-if="errors.get('submit')">
+                    <div class="pr_alert pr_alert_danger" role="alert">
+                        <strong>&#9888; Cannot Submit Requisition</strong><br/>
+                        <t t-out="errors['submit']"/>
+                    </div>
+                </t>
+
+                <div class="pr_card">
+
+                    <!-- Header bar -->
+                    <div class="pr_card_header">
+                        <span style="font-size:20px;">&#128203;</span>
+                        <h3 style="font-size:16px; font-weight:500;">
+                            New Product Requisition
+                        </h3>
+                        <span style="color:rgba(255,255,255,0.6); margin-left:auto; font-size:13px;">
+                            REQ / New
+                        </span>
+                    </div>
+
+                    <form method="post" action="/my/requisitions/new" id="requisition_form">
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+
+                        <!-- ── Section 1: Requester Information ── -->
+                        <div class="pr_form_section">
+                            <p class="pr_field_label">Requester Information</p>
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label class="pr_form_label">Requested By</label>
+                                    <input type="text" class="pr_form_input"
+                                        t-att-value="requester_name" readonly="readonly"/>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="pr_form_label">Designation</label>
+                                    <input type="text" class="pr_form_input"
+                                        t-att-value="designation" readonly="readonly"/>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="pr_form_label">
+                                        Department <span class="pr_required">*</span>
+                                    </label>
+
+                                    <!-- hidden value submitted to server -->
+                                    <input type="hidden"
+                                        name="department_id"
+                                        t-att-value="default_department_id"/>
+
+                                    <!-- visible readonly field -->
+                                    <input type="text"
+                                        class="pr_form_input"
+                                        t-att-value="department_name"
+                                        readonly="readonly"/>
+                                    <t t-if="errors.get('department_id')">
+                                        <div class="pr_error_msg">
+                                            <t t-out="errors['department_id']"/>
+                                        </div>
+                                    </t>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ── Section 2: Requisition Details ── -->
+                        <div class="pr_form_section">
+                            <p class="pr_field_label">Requisition Details</p>
+                            <div class="row g-3">
+
+                                <!-- Request Date (read only, auto today) -->
+                                <div class="col-md-4">
+                                    <label class="pr_form_label">Request Date</label>
+                                    <input type="text" class="pr_form_input"
+                                        t-att-value="today" readonly="readonly"/>
+                                </div>
+
+                                <!-- Required By -->
+                                <div class="col-md-4">
+                                    <label class="pr_form_label">
+                                        Required By <span class="pr_required">*</span>
+                                    </label>
+                                    <input type="date" name="date_required"
+                                        t-attf-class="pr_form_input #{'pr_input_error' if errors.get('date_required') else ''}"
+                                        t-att-value="values.get('date_required', '')"/>
+                                    <t t-if="errors.get('date_required')">
+                                        <div class="pr_error_msg">
+                                            <t t-out="errors['date_required']"/>
+                                        </div>
+                                    </t>
+                                </div>
+
+                                <!-- Purchase Option -->
+                                <div class="col-md-4">
+                                    <label class="pr_form_label">
+                                        Purchase Option <span class="pr_required">*</span>
+                                    </label>
+                                    <select name="purchase_option"
+                                        t-attf-class="pr_form_select #{'pr_input_error' if errors.get('purchase_option') else ''}">
+                                        <option value="">-- Select --</option>
+                                        <option value="single"
+                                            t-att-selected="'selected' if values.get('purchase_option') == 'single' else None">
+                                            Single Source
+                                        </option>
+                                        <option value="swift"
+                                            t-att-selected="'selected' if values.get('purchase_option') == 'swift' else None">
+                                            Swift
+                                        </option>
+                                        <option value="limited"
+                                            t-att-selected="'selected' if values.get('purchase_option') == 'limited' else None">
+                                            Limited Tender
+                                        </option>
+                                        <option value="purchase_committee"
+                                            t-att-selected="'selected' if values.get('purchase_option') == 'purchase_committee' else None">
+                                            Purchase Committee
+                                        </option>
+                                    </select>
+                                    <t t-if="errors.get('purchase_option')">
+                                        <div class="pr_error_msg">
+                                            <t t-out="errors['purchase_option']"/>
+                                        </div>
+                                    </t>
+                                </div>
+
+                                <!-- Purchase Mode -->
+                                <div class="col-md-4">
+                                    <label class="pr_form_label">Purchase Mode</label>
+                                    <div class="mt-1">
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="purchase_mode"
+                                                id="mode_local" value="local"
+                                                t-att-checked="'checked' if values.get('purchase_mode', 'local') == 'local' else None"/>
+                                            <label class="form-check-label" for="mode_local" style="font-size:13px;">
+                                                Local
+                                            </label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="purchase_mode"
+                                                id="mode_foreign" value="foreign"
+                                                t-att-checked="'checked' if values.get('purchase_mode') == 'foreign' else None"/>
+                                            <label class="form-check-label" for="mode_foreign" style="font-size:13px;">
+                                                Foreign
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Priority -->
+                                <div class="col-md-4">
+                                    <label class="pr_form_label">Priority</label>
+                                    <div class="d-flex align-items-center gap-2 mt-1">
+                                        <input type="hidden" name="priority" id="priority_input"
+                                            t-att-value="values.get('priority', '0')"/>
+                                        <span class="star fs-4" data-val="1"
+                                            style="cursor:pointer; color:#ccc;">&#9733;</span>
+                                        <span class="star fs-4" data-val="2"
+                                            style="cursor:pointer; color:#ccc;">&#9733;</span>
+                                        <small class="text-muted" id="priority_label">Normal</small>
+                                    </div>
+                                </div>
+
+                                <!-- File / Diary Reference -->
+                                <div class="col-md-4">
+                                    <label class="pr_form_label">
+                                        File / Diary Reference No. <span class="pr_required">*</span>
+                                    </label>
+                                    <input type="text" name="file_no"
+                                        t-attf-class="pr_form_input #{'pr_input_error' if errors.get('file_no') else ''}"
+                                        placeholder="e.g. FILE/2025/001"
+                                        t-att-value="values.get('file_no', '')"/>
+                                    <t t-if="errors.get('file_no')">
+                                        <div class="pr_error_msg">
+                                            <t t-out="errors['file_no']"/>
+                                        </div>
+                                    </t>
+                                </div>
+
+                                <!-- Delivery Lead Time -->
+                                <div class="col-md-4">
+                                    <label class="pr_form_label">Delivery Lead Time</label>
+                                    <div class="input-group input-group-sm">
+                                        <input type="number" name="delivery_lead_days"
+                                            class="pr_form_input" min="1" step="1"
+                                            t-att-value="values.get('delivery_lead_days', 30)"/>
+                                        <select name="delivery_lead_unit" class="pr_form_select"
+                                            style="max-width:100px;">
+                                            <option value="days"
+                                                t-att-selected="'selected' if values.get('delivery_lead_unit','days') == 'days' else None">
+                                                Days
+                                            </option>
+                                            <option value="weeks"
+                                                t-att-selected="'selected' if values.get('delivery_lead_unit') == 'weeks' else None">
+                                                Weeks
+                                            </option>
+                                            <option value="months"
+                                                t-att-selected="'selected' if values.get('delivery_lead_unit') == 'months' else None">
+                                                Months
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!-- ── Section 3: Notes ── -->
+                        <div class="pr_form_section">
+                            <p class="pr_field_label">Notes / Justification</p>
+                            <textarea name="notes" class="pr_form_input"
+                                rows="3" placeholder="Enter any notes or justification..."><t t-out="values.get('notes', '')"/></textarea>
+                        </div>
+
+                        <!-- ── Section 4: Product Lines ── -->
+                        <div class="pr_form_section">
+                            <p class="pr_field_label">Products</p>
+                            <table class="table pr_table mb-0" id="requisition_lines">
+                                <thead>
+                                    <tr>
+                                        <th>Product <span class="pr_required">*</span></th>
+                                        <th style="width:100px;">Qty <span class="pr_required">*</span></th>
+                                        <th>Description</th>
+                                        <th style="width:150px;">Expected Unit Price <span class="pr_required">*</span></th>
+                                        <th style="width:40px;"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="line_body">
+                                    <!-- Re-render saved lines after a validation error -->
+                                    <t t-if="restored_lines">
+                                        <t t-foreach="restored_lines" t-as="rl">
+                                            <tr class="line_row">
+                                                <td>
+                                                    <select t-attf-name="product_id_#{rl['index']}"
+                                                            class="pr_form_select">
+                                                        <option value="">-- Select Product --</option>
+                                                        <t t-foreach="products" t-as="p">
+                                                            <option t-att-value="p.id"
+                                                                t-att-selected="'selected' if str(p.id) == str(rl['product_id']) else None">
+                                                                <t t-out="p.display_name"/>
+                                                            </option>
+                                                        </t>
+                                                    </select>
+                                                    <t t-if="errors.get('product_id_' + str(rl['index']))">
+                                                        <div class="pr_error_msg">
+                                                            <t t-out="errors['product_id_' + str(rl['index'])]"/>
+                                                        </div>
+                                                    </t>
+                                                </td>
+                                                <td>
+                                                    <input type="number" t-attf-name="qty_#{rl['index']}"
+                                                        class="pr_form_input"
+                                                        min="0.01" step="0.01"
+                                                        t-att-value="rl['qty']"/>
+                                                    <t t-if="errors.get('qty_' + str(rl['index']))">
+                                                        <div class="pr_error_msg">
+                                                            <t t-out="errors['qty_' + str(rl['index'])]"/>
+                                                        </div>
+                                                    </t>
+                                                </td>
+                                                <td>
+                                                    <input type="text" t-attf-name="desc_#{rl['index']}"
+                                                        class="pr_form_input"
+                                                        placeholder="Optional"
+                                                        t-att-value="rl['desc']"/>
+                                                </td>
+                                                <td>
+                                                    <input type="number" t-attf-name="price_#{rl['index']}"
+                                                        class="pr_form_input price-input"
+                                                        min="0" step="0.01"
+                                                        t-att-value="rl['price']"/>
+                                                    <t t-if="errors.get('price_' + str(rl['index']))">
+                                                        <div class="pr_error_msg">
+                                                            <t t-out="errors['price_' + str(rl['index'])]"/>
+                                                        </div>
+                                                    </t>
+                                                </td>
+                                                <td class="text-center">
+                                                    <button type="button"
+                                                            class="btn btn-sm btn-outline-danger remove-line"
+                                                            style="padding:2px 7px; font-size:12px;">✕</button>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </t>
+                                    <!-- Fresh form: one blank row -->
+                                    <t t-if="not restored_lines">
+                                        <tr class="line_row">
+                                            <td>
+                                                <select name="product_id_1" class="pr_form_select">
+                                                    <option value="">-- Select Product --</option>
+                                                    <t t-foreach="products" t-as="p">
+                                                        <option t-att-value="p.id"><t t-out="p.display_name"/></option>
+                                                    </t>
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <input type="number" name="qty_1"
+                                                    class="pr_form_input"
+                                                    min="0.01" step="0.01" value="1"/>
+                                            </td>
+                                            <td>
+                                                <input type="text" name="desc_1"
+                                                    class="pr_form_input" placeholder="Optional"/>
+                                            </td>
+                                            <td>
+                                                <input type="number" name="price_1"
+                                                    class="pr_form_input price-input"
+                                                    min="0" step="0.01" value="0.00"/>
+                                            </td>
+                                            <td class="text-center">
+                                                <button type="button"
+                                                        class="btn btn-sm btn-outline-danger remove-line"
+                                                        style="padding:2px 7px; font-size:12px;">✕</button>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                            <button type="button" id="add_line" class="pr_secondary_btn"
+                                style="border-style:dashed; margin-top:14px;">
+                                + Add Product
+                            </button>
+                        </div>
+
+                        <!-- ── Footer ── -->
+                        <div class="pr_form_section pr_form_actions" style="border-bottom:none; padding-top:1rem;">
+                            <button type="submit" class="pr_primary_btn">
+                                Submit Requisition
+                            </button>
+                            <a href="/my/requisitions" class="pr_secondary_btn">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <script>
+            (function () {
+                var products = <t t-out="products_json"/>;
+
+                // Start numbering new rows after whatever was restored
+                var existingRows = document.querySelectorAll('.line_row');
+                var lineIndex = existingRows.length > 0
+                    ? Math.max.apply(null, Array.from(existingRows).map(function (r) {
+                        var sel = r.querySelector('select[name^="product_id_"]');
+                        return sel ? parseInt(sel.name.replace('product_id_', ''), 10) : 1;
+                    }))
+                    : 1;
+
+                function buildOptions() {
+                    return products.map(function (p) {
+                        return '&lt;option value="' + p[0] + '"&gt;' + p[1] + '&lt;/option&gt;';
+                    }).join('');
+                }
+
+                document.getElementById('add_line').addEventListener('click', function () {
+                    lineIndex++;
+                    var row = document.createElement('tr');
+                    row.className = 'line_row';
+                    row.innerHTML =
+                        '&lt;td&gt;' +
+                            '&lt;select name="product_id_' + lineIndex + '" class="pr_form_select"&gt;' +
+                            '&lt;option value=""&gt;-- Select Product --&lt;/option&gt;' +
+                            buildOptions() +
+                            '&lt;/select&gt;' +
+                        '&lt;/td&gt;' +
+                        '&lt;td&gt;&lt;input type="number" name="qty_' + lineIndex + '" class="pr_form_input" min="0.01" step="0.01" value="1"&gt;&lt;/td&gt;' +
+                        '&lt;td&gt;&lt;input type="text" name="desc_' + lineIndex + '" class="pr_form_input" placeholder="Optional"&gt;&lt;/td&gt;' +
+                        '&lt;td&gt;&lt;input type="number" name="price_' + lineIndex + '" class="pr_form_input price-input" min="0" step="0.01" value="0.00"&gt;&lt;/td&gt;' +
+                        '&lt;td class="text-center"&gt;&lt;button type="button" class="btn btn-sm btn-outline-danger remove-line" style="padding:2px 7px;font-size:12px;"&gt;✕&lt;/button&gt;&lt;/td&gt;';
+                    document.getElementById('line_body').appendChild(row);
+                });
+
+                document.getElementById('line_body').addEventListener('click', function (e) {
+                    if (e.target.classList.contains('remove-line')) {
+                        var rows = document.querySelectorAll('.line_row');
+                        if (rows.length > 1) e.target.closest('tr').remove();
+                    }
+                });
+
+                document.addEventListener('focusin', function (e) {
+                    if (e.target.classList.contains('price-input') &amp;&amp; parseFloat(e.target.value) === 0) {
+                        e.target.select();
+                    }
+                });
+
+                // ── Star rating ──────────────────────────────────────────────────
+                var stars         = document.querySelectorAll('.star');
+                var priorityInput = document.getElementById('priority_input');
+                var priorityLabel = document.getElementById('priority_label');
+                var labels        = { '0': 'Normal', '1': 'Urgent', '2': 'Very Urgent' };
+
+                function setStars(val) {
+                    stars.forEach(function (s) {
+                        s.style.color = parseInt(s.dataset.val) &lt;= val ? '#e67e22' : '#ccc';
+                    });
+                    priorityInput.value       = val;
+                    priorityLabel.textContent = labels[String(val)] || 'Normal';
+                }
+
+                setStars(parseInt(priorityInput.value) || 0);
+
+                stars.forEach(function (s) {
+                    s.addEventListener('click', function () {
+                        var val = parseInt(s.dataset.val);
+                        setStars(parseInt(priorityInput.value) === val ? 0 : val);
+                    });
+                    s.addEventListener('mouseover', function () {
+                        var val = parseInt(s.dataset.val);
+                        stars.forEach(function (x) {
+                            x.style.color = parseInt(x.dataset.val) &lt;= val ? '#e67e22' : '#ccc';
+                        });
+                    });
+                    s.addEventListener('mouseout', function () {
+                        setStars(parseInt(priorityInput.value) || 0);
+                    });
+                });
+            })();
+            </script>
+        </t>
+    </template>
+
+    <!-- Detail view -->
+    <template id="portal_requisition_detail" name="Requisition Detail">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title">
+                    <t t-out="requisition.name"/>
+                </t>
+            </t>
+            <div class="pr_portal_page">
+                <div class="pr_card">
+
+                    <!-- Header bar -->
+                    <div class="pr_card_header">
+                        <span style="font-size:20px;">&#128203;</span>
+                        <h3 style="font-size:16px; font-weight:500;">
+                            Product Requisition
+                        </h3>
+                        <span style="color:rgba(255,255,255,0.6); margin-left:auto; font-size:13px;">
+                            <t t-out="requisition.name"/>
+                        </span>
+                    </div>
+
+                    <!-- ── Section 1: Basic Info ── -->
+                    <div class="pr_form_section">
+                        <p class="pr_field_label">Requisition Information</p>
+                        <div class="row g-3">
+
+                            <!-- Left column -->
+                            <div class="col-md-6">
+                                <table style="width:100%; font-size:13px; border-collapse:collapse;">
+                                    <tr style="border-bottom:1px solid #f0f0f0;">
+                                        <td style="padding:7px 0; color:#6c757d; width:45%; font-weight:500;">Indent No.</td>
+                                        <td style="padding:7px 0;"><t t-out="requisition.name"/></td>
+                                    </tr>
+                                    <tr style="border-bottom:1px solid #f0f0f0;">
+                                        <td style="padding:7px 0; color:#6c757d; font-weight:500;">File No.</td>
+                                        <td style="padding:7px 0;"><t t-out="requisition.file_no or '—'"/></td>
+                                    </tr>
+                                    <tr style="border-bottom:1px solid #f0f0f0;">
+                                        <td style="padding:7px 0; color:#6c757d; font-weight:500;">Request Date</td>
+                                        <td style="padding:7px 0;"><t t-out="requisition.date_request"/></td>
+                                    </tr>
+                                    <tr style="border-bottom:1px solid #f0f0f0;">
+                                        <td style="padding:7px 0; color:#6c757d; font-weight:500;">Required By</td>
+                                        <td style="padding:7px 0;"><t t-out="requisition.date_required or '—'"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding:7px 0; color:#6c757d; font-weight:500;">Delivery Lead Time</td>
+                                        <td style="padding:7px 0;">
+                                            <t t-out="requisition.delivery_lead_days"/>
+                                            <t t-out="' ' + dict(requisition._fields['delivery_lead_unit'].selection).get(requisition.delivery_lead_unit, '')"/>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                            <!-- Right column -->
+                            <div class="col-md-6">
+                                <table style="width:100%; font-size:13px; border-collapse:collapse;">
+                                    <tr style="border-bottom:1px solid #f0f0f0;">
+                                        <td style="padding:7px 0; color:#6c757d; width:45%; font-weight:500;">Requester</td>
+                                        <td style="padding:7px 0;"><t t-out="requisition.partner_id.name"/></td>
+                                    </tr>
+                                    <tr style="border-bottom:1px solid #f0f0f0;">
+                                        <td style="padding:7px 0; color:#6c757d; font-weight:500;">Department</td>
+                                        <td style="padding:7px 0;"><t t-out="requisition.department_id.name or '—'"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding:7px 0; color:#6c757d; font-weight:500;">Status</td>
+                                        <td style="padding:7px 0;">
+                                            <span t-attf-class="pr_badge #{
+                                                'pr_badge_secondary' if requisition.state == 'draft' else
+                                                'pr_badge_info' if requisition.state == 'submitted' else
+                                                'pr_badge_info' if requisition.state == 'in_approval' else
+                                                'pr_badge_success' if requisition.state in ('approved', 'rfq_created', 'done') else
+                                                'pr_badge_danger'}">
+                                                <t t-out="dict(requisition._fields['state'].selection).get(requisition.state)"/>
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    <!-- Workflow status -->
+                                    <t t-if="requisition.state == 'in_approval' and requisition.current_approver_id">
+                                        <tr style="border-top:1px solid #f0f0f0;">
+                                            <td style="padding:7px 0; color:#6c757d; font-weight:500;">Pending With</td>
+                                            <td style="padding:7px 0; color:#e67e22; font-weight:500;">
+                                                &#9203; <t t-out="requisition.current_approver_id.name"/>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                    <t t-if="requisition.state == 'approved'">
+                                        <tr style="border-top:1px solid #f0f0f0;">
+                                            <td style="padding:7px 0; color:#6c757d; font-weight:500;">Fully Approved</td>
+                                            <td style="padding:7px 0; color:#28a745; font-weight:500;">&#10003; All steps complete</td>
+                                        </tr>
+                                    </t>
+                                    <t t-if="requisition.state == 'rejected'">
+                                        <tr style="border-top:1px solid #f0f0f0;">
+                                            <td style="padding:7px 0; color:#6c757d; font-weight:500;">Rejection Reason</td>
+                                            <td style="padding:7px 0; color:#dc3545;">
+                                                <t t-out="requisition.rejection_reason or '—'"/>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </table>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- ── Section 2: Procurement Details ── -->
+                    <div class="pr_form_section">
+                        <p class="pr_field_label">Procurement Details</p>
+                        <div class="row g-3">
+
+                            <!-- Left column: aligns under Indent No. / File No. -->
+                            <div class="col-md-6">
+                                <table style="width:100%; font-size:13px; border-collapse:collapse;">
+                                    <tr style="border-bottom:1px solid #f0f0f0;">
+                                        <td style="padding:7px 0; color:#6c757d; width:45%; font-weight:500;">Purchase Option</td>
+                                        <td style="padding:7px 0;"><t t-out="dict(requisition._fields['purchase_option'].selection).get(requisition.purchase_option) or '—'"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding:7px 0; color:#6c757d; font-weight:500;">Purchase Mode</td>
+                                        <td style="padding:7px 0;"><t t-out="dict(requisition._fields['purchase_mode'].selection).get(requisition.purchase_mode) or '—'"/></td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                            <!-- Right column: aligns under Requester / Department -->
+                            <div class="col-md-6">
+                                <table style="width:100%; font-size:13px; border-collapse:collapse;">
+                                    <tr style="border-bottom:1px solid #f0f0f0;">
+                                        <td style="padding:7px 0; color:#6c757d; width:45%; font-weight:500;">Estimated Cost</td>
+                                        <td style="padding:7px 0;">
+                                            <t t-set="total_cost" t-value="sum(line.estimated_unit_price * line.qty_requested for line in requisition.requisition_line_ids)"/>
+                                            <t t-out="'%.2f' % total_cost"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding:7px 0; color:#6c757d; font-weight:500;">Priority</td>
+                                        <td style="padding:7px 0;">
+                                            <t t-if="requisition.priority == '0'">
+                                                <span class="text-muted">Normal</span>
+                                            </t>
+                                            <t t-elif="requisition.priority == '1'">
+                                                <span style="color:#e67e22;">&#9733;</span> Urgent
+                                            </t>
+                                            <t t-elif="requisition.priority == '2'">
+                                                <span style="color:#e67e22;">&#9733;&#9733;</span> Very Urgent
+                                            </t>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- ── Section 3: Product Lines ── -->
+                    <div class="pr_form_section">
+                        <p class="pr_field_label">Products</p>
+                        <table class="table pr_table mb-0 pr_table_fixed">
+                            <thead>
+                                <tr>
+                                    <th style="width:6%;">Sr#</th>
+                                    <th style="width:32%;">Product</th>
+                                    <th style="width:28%;">Description</th>
+                                    <th style="width:11%;">Qty</th>
+                                    <th style="width:11%;">Unit</th>
+                                    <th style="width:12%;">Est. Price</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="requisition.requisition_line_ids" t-as="line">
+                                    <tr>
+                                        <td><t t-out="line_index + 1"/></td>
+                                        <td><t t-out="line.product_id.display_name"/></td>
+                                        <td><t t-out="line.description or '—'"/></td>
+                                        <td><t t-out="line.qty_requested"/></td>
+                                        <td><t t-out="line.product_uom_id.name or '—'"/></td>
+                                        <td><t t-out="line.estimated_unit_price or '—'"/></td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- ── Section 4: Approval History ── -->
+                    <div class="pr_form_section" style="border-bottom:none;">
+                        <p class="pr_field_label">Approval History</p>
+                        <t t-if="not requisition.approval_history_ids">
+                            <div class="pr_empty_state" style="padding:24px;">
+                                <p class="mb-0" style="font-style:italic;">No approval history yet.</p>
+                            </div>
+                        </t>
+                        <t t-if="requisition.approval_history_ids">
+                            <table class="table pr_table mb-0 pr_table_fixed">
+                                <thead>
+                                    <tr>
+                                        <th style="width:22%;">Date</th>
+                                        <th style="width:22%;">By</th>
+                                        <th style="width:28%;">Step</th>
+                                        <th style="width:28%;">Decision</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="requisition.approval_history_ids" t-as="h">
+                                        <tr>
+                                            <td><t t-out="h.date or '—'"/></td>
+                                            <td><t t-out="h.user_id.name or '—'"/></td>
+                                            <td><t t-out="h.step_name or '—'"/></td>
+                                            <td>
+                                                <span t-attf-class="pr_badge #{
+                                                    'pr_badge_success' if h.decision == 'approved' else
+                                                    'pr_badge_danger' if h.decision == 'rejected' else
+                                                    'pr_badge_secondary'}">
+                                                    <t t-out="dict(h._fields['decision'].selection).get(h.decision, h.decision)"/>
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </t>
+                    </div>
+
+                    <!-- ── Footer ── -->
+                    <div class="pr_form_section pr_form_actions" style="border-top:1px solid rgba(107,78,118,0.12); border-bottom:none;">
+                        <a href="/my/requisitions" class="pr_secondary_btn">
+                            ← Back to List
+                        </a>
+                        <a t-attf-href="/report/pdf/product_requisition.report_product_requisition_portal_template/{{requisition.id}}"
+                           target="_blank" class="pr_primary_btn">
+                            &#128438; Print / Download PDF
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <template id="portal_breadcrumbs_requisition"
+          inherit_id="portal.portal_breadcrumbs"
+          priority="100">
+
+        <xpath expr="//ol" position="inside">
+            <li t-if="page_name == 'requisition'"
+                class="breadcrumb-item active">
+                My Requisitions
+            </li>
+
+            <li t-if="page_name == 'requisition_new'"
+                class="breadcrumb-item">
+                <a href="/my/requisitions">My Requisitions</a>
+            </li>
+
+            <li t-if="page_name == 'requisition_new'"
+                class="breadcrumb-item active">
+                New Requisition
+            </li>
+
+            <li t-if="page_name == 'requisition_detail'"
+                class="breadcrumb-item">
+                <a href="/my/requisitions">My Requisitions</a>
+            </li>
+
+            <li t-if="page_name == 'requisition_detail'"
+                class="breadcrumb-item active">
+                <t t-esc="requisition.name"/>
+            </li>
+
+        </xpath>
+
+    </template>
+
+</odoo>

@@ -2,7 +2,7 @@ from odoo import http, _
 from odoo.http import request
 from odoo.addons.portal.controllers.portal import CustomerPortal, pager as portal_pager
 from odoo.exceptions import AccessError
-from datetime import date, timedelta
+from datetime import date
 from dateutil.relativedelta import relativedelta
 import calendar
 
@@ -34,11 +34,10 @@ class PayrollPortal(CustomerPortal):
                 values['payslip_count'] = 0
         return values
 
-    @http.route(['/my/payslips', '/my/payslips/page/<int:page>'],
-            type='http', 
-            auth='user',
-            website=True
-            )
+    @http.route(['/my/payslips/list', '/my/payslips/list/page/<int:page>'],
+                type='http',
+                auth='user',
+                website=True)
     def portal_my_payslips(self, page=1, filter_year=None, filter_month=None, **kw):
         page = int(page)
         employee = self._get_employee_sudo()
@@ -50,8 +49,7 @@ class PayrollPortal(CustomerPortal):
 
         # Default: last 6 months
         if not filter_year and not filter_month:
-            six_months_ago = today.replace(day=1)
-            six_months_ago = six_months_ago - relativedelta(months=6)
+            six_months_ago = today.replace(day=1) - relativedelta(months=6)
             date_domain = [
                 ('date_from', '>=', six_months_ago.strftime('%Y-%m-%d')),
             ]
@@ -77,10 +75,9 @@ class PayrollPortal(CustomerPortal):
         ] + date_domain
 
         Payslip = request.env['hr.payslip'].sudo()
-
         payslip_count = Payslip.search_count(domain)
         pager = portal_pager(
-            url='/my/payslips',
+            url='/my/payslips/list',
             url_args={
                 'filter_year': filter_year or '',
                 'filter_month': filter_month or '',
@@ -96,20 +93,7 @@ class PayrollPortal(CustomerPortal):
             offset=pager['offset'],
         )
 
-        # YTD based on selected year or current year
-        ytd_year = filter_year or str(today.year)
-        ytd_payslips = Payslip.search([
-            ('employee_id', '=', employee.id),
-            ('state', 'in', ['done', 'paid']),
-            ('date_from', '>=', '%s-01-01' % ytd_year),
-            ('date_to', '<=', '%s-12-31' % ytd_year),
-        ])
-
-        ytd_gross = sum(p.gross_wage for p in ytd_payslips)
-        ytd_net = sum(p.net_wage for p in ytd_payslips)
-        ytd_deductions = ytd_gross - ytd_net
-
-        # Build year list from all employee payslips
+        # Build year list
         all_payslips = Payslip.search([
             ('employee_id', '=', employee.id),
             ('state', 'in', ['done', 'paid']),
@@ -126,25 +110,20 @@ class PayrollPortal(CustomerPortal):
         ]
 
         return request.render('hr_payroll_portal.portal_my_payslips', {
-            'employee':       employee,
-            'payslips':       payslips,
-            'pager':          pager,
-            'ytd_gross':      ytd_gross,
-            'ytd_net':        ytd_net,
-            'ytd_deductions': ytd_deductions,
-            'ytd_year':       ytd_year,
-            'years':          years,
-            'months':         months,
-            'filter_year':    filter_year or '',
-            'filter_month':   filter_month or '',
-            'page_name':      'payslips',
+            'employee':     employee,
+            'payslips':     payslips,
+            'pager':        pager,
+            'years':        years,
+            'months':       months,
+            'filter_year':  filter_year or '',
+            'filter_month': filter_month or '',
+            'page_name':    'payslips',
         })
 
     @http.route('/my/payslips/<int:payslip_id>',
-                type='http', 
-                auth='user', 
-                website=True
-                )
+                type='http',
+                auth='user',
+                website=True)
     def portal_payslip_detail(self, payslip_id, **kw):
         employee = self._get_employee_sudo()
 
@@ -156,7 +135,6 @@ class PayrollPortal(CustomerPortal):
         except AccessError:
             return request.render('website.403')
 
-        # Group payslip lines into categories
         earnings = payslip.line_ids.filtered(
             lambda l: l.category_id.code in ('BASIC', 'ALW', 'GROSS')
             and l.appears_on_payslip
@@ -174,9 +152,8 @@ class PayrollPortal(CustomerPortal):
             'employee':   employee,
             'payslip':    payslip,
             'earnings':   earnings,
-            'deductions': deductions,
             'net_line':   net_line,
-            'page_name':  'payslips',
+            'page_name':  'payslip_detail',
         })
 
     @http.route('/my/payslips/<int:payslip_id>/download',

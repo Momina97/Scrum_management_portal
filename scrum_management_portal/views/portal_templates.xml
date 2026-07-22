@@ -77,24 +77,19 @@
     
 
     <template id="portal_my_home_scrum" name="Portal My Home: Scrum Projects"
-          inherit_id="portal.portal_my_home"
-          priority="30">
-        <xpath expr="//div[hasclass('o_portal_docs')]" position="inside">
-            <div class="o_portal_doc_entry">
-                <a href="/my/scrum/projects">
-                    <div class="row align-items-center">
-                        <div class="col-auto">
-                            <i class="fa fa-th-large fa-2x text-primary"/>
-                        </div>
-                        <div class="col">
-                            <h5 class="mb-0">Scrum Projects</h5>
-                            <p class="mb-0 text-muted small">View and manage your Scrum projects</p>
-                        </div>
-                    </div>
-                </a>
-            </div>
+            inherit_id="cymax_portal_theme.portal_my_home_inherit"
+            priority="30">
+        <xpath expr="//div[@id='cymax_portal_cards']" position="inside">
+            <a href="/my/scrum/projects" class="cymax_tile">
+                <div class="cymax_tile_icon">
+                    <img src="/project/static/description/icon.png" alt="Scrum Projects"/>
+                </div>
+                <span class="cymax_tile_name">Scrum Projects</span>
+            </a>
         </xpath>
     </template>
+
+    
 
     <!-- ============================================================
          MY PROJECTS LIST

@@ -1,0 +1,507 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ══════════════════════════════════════════════════════════════════════
+         FORM VIEW
+         ══════════════════════════════════════════════════════════════════════ -->
+    <record id="view_product_requisition_form" model="ir.ui.view">
+        <field name="name">product.requisition.form</field>
+        <field name="model">product.requisition</field>
+        <field name="arch" type="xml">
+            <form string="Product Requisition">
+                <header>
+                    <!-- Hidden control fields -->
+                    <field name="can_submit"     invisible="1"/>
+                    <field name="can_approve"    invisible="1"/>
+                    <field name="can_reject"     invisible="1"/>
+                    <field name="can_reset"      invisible="1"/>
+                    <field name="can_cancel"     invisible="1"/>
+                    <field name="can_create_rfq" invisible="1"/>
+                    <field name="can_mark_done"  invisible="1"/>
+                    <field name="rfq_count"      invisible="1"/>
+                    <field name="purchase_mode"  invisible="1"/>
+
+                    <button name="action_submit"    string="&#128228; Send for Approval"
+                            type="object" class="btn-primary"
+                            invisible="not can_submit"/>
+                    <button name="action_approve"   string="&#10003; Approve"
+                            type="object" class="btn-success"
+                            invisible="not can_approve"/>
+                    <button name="action_reject"    string="&#10007; Reject"
+                            type="object" class="btn-danger"
+                            invisible="not can_reject"/>
+                    <button name="action_create_rfq" string="&#128203; Create RFQ(s)"
+                            type="object" class="btn-primary"
+                            invisible="not can_create_rfq"/>
+                    <button name="action_view_rfqs" string="View RFQs"
+                            type="object" class="btn-secondary"
+                            invisible="rfq_count == 0 or state not in ('rfq_created','done')"/>
+                    <button name="action_mark_done" string="&#10003; Mark as Done"
+                            type="object" class="btn-secondary"
+                            invisible="not can_mark_done"/>
+                    <button name="action_reset_draft" string="Reset to Draft"
+                            type="object" class="btn-secondary"
+                            invisible="not can_reset"/>
+                    <button name="action_cancel" string="Cancel"
+                            type="object" class="btn-secondary"
+                            invisible="not can_cancel"/>
+                    <button name="action_print_requisition"
+                            string="&#128424; Print Indent"
+                            type="object" class="btn-secondary"
+                            invisible="state == 'draft'"/>
+
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,submitted,in_approval,approved,rfq_created,done"
+                           readonly="1"/>
+                </header>
+
+                <sheet>
+                    <!-- ── Smart Buttons ─────────────────────────────────── -->
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_rfqs" type="object"
+                                class="oe_stat_button" icon="fa-shopping-cart"
+                                invisible="rfq_count == 0">
+                            <field name="rfq_count" widget="statinfo" string="RFQ(s)"/>
+                        </button>
+                    </div>
+
+                    <!-- ── Title ─────────────────────────────────────────── -->
+                    <div class="oe_title">
+                        <label for="name" class="text-muted" style="font-size:0.85rem; letter-spacing:0.05em; text-transform:uppercase;">
+                            Requisition Reference
+                        </label>
+                        <h1 class="d-flex align-items-center gap-3">
+                            <field name="name" readonly="1" placeholder="New" class="oe_inline"/>
+                            <field name="priority" widget="priority" readonly="state not in ('draft','submitted')"/>
+                        </h1>
+                        <div class="d-flex align-items-center gap-2 mt-1" invisible="not file_no">
+                            <span class="text-muted" style="font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em;">File No.:</span>
+                            <field name="file_no" readonly="state not in ('draft','submitted')" class="oe_inline fw-semibold" style="font-size:0.95rem;"/>
+                        </div>
+                        <div class="mt-1" invisible="file_no">
+                            <field name="file_no" readonly="state not in ('draft','submitted')"
+                                   placeholder="Enter file / diary reference number..."
+                                   class="oe_inline" style="font-size:0.9rem; color:#64748b;"/>
+                        </div>
+                    </div>
+
+                    <!-- ── Status Banners ────────────────────────────────── -->
+                    <div class="alert alert-info d-flex align-items-center gap-2"
+                         invisible="state != 'submitted'">
+                        <i class="fa fa-clock-o fa-lg"/>
+                        <span>
+                            <strong>Awaiting Backend Processing —</strong>
+                            Submitted via portal. An administrator must start the approval workflow.
+                        </span>
+                    </div>
+
+                    <div class="alert alert-warning d-flex align-items-center gap-2"
+                         invisible="state != 'in_approval'">
+                        <i class="fa fa-hourglass-half fa-lg"/>
+                        <span>
+                            <strong>In Approval </strong>
+                            &amp;nbsp;·&amp;nbsp; Step:
+                            <field name="current_step_name" readonly="1" class="oe_inline fw-bold"/>
+                            &amp;nbsp;·&amp;nbsp; Waiting for:
+                            <field name="current_approver_id" readonly="1" class="oe_inline"
+                                   widget="many2one_avatar_user"/>
+                            <span invisible="not next_approver_id">
+                                &amp;nbsp;·&amp;nbsp; Next:
+                                <field name="next_approver_id" readonly="1" class="oe_inline"
+                                       widget="many2one_avatar_user"/>
+                            </span>
+                        </span>
+                    </div>
+
+                    <div class="alert alert-success d-flex align-items-center gap-2"
+                         invisible="state != 'approved'">
+                        <i class="fa fa-check-circle fa-lg"/>
+                        <span>
+                            <strong>Fully Approved —</strong>
+                            All steps passed. The procurement team can now generate RFQ(s).
+                        </span>
+                    </div>
+
+                    <div class="alert alert-primary d-flex align-items-center gap-2"
+                         invisible="state != 'rfq_created'">
+                        <i class="fa fa-shopping-cart fa-lg"/>
+                        <span>
+                            <strong>RFQ Created —</strong>
+                            <field name="rfq_count" readonly="1" class="oe_inline fw-bold"/>
+                            RFQ(s) generated. Review and confirm the purchase order(s).
+                        </span>
+                    </div>
+
+                    <div class="alert alert-danger d-flex align-items-center gap-2"
+                         invisible="state != 'rejected'">
+                        <i class="fa fa-times-circle fa-lg"/>
+                        <span>
+                            <strong>Rejected</strong>
+                            <span invisible="not rejection_reason">
+                                &amp;nbsp;—
+                                <field name="rejection_reason" readonly="1" class="oe_inline"/>
+                            </span>
+                        </span>
+                    </div>
+
+                    <div class="alert alert-secondary d-flex align-items-center gap-2"
+                         invisible="state != 'cancelled'">
+                        <i class="fa fa-ban fa-lg"/>
+                        <span><strong>Cancelled</strong></span>
+                    </div>
+
+                    <!-- ── Main Fields ────────────────────────────────────── -->
+                    <div class="row mt-2">
+                        <!-- Left column -->
+                        <div class="col-lg-7">
+                            <div class="o_horizontal_separator mb-2">
+                                <span class="text-muted" style="font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em;">
+                                    Request Details
+                                </span>
+                            </div>
+                            <group col="2">
+                                <field name="partner_id"
+                                       readonly="state not in ('draft','submitted')"
+                                       options="{'no_create': True}"
+                                       widget="many2one"/>
+                                <field name="user_id" readonly="1"
+                                       widget="many2one_avatar_user"/>
+                                <field name="employee_id" readonly="1"
+                                       options="{'no_open': True}"
+                                       invisible="not employee_id"/>
+                                <field name="department_id"
+                                       readonly="state not in ('draft','submitted')"
+                                       options="{'no_create': True}"/>
+                                <field name="company_id"
+                                       groups="base.group_multi_company"
+                                       readonly="state not in ('draft','submitted')"/>
+                                <field name="date_request"
+                                       readonly="state not in ('draft','submitted')"/>
+                                <field name="date_required"
+                                       readonly="state not in ('draft','submitted')"/>
+                                <label for="delivery_lead_days" string="Delivery Lead Time"/>
+                                <div class="d-flex align-items-center gap-2">
+                                    <field name="delivery_lead_days"
+                                           readonly="state not in ('draft','submitted')"
+                                           class="oe_inline" style="width:80px;"/>
+                                    <field name="delivery_lead_unit"
+                                           readonly="state not in ('draft','submitted')"
+                                           class="oe_inline"/>
+                                </div>
+                            </group>
+                            <field name="submission_source" invisible="1"/>
+                            <div invisible="submission_source != 'portal'"
+                                 class="d-flex align-items-center gap-2 mt-1 mb-2">
+                                <span class="badge text-bg-info py-1 px-2">
+                                    <i class="fa fa-globe me-1"/>Portal User
+                                </span>
+                                <span class="text-muted" style="font-size:0.85rem;">
+                                    This request was submitted via the customer portal.
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Right column -->
+                        <div class="col-lg-5">
+                            <div class="o_horizontal_separator mb-2">
+                                <span class="text-muted" style="font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em;">
+                                    Procurement
+                                </span>
+                            </div>
+                            <group col="2">
+                                <field name="purchase_mode"
+                                       readonly="state not in ('draft','submitted')"
+                                       widget="radio"
+                                       options="{'horizontal': True}"/>
+                                <field name="purchase_type"
+                                       readonly="state not in ('draft','submitted')"/>
+                                <field name="purchase_option"
+                                       readonly="state not in ('draft','submitted')"/>
+                                <field name="estimated_cost"
+                                       readonly="state not in ('draft','submitted')"/>
+                                <field name="analytic_account_id"
+                                       readonly="state not in ('draft','submitted')"
+                                       options="{'no_create': True}"/>
+                                <field name="workflow_id" readonly="1"
+                                       options="{'no_open': True}"
+                                       invisible="not workflow_id"/>
+                            </group>
+                        </div>
+                    </div>
+
+                    <!-- ── Notebook ──────────────────────────────────────── -->
+                    <notebook>
+
+                        <!-- ─ Products ───────────────────────────────────── -->
+                        <page string="Products" name="products">
+                            <field name="requisition_line_ids"
+                                   readonly="state not in ('draft','submitted')"
+                                   nolabel="1">
+                                <list editable="bottom" string="Requisition Items">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="product_id" required="1"
+                                           options="{'no_create': True}"/>
+                                    <field name="part_no" optional="show"/>
+                                    <field name="description"/>
+                                    <field name="qty_requested" string="Qty"/>
+                                    <field name="product_uom_id" string="Unit"
+                                           options="{'no_create': True}"/>
+                                    <field name="estimated_unit_price" string="Est. Price"
+                                           optional="show"/>
+                                    <field name="qty_on_hand" string="On Hand"
+                                           optional="show"/>
+                                    <field name="stock_status" string="Stock" widget="badge"
+                                           decoration-success="stock_status == 'available'"
+                                           decoration-warning="stock_status == 'partial'"
+                                           decoration-danger="stock_status == 'unavailable'"
+                                           optional="show" readonly="1"/>
+                                    <field name="na_certificate" string="NA Cert."
+                                           optional="show"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <!-- ─ Approval Workflow ───────────────────────────── -->
+                        <page string="Approval Workflow" name="approval">
+
+                            <!-- No workflow warning -->
+                            <div class="alert alert-warning d-flex align-items-center gap-2"
+                                 invisible="workflow_id">
+                                <i class="fa fa-exclamation-triangle fa-lg"/>
+                                <span>
+                                    No approval workflow is configured.
+                                </span>
+                            </div>
+
+                            <!-- Progress chain -->
+                            <div invisible="not workflow_id" class="mb-4 p-3"
+                                 style="background:#f8f9fa; border-radius:8px; border:1px solid #dee2e6;">
+                                <div class="text-muted mb-2"
+                                     style="font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em;">
+                                    Approval Chain
+                                </div>
+                                <field name="approval_progress" readonly="1" nolabel="1"
+                                       sanitize="0"/>
+                            </div>
+
+                            <!-- Current step info -->
+                            <group string="Current Step" invisible="state != 'in_approval'">
+                                <group>
+                                    <field name="current_step_name" readonly="1"/>
+                                    <field name="current_approver_id" readonly="1"
+                                           widget="many2one_avatar_user"/>
+                                </group>
+                                <group>
+                                    <field name="next_approver_id" readonly="1"
+                                           widget="many2one_avatar_user"
+                                           invisible="not next_approver_id"/>
+                                </group>
+                            </group>
+
+                            <!-- Rejection reason -->
+                            <group string="Rejection Details"
+                                   invisible="state != 'rejected'">
+                                <field name="rejection_reason" readonly="1" nolabel="1"
+                                       class="text-danger"/>
+                            </group>
+
+                            <!-- Approval history -->
+                            <div invisible="not approval_history_ids" class="mt-3">
+                                <div class="text-muted mb-2"
+                                     style="font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em;">
+                                    Approval History
+                                </div>
+                                <field name="approval_history_ids" nolabel="1" readonly="1">
+                                    <list create="0" edit="0" delete="0"
+                                          decoration-danger="is_rejection">
+                                        <field name="date" string="Date &amp; Time"/>
+                                        <field name="user_id" string="By"
+                                               widget="many2one_avatar_user"/>
+                                        <field name="step_name" string="Step"/>
+                                        <field name="decision" widget="badge"
+                                               decoration-success="decision == 'approved'"
+                                               decoration-danger="decision == 'rejected'"
+                                               decoration-info="decision == 'submitted'"
+                                               decoration-warning="decision in ('reset','cancelled')"/>
+                                        <field name="comments" string="Remarks"
+                                               optional="show"/>
+                                        <field name="is_rejection" invisible="1"/>
+                                    </list>
+                                </field>
+                            </div>
+                        </page>
+
+                        <!-- ─ Notes ──────────────────────────────────────── -->
+                        <page string="Notes &amp; Justification" name="notes">
+                            <field name="notes"
+                                   readonly="state not in ('draft','submitted')"
+                                   placeholder="Describe the business need, justification, or any special instructions for this requisition…"
+                                   nolabel="1"/>
+                        </page>
+
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- ══════════════════════════════════════════════════════════════════════
+         LIST VIEW
+         ══════════════════════════════════════════════════════════════════════ -->
+    <record id="view_product_requisition_list" model="ir.ui.view">
+        <field name="name">product.requisition.list</field>
+        <field name="model">product.requisition</field>
+        <field name="arch" type="xml">
+            <list string="Product Requisitions"
+                  decoration-muted="state == 'cancelled'"
+                  decoration-danger="state == 'rejected'"
+                  decoration-warning="state in ('submitted','in_approval')"
+                  decoration-success="state in ('approved','rfq_created','done')">
+                <field name="priority" widget="priority" optional="show"/>
+                <field name="name" string="Reference"/>
+                <field name="file_no" string="File No." optional="show"/>
+                <field name="partner_id" string="Indenter"/>
+                <field name="submission_source" widget="badge" optional="show"
+                       decoration-info="submission_source == 'portal'"/>
+                <field name="department_id" string="Department"/>
+                <field name="analytic_account_id" string="Account Head" optional="show"/>
+                <field name="purchase_mode" string="Mode" widget="badge"
+                       optional="show"/>
+                <field name="purchase_type" string="Type" optional="show"/>
+                <field name="purchase_option" string="Option" optional="hide"/>
+                <field name="date_request" string="Request Date"/>
+                <field name="date_required" string="Required By" optional="show"/>
+                <field name="line_count" string="# Items"/>
+                <field name="estimated_cost" string="Est. Cost" optional="show"/>
+                <field name="current_step_name" string="Current Step" optional="show"/>
+                <field name="current_approver_id" string="Waiting For"
+                       widget="many2one_avatar_user" optional="show"/>
+                <field name="state" widget="badge"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ══════════════════════════════════════════════════════════════════════
+         SEARCH VIEW
+         ══════════════════════════════════════════════════════════════════════ -->
+    <record id="view_product_requisition_search" model="ir.ui.view">
+        <field name="name">product.requisition.search</field>
+        <field name="model">product.requisition</field>
+        <field name="arch" type="xml">
+            <search string="Search Requisitions">
+                <!-- Text search fields -->
+                <field name="name" string="Reference / Indent No."/>
+                <field name="file_no" string="File No."/>
+                <field name="partner_id" string="Indenter"/>
+                <field name="user_id" string="Requester"/>
+                <field name="department_id"/>
+                <field name="analytic_account_id" string="Account Head / Project"/>
+                <field name="purchase_option" string="Purchase Option"/>
+                <separator/>
+                <!-- Priority -->
+                <filter string="&#9889; Urgent" name="urgent"
+                        domain="[('priority','in',('1','2'))]"/>
+                <filter string="Very Urgent" name="very_urgent"
+                        domain="[('priority','=','2')]"/>
+                <separator/>
+                <!-- Status filters -->
+                <filter string="Draft"         name="draft"
+                        domain="[('state','=','draft')]"/>
+                <filter string="Submitted"     name="submitted"
+                        domain="[('state','=','submitted')]"/>
+                <filter string="In Approval"   name="in_approval"
+                        domain="[('state','=','in_approval')]"/>
+                <filter string="Approved"      name="approved"
+                        domain="[('state','=','approved')]"/>
+                <filter string="RFQ Created"   name="rfq_created"
+                        domain="[('state','=','rfq_created')]"/>
+                <filter string="Done"          name="done"
+                        domain="[('state','=','done')]"/>
+                <filter string="Rejected"      name="rejected"
+                        domain="[('state','=','rejected')]"/>
+                <filter string="Cancelled"     name="cancelled"
+                        domain="[('state','=','cancelled')]"/>
+                <separator/>
+                <!-- Type / Mode -->
+                <filter string="Goods"         name="type_goods"
+                        domain="[('purchase_type','=','goods')]"/>
+                <filter string="Service"       name="type_service"
+                        domain="[('purchase_type','=','service')]"/>
+                <separator/>
+                <filter string="Local"         name="local"
+                        domain="[('purchase_mode','=','local')]"/>
+                <filter string="Foreign"       name="foreign"
+                        domain="[('purchase_mode','=','foreign')]"/>
+                <separator/>
+                <!-- Purchase Option filters -->
+                <filter string="Single Source"      name="opt_single"
+                        domain="[('purchase_option','=','single')]"/>
+                <filter string="Swift"              name="opt_swift"
+                        domain="[('purchase_option','=','swift')]"/>
+                <filter string="Limited Tender"     name="opt_limited"
+                        domain="[('purchase_option','=','limited')]"/>
+                <filter string="Purchase Committee" name="opt_pc"
+                        domain="[('purchase_option','=','purchase_committee')]"/>
+                <separator/>
+                <!-- Personal filters -->
+                <filter string="&#128338; Pending My Approval"
+                        name="my_approval"
+                        domain="[('current_approver_id','=',uid),('state','=','in_approval')]"/>
+                <filter string="My Requisitions"
+                        name="my_reqs"
+                        domain="[('user_id','=',uid)]"/>
+                <!-- Group by -->
+                <group expand="0" string="Group By">
+                    <filter string="Status"           name="by_state"
+                            context="{'group_by': 'state'}"/>
+                    <filter string="Department"       name="by_dept"
+                            context="{'group_by': 'department_id'}"/>
+                    <filter string="Account Head"     name="by_analytic"
+                            context="{'group_by': 'analytic_account_id'}"/>
+                    <filter string="Purchase Type"    name="by_type"
+                            context="{'group_by': 'purchase_type'}"/>
+                    <filter string="Purchase Mode"    name="by_mode"
+                            context="{'group_by': 'purchase_mode'}"/>
+                    <filter string="Purchase Option"  name="by_option"
+                            context="{'group_by': 'purchase_option'}"/>
+                    <filter string="Priority"         name="by_priority"
+                            context="{'group_by': 'priority'}"/>
+                    <filter string="Requester"        name="by_user"
+                            context="{'group_by': 'user_id'}"/>
+                    <filter string="Request Month"    name="by_date"
+                            context="{'group_by': 'date_request:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ══════════════════════════════════════════════════════════════════════
+         WINDOW ACTIONS
+         ══════════════════════════════════════════════════════════════════════ -->
+    <record id="action_product_requisition" model="ir.actions.act_window">
+        <field name="name">Product Requisitions</field>
+        <field name="res_model">product.requisition</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_product_requisition_search"/>
+        <field name="context">{'search_default_my_reqs': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No requisitions found
+            </p>
+            <p>
+                Create a new requisition using the <strong>New</strong> button above.
+            </p>
+        </field>
+    </record>
+
+    <record id="action_product_requisition_my_approval" model="ir.actions.act_window">
+        <field name="name">Pending My Approval</field>
+        <field name="res_model">product.requisition</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_product_requisition_search"/>
+        <field name="context">{'search_default_my_approval': 1}</field>
+        <field name="domain">[('current_approver_id','=',uid),('state','=','in_approval')]</field>
+    </record>
+
+</odoo>

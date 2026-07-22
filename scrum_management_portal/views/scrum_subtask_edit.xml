@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================
+         SUBTASK EDIT — stage update form
+    ============================================================ -->
+    <template id="portal_subtask_edit" name="Edit Subtask Stage">
+        <t t-call="portal.portal_layout">
+            <div class="cymax_scrum_page">
+
+                <div class="scrum_page_header">
+                    <a t-attf-href="/my/scrum/projects/#{project.id}/tasks/#{task.id}"
+                    class="scrum_back_link">
+                        <i class="fa fa-arrow-left me-1"/><t t-esc="task.name"/>
+                    </a>
+                    <h1 class="scrum_page_title mt-1">Edit Subtask Stage</h1>
+                    <p class="scrum_page_subtitle">
+                        <t t-esc="subtask.name"/>
+                    </p>
+                </div>
+
+                <div class="scrum_edit_layout">
+
+                    <!-- LEFT: Form -->
+                    <div class="scrum_edit_main">
+                        <div class="scrum_form_card" style="max-width: 100%;">
+
+                            <t t-if="error">
+                                <div class="scrum_alert_danger">
+                                    <i class="fa fa-exclamation-circle me-2"/>
+                                    <t t-esc="error"/>
+                                </div>
+                            </t>
+
+                            <form method="POST"
+                                t-attf-action="/my/scrum/projects/#{project.id}/tasks/#{task.id}/subtask/#{subtask.id}/edit">
+                                <input type="hidden" name="csrf_token"
+                                    t-att-value="request.csrf_token()"/>
+
+                                <div class="scrum_form_group">
+                                    <label class="scrum_form_label">Current Stage</label>
+                                    <div class="scrum_current_stage_display">
+                                        <span t-attf-class="scrum_stage_badge scrum_stage_#{subtask.stage_id.category or 'new'}">
+                                            <t t-esc="subtask.stage_id.name"/>
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="scrum_form_group">
+                                    <label for="stage_id" class="scrum_form_label">
+                                        Move to Stage
+                                    </label>
+                                    <div class="scrum_stage_options">
+                                        <t t-foreach="stages" t-as="stage">
+                                            <label t-attf-class="scrum_stage_option #{' scrum_stage_option_selected' if stage.id == subtask.stage_id.id else ''}">
+                                                <input type="radio"
+                                                    name="stage_id"
+                                                    t-att-value="stage.id"
+                                                    t-att-checked="'checked' if stage.id == subtask.stage_id.id else None"/>
+                                                <span t-attf-class="scrum_stage_badge scrum_stage_#{stage.category or 'new'}">
+                                                    <t t-esc="stage.name"/>
+                                                </span>
+                                            </label>
+                                        </t>
+                                    </div>
+                                    <p class="scrum_form_hint mt-2">
+                                        <i class="fa fa-info-circle me-1"/>
+                                        Invalid stage transitions will show an error message.
+                                    </p>
+                                </div>
+
+                                <div class="d-flex gap-2 mt-4">
+                                    <button type="submit" class="scrum_btn_primary">
+                                        <i class="fa fa-check me-1"/>Update Stage
+                                    </button>
+                                    <a t-attf-href="/my/scrum/projects/#{project.id}/tasks/#{task.id}"
+                                    class="scrum_btn_outline">
+                                        Cancel
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT: Info panel -->
+                    <div class="scrum_edit_sidebar">
+                        <div class="scrum_info_panel">
+                            <div class="scrum_info_panel_header">
+                                <i class="fa fa-info-circle me-2"/>Details
+                            </div>
+                            <div class="scrum_info_row">
+                                <span class="scrum_info_label">Project</span>
+                                <span class="scrum_info_value">
+                                    <t t-esc="project.name"/>
+                                </span>
+                            </div>
+                            <div class="scrum_info_row">
+                                <span class="scrum_info_label">Parent Task</span>
+                                <span class="scrum_info_value">
+                                    <t t-esc="task.name"/>
+                                </span>
+                            </div>
+                            <div class="scrum_info_row">
+                                <span class="scrum_info_label">Subtask</span>
+                                <span class="scrum_info_value">
+                                    <t t-esc="subtask.name"/>
+                                </span>
+                            </div>
+                            <div class="scrum_info_row">
+                                <span class="scrum_info_label">Stage</span>
+                                <span class="scrum_info_value">
+                                    <span t-attf-class="scrum_stage_badge scrum_stage_#{subtask.stage_id.category or 'new'}">
+                                        <t t-esc="subtask.stage_id.name"/>
+                                    </span>
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Stage flow reference -->
+                        <div class="scrum_info_panel mt-3">
+                            <div class="scrum_info_panel_header">
+                                <i class="fa fa-code-fork me-2"/>Stage Flow
+                            </div>
+                            <div class="scrum_stage_flow">
+                                <t t-foreach="stages" t-as="stage">
+                                    <div t-attf-class="scrum_flow_step #{' scrum_flow_step_active' if stage.id == subtask.stage_id.id else ''}">
+                                        <span t-attf-class="scrum_stage_badge scrum_stage_#{stage.category or 'new'}">
+                                            <t t-esc="stage.name"/>
+                                        </span>
+                                    </div>
+                                    <div class="scrum_flow_arrow" t-if="not stage_last">
+                                        <i class="fa fa-chevron-down"/>
+                                    </div>
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <script>
+                    document.querySelectorAll('.scrum_stage_option input[type="radio"]').forEach(function(radio) {
+                        radio.addEventListener('change', function() {
+                            // Remove selected class from all options
+                            document.querySelectorAll('.scrum_stage_option').forEach(function(opt) {
+                                opt.classList.remove('scrum_stage_option_selected');
+                            });
+                            // Add selected class to the clicked one
+                            this.closest('.scrum_stage_option').classList.add('scrum_stage_option_selected');
+                        });
+                    });
+                </script>
+            </div>
+        </t>
+    </template>
+
+</odoo>

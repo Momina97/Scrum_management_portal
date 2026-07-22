@@ -1,0 +1,277 @@
+/* ============================================== */
+/* === PROJECT CARDS (LIST PAGE)              === */
+/* ============================================== */
+.scrum_project_grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.scrum_project_card {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    border-radius: var(--scrum-radius);
+    border: 1px solid var(--scrum-border);
+    box-shadow: var(--scrum-shadow);
+    padding: 20px;
+    text-decoration: none !important;
+    color: inherit !important;
+    display: block;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    min-height: 100px;
+    overflow: hidden;
+    min-width: 0;
+}
+
+.scrum_project_card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--scrum-shadow-hover);
+    border-color: var(--scrum-purple);
+}
+
+.scrum_project_card_header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.scrum_project_name {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--scrum-text-dark);
+    margin: 0;
+    line-height: 1.3;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+}
+
+.scrum_project_meta {
+    font-size: 0.8rem;
+    color: var(--scrum-text-muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(107, 78, 118, 0.08);
+}
+
+.scrum_project_meta i {
+    font-size: 11px;
+    opacity: 0.7;
+}
+
+.scrum_project_type_chip {
+    display: inline-flex;
+    align-items: center;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--scrum-purple);
+    background: var(--scrum-purple-light);
+    border: 1px solid rgba(107, 78, 118, 0.2);
+    border-radius: 50px;
+    padding: 2px 8px;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+
+/* ============================================== */
+/* === PROJECT BADGE / STAGE BADGE COLORS     === */
+/* ============================================== */
+.scrum_project_badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 50px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-left: 10px;
+}
+
+.scrum_badge_backlog   { background: #f3f4f6; color: #6b7280; border: 1px solid rgba(107, 78, 118, 0.1); }
+.scrum_badge_active    { background: var(--scrum-purple-light); color: var(--scrum-purple); border: 1px solid rgba(107, 78, 118, 0.2); }
+.scrum_badge_completed { background: #d1fae5; color: #065f46; }
+.scrum_badge_finalized { background: #CCBDF0; color: #4a2d5a; }
+.scrum_badge_default   { background: #f3f4f6; color: #9ca3af; }
+
+
+/* ============================================== */
+/* === SPRINT CARDS                           === */
+/* ============================================== */
+.scrum_sprint_grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+}
+
+.scrum_sprint_card {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    border-radius: var(--scrum-radius);
+    border: 1px solid var(--scrum-border);
+    box-shadow: var(--scrum-shadow);
+    padding: 18px 20px;
+    text-decoration: none !important;
+    color: inherit !important;
+    display: block;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    min-height: 90px;
+    overflow: hidden;
+    min-width: 0;
+}
+.scrum_sprint_card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--scrum-shadow-hover);
+    border-color: var(--scrum-purple);
+}
+
+.scrum_sprint_card_top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.scrum_sprint_name {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--scrum-text-dark);
+    line-height: 1.3;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+}
+
+.scrum_sprint_badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 50px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+.scrum_sprint_draft     { background: var(--scrum-purple-light); color: var(--scrum-purple); border: 1px solid rgba(107, 78, 118, 0.2); }
+.scrum_sprint_active    { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
+.scrum_sprint_completed { background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
+
+.scrum_sprint_dates {
+    font-size: 0.78rem;
+    color: var(--scrum-text-muted);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+}
+
+.scrum_sprint_progress_wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.scrum_sprint_progress_bar {
+    flex: 1;
+    height: 6px;
+    background: rgba(107, 78, 118, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.scrum_sprint_progress_fill {
+    height: 100%;
+    background: linear-gradient(to right, #CCBDF0, #6b4e76);
+    border-radius: 10px;
+    transition: width 0.3s ease;
+}
+
+.scrum_sprint_progress_label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--scrum-text-muted);
+    white-space: nowrap;
+}
+
+
+/* ============================================== */
+/* === TASK CARDS                             === */
+/* ============================================== */
+.scrum_task_card_grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+}
+
+.scrum_task_card {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    border-radius: var(--scrum-radius);
+    border: 1px solid var(--scrum-border);
+    box-shadow: var(--scrum-shadow);
+    padding: 16px 18px;
+    text-decoration: none !important;
+    color: inherit !important;
+    display: block;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    min-height: 80px;
+    overflow: hidden;
+    min-width: 0;
+}
+.scrum_task_card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--scrum-shadow-hover);
+    border-color: var(--scrum-purple);
+}
+
+.scrum_task_card_top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.scrum_task_card_name {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--scrum-text-dark);
+    line-height: 1.3;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+}
+
+.scrum_task_card_meta {
+    display: flex;
+    gap: 12px;
+    font-size: 0.78rem;
+    color: var(--scrum-text-muted);
+    padding-top: 10px;
+    border-top: 1px solid rgba(107, 78, 118, 0.08);
+    flex-wrap: wrap;
+    overflow: hidden;
+    word-break: break-word;
+    overflow-wrap: break-word;
+}
+
+.scrum_task_card_meta i {
+    opacity: 0.7;
+}

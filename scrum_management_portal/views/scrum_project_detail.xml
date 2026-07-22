@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================
+         PROJECT DETAIL — sprints + root tasks
+    ============================================================ -->
+    <template id="portal_project_detail" name="Scrum Project Detail">
+        <t t-call="portal.portal_layout">
+            <div class="cymax_scrum_page">
+
+                <!-- Project Header -->
+                <div class="scrum_page_header">
+                    <a href="/my/scrum/projects" class="scrum_back_link">
+                        <i class="fa fa-arrow-left me-1"/>Projects
+                    </a>
+                    <div class="d-flex align-items-center gap-3 mt-1">
+                        <h1 class="scrum_page_title mb-0">
+                            <t t-esc="project.name"/>
+                        </h1>
+                        <span t-attf-class="scrum_project_badge scrum_badge_#{project.stage_id.category or 'default'}">
+                            <t t-esc="project.stage_id.name or 'No Stage'"/>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="scrum_edit_layout">
+
+                    <!-- LEFT: Sprint cards -->
+                    <div class="scrum_edit_main">
+                        <div class="scrum_section_header">
+                            <i class="fa fa-retweet me-2" style="color: #6b4e76;"/>
+                            <span>Sprints</span>
+                        </div>
+
+                        <t t-if="not sprints">
+                            <div class="scrum_empty_state">
+                                <i class="fa fa-retweet"/>
+                                <p>No sprints have been created yet.</p>
+                            </div>
+                        </t>
+
+                        <div t-if="sprints" class="scrum_sprint_grid">
+                            <t t-foreach="sprints" t-as="sprint">
+                                <a t-attf-href="/my/scrum/projects/#{project.id}/sprints/#{sprint.id}"
+                                class="scrum_sprint_card">
+                                    <div class="scrum_sprint_card_top">
+                                        <span class="scrum_sprint_name">
+                                            <t t-esc="sprint.name"/>
+                                        </span>
+                                        <span t-attf-class="scrum_sprint_badge scrum_sprint_#{sprint.state}">
+                                            <t t-esc="sprint.state"/>
+                                        </span>
+                                    </div>
+                                    <div class="scrum_sprint_dates"
+                                        t-if="sprint.start_date and sprint.end_date">
+                                        <i class="fa fa-calendar me-1"/>
+                                        <t t-esc="sprint.start_date"/> →
+                                        <t t-esc="sprint.end_date"/>
+                                    </div>
+                                    <div class="scrum_sprint_progress_wrap"
+                                        t-if="sprint.progress">
+                                        <div class="scrum_sprint_progress_bar">
+                                            <div class="scrum_sprint_progress_fill"
+                                                t-attf-style="width: #{sprint.progress}%;"/>
+                                        </div>
+                                        <span class="scrum_sprint_progress_label">
+                                            <t t-esc="sprint.progress"/>%
+                                        </span>
+                                    </div>
+                                </a>
+                            </t>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT: Project info panel -->
+                    <div class="scrum_edit_sidebar">
+                        <div class="scrum_info_panel">
+                            <div class="scrum_info_panel_header">
+                                <i class="fa fa-info-circle me-2"/>Project Details
+                            </div>
+                            <div class="scrum_info_row">
+                                <span class="scrum_info_label">Stage</span>
+                                <span class="scrum_info_value">
+                                    <span t-attf-class="scrum_project_badge scrum_badge_#{project.stage_id.category or 'default'}">
+                                        <t t-esc="project.stage_id.name or 'No Stage'"/>
+                                    </span>
+                                </span>
+                            </div>
+                            <div class="scrum_info_row">
+                                <span class="scrum_info_label">Total Sprints</span>
+                                <span class="scrum_info_value">
+                                    <t t-esc="len(sprints)"/>
+                                </span>
+                            </div>
+                            <div class="scrum_info_row">
+                                <span class="scrum_info_label">Active Sprints</span>
+                                <span class="scrum_info_value">
+                                    <t t-esc="len(sprints.filtered(lambda s: s.state == 'active'))"/>
+                                </span>
+                            </div>
+                            <div class="scrum_info_row">
+                                <span class="scrum_info_label">Completed Sprints</span>
+                                <span class="scrum_info_value">
+                                    <t t-esc="len(sprints.filtered(lambda s: s.state == 'completed'))"/>
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Velocity panel if available -->
+                        <div class="scrum_info_panel mt-3"
+                            t-if="project.average_velocity > 0">
+                            <div class="scrum_info_panel_header">
+                                <i class="fa fa-bolt me-2"/>Velocity
+                            </div>
+                            <div class="scrum_info_row">
+                                <span class="scrum_info_label">Avg Velocity</span>
+                                <span class="scrum_info_value">
+                                    <t t-esc="project.average_velocity"/> SP
+                                </span>
+                            </div>
+                            <div class="scrum_info_row">
+                                <span class="scrum_info_label">Backlog Points</span>
+                                <span class="scrum_info_value">
+                                    <t t-esc="project.total_backlog_sp"/> SP
+                                </span>
+                            </div>
+                            <div class="scrum_info_row">
+                                <span class="scrum_info_label">Sprints Remaining</span>
+                                <span class="scrum_info_value">
+                                    <t t-esc="project.estimated_sprints_remaining"/>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="scrum_info_panel mt-3">
+                            <div class="scrum_info_panel_header">
+                                <i class="fa fa-compass me-2"/>Navigation
+                            </div>
+                            <div class="p-3">
+                                <a t-attf-href="/my/scrum/projects/#{project.id}/backlog"
+                                class="scrum_btn_outline d-block text-center">
+                                    <i class="fa fa-list-ul me-1"/>View Backlog
+                                    <span t-if="backlog_count > 0"
+                                        class="ms-2 badge rounded-pill"
+                                        style="background:#3b82f6; color:white; font-size:10px;">
+                                        <t t-esc="backlog_count"/>
+                                    </span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </t>
+    </template>
+
+</odoo>

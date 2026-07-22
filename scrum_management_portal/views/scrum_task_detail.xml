@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================
+         TASK DETAIL — task info + subtask list + add subtask button
+    ============================================================ -->
+    <template id="portal_task_detail" name="Scrum Task Detail">
+        <t t-call="portal.portal_layout">
+            <div class="cymax_scrum_page">
+
+                <!-- Task Header -->
+                <div class="scrum_page_header">
+                    <!-- Context-aware back link -->
+                    <a t-if="task.parent_id"
+                    t-attf-href="/my/scrum/projects/#{project.id}/tasks/#{task.parent_id.id}"
+                    class="scrum_back_link">
+                        <i class="fa fa-arrow-left me-1"/><t t-esc="task.parent_id.name"/>
+                    </a>
+                    <a t-elif="task.sprint_id"
+                    t-attf-href="/my/scrum/projects/#{project.id}/sprints/#{task.sprint_id.id}"
+                    class="scrum_back_link">
+                        <i class="fa fa-arrow-left me-1"/><t t-esc="task.sprint_id.name"/>
+                    </a>
+                    <a t-else=""
+                    t-attf-href="/my/scrum/projects/#{project.id}"
+                    class="scrum_back_link">
+                        <i class="fa fa-arrow-left me-1"/><t t-esc="project.name"/>
+                    </a>
+
+                    <!-- Hierarchy breadcrumb trail
+                    <div class="scrum_task_breadcrumb mt-1">
+                        <span class="scrum_task_breadcrumb_item">
+                            <t t-esc="project.name"/>
+                        </span>
+                        <t t-if="task.sprint_id">
+                            <i class="fa fa-chevron-right scrum_task_breadcrumb_sep"/>
+                            <span class="scrum_task_breadcrumb_item">
+                                <t t-esc="task.sprint_id.name"/>
+                            </span>
+                        </t>
+                        <t t-if="task.parent_id and task.parent_id.parent_id">
+                            <i class="fa fa-chevron-right scrum_task_breadcrumb_sep"/>
+                            <span class="scrum_task_breadcrumb_item text-muted">…</span>
+                        </t>
+                        <t t-if="task.parent_id">
+                            <i class="fa fa-chevron-right scrum_task_breadcrumb_sep"/>
+                            <a t-attf-href="/my/scrum/projects/#{project.id}/tasks/#{task.parent_id.id}"
+                            class="scrum_task_breadcrumb_item scrum_task_breadcrumb_link">
+                                <t t-esc="task.parent_id.name"/>
+                            </a>
+                        </t>
+                        <i class="fa fa-chevron-right scrum_task_breadcrumb_sep"/>
+                        <span class="scrum_task_breadcrumb_item scrum_task_breadcrumb_current">
+                            <t t-esc="task.name"/>
+                        </span>
+                    </div> -->
+
+                    <!-- Task name + stage badge -->
+                    <div class="d-flex align-items-center gap-3 mt-2">
+                        <h1 class="scrum_page_title mb-0">
+                            <t t-esc="task.name"/>
+                        </h1>
+                        <span t-attf-class="scrum_stage_badge scrum_stage_#{task.stage_id.category or 'new'}">
+                            <t t-esc="task.stage_id.name"/>
+                        </span>
+                    </div>
+
+                    <!-- Description if available -->
+                    <div t-if="task.description" class="scrum_task_description mt-2 mb-4">
+                        <t t-esc="task.description"/>
+                    </div>
+
+                    <!-- Meta info row: assignees, story points, sprint -->
+                    <div class="scrum_task_meta_row mt-2">
+                        <span t-if="task.sprint_id" class="scrum_task_meta_chip">
+                            <i class="fa fa-retweet me-1"/>
+                            <t t-esc="task.sprint_id.name"/>
+                        </span>
+                        <span t-if="task.user_ids" class="scrum_task_meta_chip">
+                            <i class="fa fa-user me-1"/>
+                            <t t-esc="', '.join(task.user_ids.mapped('name'))"/>
+                        </span>
+                        <span t-if="task.story_points > 0" class="scrum_task_meta_chip">
+                            <i class="fa fa-cubes me-1"/>
+                            <t t-esc="task.story_points"/> SP
+                        </span>
+                        <span t-if="task.parent_id" class="scrum_task_meta_chip scrum_task_meta_subtask">
+                            <i class="fa fa-sitemap me-1"/>Subtask of <t t-esc="task.parent_id.name"/>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="scrum_edit_layout">
+
+                    <!-- LEFT: Notebook -->
+                    <div class="scrum_edit_main">
+
+                        <!-- Tabs -->
+                        <ul class="nav nav-tabs mb-3 scrum_tabs">
+                            <li class="nav-item">
+                                <a t-attf-class="nav-link #{'active' if active_tab == 'subtasks' else ''}"
+                                t-attf-href="/my/scrum/projects/#{project.id}/tasks/#{task.id}?tab=subtasks">
+                                    <i class="fa fa-sitemap me-1"/>Subtasks
+                                    <span t-if="subtasks"
+                                        class="scrum_tab_count">
+                                        (<t t-esc="len(subtasks)"/>)
+                                    </span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a t-attf-class="nav-link #{'active' if active_tab == 'timesheets' else ''}"
+                                t-attf-href="/my/scrum/projects/#{project.id}/tasks/#{task.id}?tab=timesheets">
+                                    <i class="fa fa-clock-o me-1"/>Timesheets
+                                    <span t-if="timesheets"
+                                        class="scrum_tab_count">
+                                        (<t t-esc="len(timesheets)"/>)
+                                    </span>
+                                </a>
+                            </li>
+                        </ul>
+
+                        <!-- ======= SUBTASKS TAB ======= -->
+                        <t t-if="active_tab == 'subtasks'">
+                            <div class="d-flex align-items-center justify-content-between mb-3">
+                                <div class="scrum_section_header mb-0">
+                                    <i class="fa fa-sitemap me-2" style="color: #6b4e76;"/>
+                                    <span>Subtasks</span>
+                                </div>
+                                <a t-attf-href="/my/scrum/projects/#{project.id}/tasks/#{task.id}/subtask/new"
+                                class="scrum_btn_primary">
+                                    <i class="fa fa-plus me-1"/>Add Subtask
+                                </a>
+                            </div>
+
+                            <t t-if="not subtasks">
+                                <div class="scrum_empty_state">
+                                    <i class="fa fa-sitemap"/>
+                                    <p>No subtasks yet. Add one to get started.</p>
+                                </div>
+                            </t>
+
+                            <t t-if="subtasks">
+                                <div class="scrum_task_card_grid">
+                                    <t t-foreach="subtasks" t-as="subtask">
+                                        <a t-attf-href="/my/scrum/projects/#{project.id}/tasks/#{subtask.id}"
+                                        class="scrum_task_card">
+                                            <div class="scrum_task_card_top">
+                                                <span class="scrum_task_card_name">
+                                                    <t t-esc="subtask.name"/>
+                                                </span>
+                                                <span t-attf-class="scrum_stage_badge scrum_stage_#{subtask.stage_id.category or 'new'}">
+                                                    <t t-esc="subtask.stage_id.name"/>
+                                                </span>
+                                            </div>
+                                            <div class="scrum_task_card_meta">
+                                                <span t-if="subtask.user_ids">
+                                                    <i class="fa fa-user me-1"/>
+                                                    <t t-esc="', '.join(subtask.user_ids.mapped('name'))"/>
+                                                </span>
+                                            </div>
+                                        </a>
+                                    </t>
+                                </div>
+                            </t>
+                        </t>
+
+                        <!-- ======= TIMESHEETS TAB ======= -->
+                        <t t-if="active_tab == 'timesheets'">
+                            <div class="d-flex align-items-center justify-content-between mb-3">
+                                <div class="scrum_section_header mb-0">
+                                    <i class="fa fa-clock-o me-2" style="color: #6b4e76;"/>
+                                    <span>Timesheets</span>
+                                </div>
+                                <a t-if="employee"
+                                t-attf-href="/my/scrum/projects/#{project.id}/tasks/#{task.id}/timesheets/new"
+                                class="scrum_btn_primary">
+                                    <i class="fa fa-plus me-1"/>Log Time
+                                </a>
+                            </div>
+
+                            <t t-if="not employee">
+                                <div class="scrum_empty_state">
+                                    <i class="fa fa-user-times"/>
+                                    <p>No employee record linked to your account. Contact your administrator.</p>
+                                </div>
+                            </t>
+
+                            <t t-if="employee and not timesheets">
+                                <div class="scrum_empty_state">
+                                    <i class="fa fa-clock-o"/>
+                                    <p>No time logged against this task yet.</p>
+                                </div>
+                            </t>
+
+                            <t t-if="timesheets">
+                                <div class="scrum_table_wrap">
+                                    <table class="scrum_table">
+                                        <thead>
+                                            <tr>
+                                                <th>Date</th>
+                                                <th>Employee</th>
+                                                <th>Description</th>
+                                                <th>Hours</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr t-foreach="timesheets" t-as="timesheet">
+                                                <td><t t-esc="timesheet.date"/></td>
+                                                <td><t t-esc="timesheet.employee_id.name"/></td>
+                                                <td class="scrum_td_description">
+                                                    <t t-esc="timesheet.name"/>
+                                                </td>
+                                                <td><t t-esc="timesheet.unit_amount"/>h</td>
+                                                <td>
+                                                    <a t-if="employee and timesheet.employee_id.id == employee.id"
+                                                    t-attf-href="/my/scrum/projects/#{project.id}/tasks/#{task.id}/timesheets/#{timesheet.id}/edit"
+                                                    class="scrum_btn_outline">
+                                                        <i class="fa fa-pencil me-1"/>Edit
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </t>
+                        </t>
+
+                    </div>
+
+                    <!-- RIGHT: Task info sidebar -->
+                    <div class="scrum_edit_sidebar">
+                        <div class="scrum_info_panel">
+                            <div class="scrum_info_panel_header">
+                                <i class="fa fa-info-circle me-2"/>Task Details
+                            </div>
+                            <div class="scrum_info_row">
+                                <span class="scrum_info_label">Project</span>
+                                <span class="scrum_info_value">
+                                    <t t-esc="project.name"/>
+                                </span>
+                            </div>
+                            <div class="scrum_info_row" t-if="task.sprint_id">
+                                <span class="scrum_info_label">Sprint</span>
+                                <span class="scrum_info_value">
+                                    <t t-esc="task.sprint_id.name"/>
+                                </span>
+                            </div>
+                            <div class="scrum_info_row">
+                                <span class="scrum_info_label">Stage</span>
+                                <span class="scrum_info_value">
+                                    <span t-attf-class="scrum_stage_badge scrum_stage_#{task.stage_id.category or 'new'}">
+                                        <t t-esc="task.stage_id.name"/>
+                                    </span>
+                                </span>
+                            </div>
+                            <div class="scrum_info_row" t-if="task.story_points > 0">
+                                <span class="scrum_info_label">Story Points</span>
+                                <span class="scrum_info_value">
+                                    <t t-esc="task.story_points"/> SP
+                                </span>
+                            </div>
+                            <div class="scrum_info_row" t-if="task.user_ids">
+                                <span class="scrum_info_label">Assignees</span>
+                                <span class="scrum_info_value">
+                                    <t t-esc="', '.join(task.user_ids.mapped('name'))"/>
+                                </span>
+                            </div>
+                            <div class="scrum_info_row" t-if="task.allocated_time > 0">
+                                <span class="scrum_info_label">Allocated Time</span>
+                                <span class="scrum_info_value">
+                                    <t t-esc="task.allocated_time"/>h
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Edit stage button -->
+                        <div class="scrum_info_panel mt-3" t-if="task.parent_id">
+                            <div class="scrum_info_panel_header">
+                                <i class="fa fa-exchange me-2"/>Actions
+                            </div>
+                            <div class="p-3">
+                                <a t-attf-href="/my/scrum/projects/#{project.id}/tasks/#{task.parent_id.id}/subtask/#{task.id}/edit"
+                                class="scrum_btn_outline d-block text-center">
+                                    <i class="fa fa-pencil me-1"/>Edit Stage
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </t>
+    </template>
+
+</odoo>

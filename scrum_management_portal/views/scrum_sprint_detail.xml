@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================
+         SPRINT DETAIL — tasks belonging to a sprint
+    ============================================================ -->
+    <template id="portal_sprint_detail" name="Scrum Sprint Detail">
+        <t t-call="portal.portal_layout">
+            <div class="cymax_scrum_page">
+
+                <!-- Sprint Header -->
+                <div class="scrum_page_header">
+                    <a t-attf-href="/my/scrum/projects/#{project.id}"
+                    class="scrum_back_link">
+                        <i class="fa fa-arrow-left me-1"/>
+                        <t t-esc="project.name"/>
+                    </a>
+                    <div class="d-flex align-items-center gap-3 mt-1">
+                        <h1 class="scrum_page_title mb-0">
+                            <t t-esc="sprint.name"/>
+                        </h1>
+                        <span t-attf-class="scrum_sprint_badge scrum_sprint_#{sprint.state}">
+                            <t t-esc="sprint.state"/>
+                        </span>
+                    </div>
+                    <div class="scrum_sprint_dates mt-2"
+                        t-if="sprint.start_date and sprint.end_date">
+                        <i class="fa fa-calendar me-1"/>
+                        <t t-esc="sprint.start_date"/> → <t t-esc="sprint.end_date"/>
+                    </div>
+                </div>
+
+                <div class="scrum_edit_layout">
+
+                    <!-- LEFT: Task cards -->
+                    <div class="scrum_edit_main">
+                        <div class="scrum_section_header">
+                            <i class="fa fa-tasks me-2" style="color: #6b4e76;"/>
+                            <span>Tasks</span>
+                        </div>
+
+                        <t t-if="not tasks">
+                            <div class="scrum_empty_state">
+                                <i class="fa fa-inbox"/>
+                                <p>No tasks assigned to this sprint yet.</p>
+                            </div>
+                        </t>
+
+                        <div t-if="tasks" class="scrum_task_card_grid">
+                            <t t-foreach="tasks" t-as="task">
+                                <a t-attf-href="/my/scrum/projects/#{project.id}/tasks/#{task.id}"
+                                class="scrum_task_card">
+                                    <div class="scrum_task_card_top">
+                                        <span class="scrum_task_card_name">
+                                            <t t-esc="task.name"/>
+                                        </span>
+                                        <span t-attf-class="scrum_stage_badge scrum_stage_#{task.stage_id.category or 'new'}">
+                                            <t t-esc="task.stage_id.name"/>
+                                        </span>
+                                    </div>
+                                    <div class="scrum_task_card_meta">
+                                        <span t-if="task.story_points > 0">
+                                            <i class="fa fa-cubes me-1"/>
+                                            <t t-esc="task.story_points"/> SP
+                                        </span>
+                                        <span t-if="task.user_ids">
+                                            <i class="fa fa-user me-1"/>
+                                            <t t-esc="', '.join(task.user_ids.mapped('name'))"/>
+                                        </span>
+                                    </div>
+                                </a>
+                            </t>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT: Sprint stats panel -->
+                    <div class="scrum_edit_sidebar">
+                        <div class="scrum_info_panel">
+                            <div class="scrum_info_panel_header">
+                                <i class="fa fa-bar-chart me-2"/>Sprint Stats
+                            </div>
+                            <div class="scrum_info_row">
+                                <span class="scrum_info_label">State</span>
+                                <span class="scrum_info_value">
+                                    <span t-attf-class="scrum_sprint_badge scrum_sprint_#{sprint.state}">
+                                        <t t-esc="sprint.state"/>
+                                    </span>
+                                </span>
+                            </div>
+                            <div class="scrum_info_row" t-if="sprint.start_date">
+                                <span class="scrum_info_label">Start Date</span>
+                                <span class="scrum_info_value">
+                                    <t t-esc="sprint.start_date"/>
+                                </span>
+                            </div>
+                            <div class="scrum_info_row" t-if="sprint.end_date">
+                                <span class="scrum_info_label">End Date</span>
+                                <span class="scrum_info_value">
+                                    <t t-esc="sprint.end_date"/>
+                                </span>
+                            </div>
+                            <div class="scrum_info_row" t-if="sprint.days_remaining">
+                                <span class="scrum_info_label">Days Remaining</span>
+                                <span class="scrum_info_value">
+                                    <t t-esc="sprint.days_remaining"/>
+                                </span>
+                            </div>
+                            <div class="scrum_info_row">
+                                <span class="scrum_info_label">Total Tasks</span>
+                                <span class="scrum_info_value">
+                                    <t t-esc="len(tasks)"/>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="scrum_info_panel mt-3"
+                            t-if="sprint.total_story_points > 0">
+                            <div class="scrum_info_panel_header">
+                                <i class="fa fa-cubes me-2"/>Story Points
+                            </div>
+                            <div class="scrum_info_row">
+                                <span class="scrum_info_label">Committed</span>
+                                <span class="scrum_info_value">
+                                    <t t-esc="sprint.committed_story_points"/> SP
+                                </span>
+                            </div>
+                            <div class="scrum_info_row">
+                                <span class="scrum_info_label">Completed</span>
+                                <span class="scrum_info_value">
+                                    <t t-esc="sprint.completed_story_points"/> SP
+                                </span>
+                            </div>
+                            <div class="scrum_info_row">
+                                <span class="scrum_info_label">Progress</span>
+                                <span class="scrum_info_value">
+                                    <t t-esc="sprint.progress"/>%
+                                </span>
+                            </div>
+                            <div class="px-3 pb-3 pt-1">
+                                <div class="scrum_sprint_progress_bar">
+                                    <div class="scrum_sprint_progress_fill"
+                                        t-attf-style="width: #{sprint.progress}%;"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </t>
+    </template>
+
+</odoo>

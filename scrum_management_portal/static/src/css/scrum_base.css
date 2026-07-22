@@ -1,0 +1,328 @@
+/* ============================================== */
+/* === SCRUM PORTAL — BASE VARIABLES          === */
+/* ============================================== */
+:root {
+    --scrum-bg: #f0eef8;
+    --scrum-white: #ffffff;
+    --scrum-border: rgba(107, 78, 118, 0.15);
+    --scrum-text-dark: #1a1a2e;
+    --scrum-text-mid: #334155;
+    --scrum-text-muted: #6b7280;
+    --scrum-purple: #6b4e76;
+    --scrum-purple-light: #f3effd;
+    --scrum-purpscrum_pagele-hover: #5a3d63;
+    --scrum-radius: 14px;
+    --scrum-shadow: 0 4px 24px rgba(107, 78, 118, 0.08);
+    --scrum-shadow-hover: 0 8px 28px rgba(107, 78, 118, 0.15);
+}
+
+/* ============================================== */
+/* === BREADCRUMBS ALIGNMENT                  === */
+/* ============================================== */
+
+/* ── Remove default portal breadcrumb container margin ── */
+.o_portal.container.mt-3 {
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 16px 20px 0px 32px !important;
+}
+
+/* ============================================== */
+/* === SCRUM PAGE WRAPPER                     === */
+/* ============================================== */
+.cymax_scrum_page {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto; 
+    padding: 0px 20px 24px;
+}
+
+
+/* ============================================== */
+/* === SCRUM PAGE HEADER                      === */
+/* ============================================== */
+.scrum_page_header {
+    margin-bottom: 28px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--scrum-border);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.scrum_edit_sidebar {
+    min-width: 0;
+}
+
+.scrum_page_title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--scrum-purple);
+    margin: 0;
+    letter-spacing: -0.3px;
+}
+
+.scrum_page_subtitle {
+    font-size: 0.875rem;
+    color: var(--scrum-text-muted);
+    margin-top: 4px;
+    margin-bottom: 0;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+}
+
+.scrum_header_right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}       
+
+
+/* ============================================== */
+/* === BACK LINK                              === */
+/* ============================================== */
+.scrum_back_link {
+    font-size: 0.8rem;
+    color: var(--scrum-text-muted);
+    text-decoration: none !important;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 4px;
+    transition: color 0.15s;
+}
+.scrum_back_link:hover {
+    color: var(--scrum-purple);
+}
+
+
+/* ============================================== */
+/* === SECTION HEADER                         === */
+/* ============================================== */
+.scrum_section_header {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--scrum-purple);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+}
+
+
+/* ============================================== */
+/* === EMPTY STATE                            === */
+/* ============================================== */
+.scrum_empty_state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--scrum-text-muted);
+}
+
+.scrum_empty_state i {
+    font-size: 3rem;
+    opacity: 0.3;
+    margin-bottom: 16px;
+    display: block;
+}
+
+.scrum_empty_state p {
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+
+/* ============================================== */
+/* === TWO COLUMN EDIT LAYOUT                 === */
+/* ============================================== */
+.scrum_edit_layout {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 24px;
+    align-items: start;
+}
+
+@media (max-width: 768px) {
+    .scrum_edit_layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+.scrum_edit_main {
+    min-width: 0;
+}
+
+
+/* ============================================== */
+/* === INFO PANEL (SIDEBAR)                   === */
+/* ============================================== */
+.scrum_info_panel {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    border-radius: var(--scrum-radius);
+    border: 1px solid var(--scrum-border);
+    box-shadow: var(--scrum-shadow);
+    overflow: hidden;
+}
+
+.scrum_info_panel_header {
+    padding: 12px 16px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--scrum-purple);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    background: rgba(107, 78, 118, 0.04);
+    border-bottom: 1px solid var(--scrum-border);
+}
+
+.scrum_info_row {
+    padding: 10px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(107, 78, 118, 0.06);
+    gap: 12px;
+}
+.scrum_info_row:last-child {
+    border-bottom: none;
+}
+
+.scrum_info_label {
+    font-size: 0.78rem;
+    color: var(--scrum-text-muted);
+    font-weight: 500;
+    flex-shrink: 0;
+}
+
+.scrum_info_value {
+    font-size: 0.78rem;
+    color: var(--scrum-text-muted);
+    font-weight: 500;
+    text-align: right;
+}
+
+
+/* ============================================== */
+/* === BUTTONS                                === */
+/* ============================================== */
+.scrum_btn_primary {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 18px;
+    background: var(--scrum-purple);
+    color: #ffffff !important;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-radius: 8px;
+    text-decoration: none !important;
+    transition: background 0.2s ease;
+    border: none;
+    cursor: pointer;
+}
+.scrum_btn_primary:hover {
+    background: var(--scrum-purple-hover);
+}
+
+.scrum_btn_outline {
+    display: inline-flex;
+    align-items: center;
+    padding: 7px 16px;
+    background: #ffffff;
+    color: var(--scrum-purple) !important;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-radius: 8px;
+    border: 1px solid rgba(107, 78, 118, 0.3);
+    text-decoration: none !important;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+.scrum_btn_outline:hover {
+    background: var(--scrum-purple);
+    color: #ffffff !important;
+    border-color: var(--scrum-purple);
+}
+
+
+/* ============================================== */
+/* === ALERT                                  === */
+/* ============================================== */
+.scrum_alert_danger {
+    background: #fee2e2;
+    border: 1px solid #fca5a5;
+    border-left: 4px solid #991b1b;
+    border-radius: 10px;
+    padding: 14px 18px;
+    font-size: 0.875rem;
+    color: #991b1b;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: flex-start;
+}
+
+
+/* ============================================== */
+/* === FORM CARD                              === */
+/* ============================================== */
+.scrum_form_card {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    border-radius: var(--scrum-radius);
+    border: 1px solid var(--scrum-border);
+    box-shadow: var(--scrum-shadow);
+    padding: 28px 32px;
+    max-width: 560px;
+}
+
+.scrum_form_group {
+    margin-bottom: 20px;
+}
+
+.scrum_form_label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #1a1a2e;
+    margin-bottom: 6px;
+}
+
+.scrum_form_input,
+.scrum_form_select {
+    width: 100%;
+    padding: 10px 14px;
+    font-size: 0.875rem;
+    color: var(--scrum-text-dark);
+    background: #ffffff;
+    border: 1px solid #e0d9f7;
+    border-radius: 8px;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.scrum_form_select {
+    padding-right: 36px;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b4e76' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+}
+
+.scrum_form_input:focus,
+.scrum_form_select:focus {
+    border-color: var(--scrum-purple);
+    box-shadow: 0 0 0 3px rgba(107, 78, 118, 0.12);
+    background: #ffffff;
+}
+
+.scrum_form_hint {
+    font-size: 0.78rem;
+    color: var(--scrum-text-muted);
+    margin-top: 6px;
+    margin-bottom: 0;
+}

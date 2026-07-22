@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="portal_my_home_scrum" name="Portal My Home: Scrum Projects"
+            inherit_id="cymax_portal_theme.portal_my_home_inherit"
+            priority="30">
+        <xpath expr="//div[@id='cymax_portal_cards']" position="inside">
+            <a href="/my/scrum/projects" class="cymax_tile">
+                <div class="cymax_tile_icon">
+                    <img src="/project/static/description/icon.png" alt="Scrum Projects"/>
+                </div>
+                <span class="cymax_tile_name">Scrum Projects</span>
+            </a>
+        </xpath>
+    </template>
+
+</odoo>

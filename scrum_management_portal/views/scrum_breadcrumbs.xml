@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="portal_breadcrumbs_scrum"
+          name="Portal Breadcrumbs: Scrum"
+          inherit_id="portal.portal_breadcrumbs"
+          priority="100">
+        <xpath expr="." position="replace">
+            <ol class="o_portal_submenu breadcrumb mb-0 py-2 flex-grow-1">
+                <li class="breadcrumb-item">
+                    <a href="/my/home" aria-label="Home" title="Home">
+                        <i class="fa fa-home"/>
+                    </a>
+                </li>
+
+                <t t-if="page_name in ['scrum_projects', 'scrum_project', 'scrum_sprint', 'scrum_task', 'scrum_subtask_new', 'scrum_subtask_edit', 'scrum_backlog']">
+
+                    <!-- Scrum Projects -->
+                    <li t-attf-class="breadcrumb-item #{'active' if page_name == 'scrum_projects' else ''}">
+                        <a t-if="page_name != 'scrum_projects'" href="/my/scrum/projects">Scrum Projects</a>
+                        <t t-if="page_name == 'scrum_projects'">Scrum Projects</t>
+                    </li>
+
+                    <!-- Project -->
+                    <li t-if="page_name in ['scrum_project', 'scrum_sprint', 'scrum_task', 'scrum_subtask_new', 'scrum_subtask_edit', 'scrum_backlog'] and project"
+                        t-attf-class="breadcrumb-item #{'active' if page_name == 'scrum_project' else ''}">
+                        <a t-if="page_name != 'scrum_project'"
+                           t-attf-href="/my/scrum/projects/#{project.id}">
+                            <t t-esc="project.name"/>
+                        </a>
+                        <t t-if="page_name == 'scrum_project'">
+                            <t t-esc="project.name"/>
+                        </t>
+                    </li>
+
+                    <!-- Backlog -->
+                    <li t-if="page_name == 'scrum_backlog'"
+                        class="breadcrumb-item active">Backlog</li>
+
+                    <!-- Sprint — shown on sprint page AND task pages where task has a sprint -->
+                    <li t-if="page_name == 'scrum_sprint' and sprint"
+                        class="breadcrumb-item active">
+                        <t t-esc="sprint.name"/>
+                    </li>
+
+                    <li t-if="page_name in ['scrum_task', 'scrum_subtask_new', 'scrum_subtask_edit'] and task and task.sprint_id"
+                        class="breadcrumb-item">
+                        <a t-attf-href="/my/scrum/projects/#{project.id}/sprints/#{task.sprint_id.id}">
+                            <t t-esc="task.sprint_id.name"/>
+                        </a>
+                    </li>
+
+                    <!-- Parent task — shown when task is a subtask -->
+                    <li t-if="page_name in ['scrum_task', 'scrum_subtask_new', 'scrum_subtask_edit'] and task and task.parent_id"
+                        class="breadcrumb-item">
+                        <a t-attf-href="/my/scrum/projects/#{project.id}/tasks/#{task.parent_id.id}">
+                            <t t-esc="task.parent_id.name"/>
+                        </a>
+                    </li>
+
+                    <!-- Task -->
+                    <li t-if="page_name in ['scrum_task', 'scrum_subtask_new', 'scrum_subtask_edit'] and task"
+                        t-attf-class="breadcrumb-item #{'active' if page_name == 'scrum_task' else ''}">
+                        <a t-if="page_name != 'scrum_task'"
+                           t-attf-href="/my/scrum/projects/#{project.id}/tasks/#{task.id}">
+                            <t t-esc="task.name"/>
+                        </a>
+                        <t t-if="page_name == 'scrum_task'">
+                            <t t-esc="task.name"/>
+                        </t>
+                    </li>
+
+                    <!-- Add Subtask -->
+                    <li t-if="page_name == 'scrum_subtask_new'"
+                        class="breadcrumb-item active">Add Subtask</li>
+
+                    <!-- Edit Stage -->
+                    <li t-if="page_name == 'scrum_subtask_edit'"
+                        class="breadcrumb-item active">Edit Stage</li>
+
+                </t>
+
+            </ol>
+        </xpath>
+    </template>
+
+    <template id="portal_breadcrumbs_project_suppress"
+          name="Suppress Stock Project Breadcrumbs on Scrum Pages"
+          inherit_id="project.portal_layout"
+          priority="100">
+        <xpath expr="//li[1]" position="attributes">
+            <attribute name="t-if">page_name not in ['scrum_projects', 'scrum_project', 'scrum_sprint', 'scrum_task', 'scrum_subtask_new', 'scrum_subtask_edit', 'scrum_backlog'] and (page_name == 'project' or project)</attribute>
+        </xpath>
+    </template>
+
+</odoo>

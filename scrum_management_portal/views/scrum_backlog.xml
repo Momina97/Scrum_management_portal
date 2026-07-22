@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================
+     BACKLOG — tasks with no sprint assigned
+    ============================================================ -->
+    <template id="portal_project_backlog" name="Scrum Project Backlog">
+        <t t-call="portal.portal_layout">
+            <div class="cymax_scrum_page">
+                <!-- Header -->
+                <div class="scrum_page_header">
+                    <a t-attf-href="/my/scrum/projects/#{project.id}"
+                    class="scrum_back_link">
+                        <i class="fa fa-arrow-left me-1"/>
+                        <t t-esc="project.name"/>
+                    </a>
+                    <div class="d-flex align-items-center gap-3 mt-1">
+                        <h1 class="scrum_page_title mb-0">Backlog</h1>
+                        <span t-attf-class="scrum_project_badge scrum_badge_#{project.stage_id.category or 'default'}">
+                            <t t-esc="project.stage_id.name or 'No Stage'"/>
+                        </span>
+                    </div>
+                    <p class="scrum_page_subtitle mt-1">
+                        Tasks not yet assigned to a sprint
+                    </p>
+                </div>
+
+                <div class="scrum_edit_layout">
+
+                    <!-- LEFT: Backlog tasks table -->
+                    <div class="scrum_edit_main">
+                        <div class="scrum_section_header">
+                            <i class="fa fa-list-ul me-2" style="color: #6b4e76;"/>
+                            <span>Backlog Tasks</span>
+                        </div>
+
+                        <t t-if="not tasks">
+                            <div class="scrum_empty_state">
+                                <i class="fa fa-check-circle-o"/>
+                                <p>No tasks in the backlog — everything is assigned to a sprint.</p>
+                            </div>
+                        </t>
+
+                        <t t-if="tasks">
+                            <div class="scrum_table_wrap">
+                                <table class="scrum_table">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Task Name</th>
+                                            <th>Stage</th>
+                                            <th>Subtasks</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr t-foreach="tasks" t-as="task">
+                                            <td class="scrum_td_num">
+                                                <t t-esc="task_index + 1"/>
+                                            </td>
+                                            <td>
+                                                <a t-attf-href="/my/scrum/projects/#{project.id}/tasks/#{task.id}"
+                                                class="scrum_task_link">
+                                                    <t t-esc="task.name"/>
+                                                </a>
+                                            </td>
+                                            <td>
+                                                <span t-attf-class="scrum_stage_badge scrum_stage_#{task.stage_id.category or 'new'}">
+                                                    <t t-esc="task.stage_id.name"/>
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span class="scrum_subtask_count"
+                                                    t-if="task_subtask_counts.get(task.id, 0) > 0">
+                                                    <i class="fa fa-sitemap me-1"/>
+                                                    <t t-esc="task_subtask_counts.get(task.id, 0)"/>
+                                                </span>
+                                                <span class="text-muted"
+                                                    t-if="task_subtask_counts.get(task.id, 0) == 0">—</span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </t>
+                    </div>
+
+                    <!-- RIGHT: Info sidebar -->
+                    <div class="scrum_edit_sidebar">
+                        <div class="scrum_info_panel">
+                            <div class="scrum_info_panel_header">
+                                <i class="fa fa-info-circle me-2"/>Project Details
+                            </div>
+                            <div class="scrum_info_row">
+                                <span class="scrum_info_label">Project</span>
+                                <span class="scrum_info_value">
+                                    <t t-esc="project.name"/>
+                                </span>
+                            </div>
+                            <div class="scrum_info_row">
+                                <span class="scrum_info_label">Stage</span>
+                                <span class="scrum_info_value">
+                                    <span t-attf-class="scrum_project_badge scrum_badge_#{project.stage_id.category or 'default'}">
+                                        <t t-esc="project.stage_id.name or 'No Stage'"/>
+                                    </span>
+                                </span>
+                            </div>
+                            <div class="scrum_info_row">
+                                <span class="scrum_info_label">Backlog Tasks</span>
+                                <span class="scrum_info_value">
+                                    <t t-esc="len(tasks)"/>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="scrum_info_panel mt-3">
+                            <div class="scrum_info_panel_header">
+                                <i class="fa fa-compass me-2"/>Navigation
+                            </div>
+                            <div class="p-3">
+                                <a t-attf-href="/my/scrum/projects/#{project.id}"
+                                class="scrum_btn_outline d-block text-center mb-2">
+                                    <i class="fa fa-retweet me-1"/>View Sprints
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </t>
+    </template>
+
+</odoo>

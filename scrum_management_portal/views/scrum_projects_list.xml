@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================
+         MY PROJECTS LIST
+    ============================================================ -->
+    <template id="portal_my_projects" name="My Scrum Projects">
+            <t t-call="portal.portal_layout">
+                <div class="cymax_scrum_page">
+
+                    <div class="scrum_page_header">
+                        <h1 class="scrum_page_title">
+                            <i class="fa fa-th-large me-2" style="color: #6b4e76;"/>
+                            My Scrum Projects
+                        </h1>
+                        <p class="scrum_page_subtitle">Projects you have been invited to follow</p>
+                    </div>
+
+                    <t t-if="not projects">
+                        <div class="scrum_empty_state">
+                            <i class="fa fa-folder-open-o"/>
+                            <p>You don't have access to any Scrum projects yet.</p>
+                        </div>
+                    </t>
+
+                    <div t-if="projects" class="scrum_project_grid">
+                        <t t-foreach="projects" t-as="project">
+                            <a t-attf-href="/my/scrum/projects/#{project.id}"
+                            class="scrum_project_card">
+                            <div class="scrum_project_type_chip">
+                                    <i class="fa fa-retweet me-1"/>Scrum
+                                </div>
+                                <div class="scrum_project_card_header">
+                                    <h3 class="scrum_project_name">
+                                        <t t-esc="project.name"/>
+                                    </h3>
+                                    <span t-attf-class="scrum_project_badge scrum_badge_#{project.stage_id.category or 'default'}">
+                                        <t t-esc="project.stage_id.name or 'No Stage'"/>
+                                    </span>
+                                </div>
+                                <div class="scrum_project_meta">
+                                    <i class="fa fa-retweet"/>
+                                    <span><t t-esc="project.sprint_count"/> Sprint(s)</span>
+                                </div>
+                            </a>
+                        </t>
+                    </div>
+
+                </div>
+            </t>
+    </template>
+
+</odoo>

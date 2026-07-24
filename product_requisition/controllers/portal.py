@@ -11,6 +11,7 @@ import logging
 import bleach
 import re
 
+_logger = logging.getLogger(__name__) 
 
 class RequisitionPortal(CustomerPortal):
 
@@ -341,7 +342,6 @@ class RequisitionPortal(CustomerPortal):
             return request.redirect(f"/my/requisitions/{requisition.id}")
         except Exception as e:
             # Log error and show it on form
-            _logger = logging.getLogger(__name__)
             _logger.exception("Error creating requisition")
             errors["submit"] = f"Error creating requisition: {str(e)}"
             user = request.env.user

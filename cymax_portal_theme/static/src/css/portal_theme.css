@@ -3,14 +3,7 @@
    Main color: #6b4e76
    ============================================= */
 
-/* ── Reset ── */
 body {
-    background-image: none !important;
-    background-color: #f0eef8 !important;
-}
-
-/* ── Background only on homepage ── */
-body:has(.cymax_home_page) {
     background-image: url('/web_enterprise/static/img/background-light.svg') !important;
     background-size: cover !important;
     background-attachment: fixed !important;
@@ -40,7 +33,6 @@ footer.o_footer,
     display: none !important;
 }
 
-
 /* ── Navbar ── */
 header#top .navbar {
     background-color: transparent !important;
@@ -61,40 +53,19 @@ header#top .navbar {
     width: 100%;
 }
 
-/* ── Hero ── */
-.cymax_hero {
-    text-align: center;
-    margin-bottom: 48px;
-}
-
-.cymax_hero_title {
-    font-size: 2.4rem;
-    font-weight: 700;
-    color: #6b4e76;
-    margin-bottom: 8px;
-    letter-spacing: -0.3px;
-}
-
-.cymax_hero_subtitle {
-    font-size: 1rem;
-    color: #9ca3af;
-    margin: 0;
-}
-
-/* ── These only apply on the homepage ── */
-body:has(.cymax_home_page) .o_portal_content {
+.o_portal_content {
     width: 100% !important;
     max-width: 100% !important;
     flex: 0 0 100% !important;
     padding: 0 !important;
 }
 
-body:has(.cymax_home_page) .container.pt-3.pb-5 {
+.container.pt-3.pb-5 {
     max-width: 100% !important;
     width: 100% !important;
 }
 
-body:has(.cymax_home_page) .row.justify-content-between {
+.row.justify-content-between {
     width: 100% !important;
     margin: 0 !important;
 }
@@ -170,4 +141,30 @@ body:has(.cymax_home_page) .row.justify-content-between {
     text-align: center;
     font-weight: 500;
     line-height: 1.3;
+}
+
+/* ── These only apply on the homepage ── */
+body:has(.cymax_home_page) .o_portal_content {
+    width: 100% !important;
+    max-width: 100% !important;
+    flex: 0 0 100% !important;
+    padding: 0 !important;
+}
+
+body:has(.cymax_home_page) .container.pt-3.pb-5 {
+    max-width: 100% !important;
+    width: 100% !important;
+}
+
+body:has(.cymax_home_page) .row.justify-content-between {
+    width: 100% !important;
+    margin: 0 !important;
+}
+
+/* Sticky header */
+header#top {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 1000 !important;
+    background-color: #d5d3e5 !important;
 }
